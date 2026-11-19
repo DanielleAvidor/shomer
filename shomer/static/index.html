@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>שומר – בדיקת הודעה</title>
+<style>
+  :root { --ink:#1b2430; --muted:#566274; --bg:#f6f4ef; --card:#fff; --line:#d9d4c7;
+          --red:#a31621; --red-bg:#fdecee; --amber:#7a4b00; --amber-bg:#fff4dc; --green:#1d5c2e; --green-bg:#e8f5ea; --accent:#1f4e79; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Heebo","Assistant",Arial,sans-serif; font-size:22px; line-height:1.5; }
+  header { padding:18px 20px 0; max-width:760px; margin:0 auto; }
+  h1 { font-size:30px; margin:0 0 4px; }
+  .sub { color:var(--muted); font-size:18px; margin:0 0 12px; }
+  nav { display:flex; gap:8px; max-width:760px; margin:0 auto; padding:0 20px; }
+  nav button { flex:1; font:inherit; font-size:20px; padding:12px; border:2px solid var(--line); background:#ece8dc; border-radius:12px 12px 0 0; cursor:pointer; }
+  nav button[aria-selected="true"] { background:var(--card); border-bottom-color:var(--card); font-weight:700; }
+  main { max-width:760px; margin:0 auto; padding:0 20px 40px; }
+  section { background:var(--card); border:2px solid var(--line); border-radius:0 0 14px 14px; padding:20px; }
+  textarea { width:100%; min-height:140px; font:inherit; font-size:22px; padding:12px; border:2px solid var(--line); border-radius:10px; resize:vertical; direction:rtl; }
+  textarea:focus, button:focus-visible { outline:4px solid #7aa7d6; }
+  .big { display:block; width:100%; font:inherit; font-size:26px; font-weight:700; padding:16px; margin-top:12px; background:var(--accent); color:#fff; border:0; border-radius:12px; cursor:pointer; }
+  .examples { margin-top:14px; font-size:17px; color:var(--muted); }
+  .examples button { font:inherit; font-size:17px; margin:4px 0 0 6px; padding:6px 10px; border:1px solid var(--line); background:#fff; border-radius:8px; cursor:pointer; }
+  .verdict { margin-top:18px; border-radius:14px; padding:18px; border:3px solid; }
+  .verdict h2 { margin:0 0 6px; font-size:30px; }
+  .verdict .icon { font-size:34px; margin-left:8px; }
+  .dont_click { background:var(--red-bg); border-color:var(--red); color:var(--red); }
+  .cant_verify { background:var(--amber-bg); border-color:var(--amber); color:var(--amber); }
+  .matches_official { background:var(--green-bg); border-color:var(--green); color:var(--green); }
+  .verdict p, .verdict li { color:var(--ink); font-size:20px; }
+  .verdict ul { padding-inline-start:22px; margin:8px 0; }
+  .official { display:block; margin-top:12px; text-align:center; text-decoration:none; font-size:24px; font-weight:700; padding:14px; background:#fff; color:var(--accent); border:3px solid var(--accent); border-radius:12px; }
+  .small { font-size:17px; color:var(--muted); margin-top:12px; }
+  .stat { display:inline-block; min-width:110px; margin:0 0 10px 10px; padding:10px 14px; border-radius:12px; font-size:18px; }
+  .stat b { display:block; font-size:30px; }
+  table { width:100%; border-collapse:collapse; font-size:18px; margin-top:8px; }
+  td, th { text-align:right; padding:8px 6px; border-bottom:1px solid var(--line); }
+  .alert { background:var(--red-bg); border:3px solid var(--red); border-radius:12px; padding:12px; margin-bottom:12px; font-size:20px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>שומר</h1>
+  <p class="sub">גרסת הדגמה. בודקים אם הודעה אמיתית לפני שלוחצים.</p>
+</header>
+<nav role="tablist">
+  <button role="tab" id="tab-user" aria-selected="true" aria-controls="p-user">המסך שלי</button>
+  <button role="tab" id="tab-fam" aria-selected="false" aria-controls="p-fam">מסך המשפחה</button>
+</nav>
+<main>
+<section id="p-user" role="tabpanel">
+  <label for="msg">הדביקו כאן את ההודעה שקיבלתם:</label>
+  <textarea id="msg" placeholder="למשל: דואר ישראל: החבילה שלך נעצרה..."></textarea>
+  <button class="big" id="go">בדקו לי</button>
+  <div class="examples">דוגמאות להדגמה:
+    <button data-ex="0">הודעת דואר מזויפת</button>
+    <button data-ex="1">הודעת דואר אמיתית</button>
+    <button data-ex="2">חוב מנהרות הכרמל מזויף</button>
+    <button data-ex="3">קישור מקוצר</button>
+  </div>
+  <div id="out" class="verdict" hidden aria-live="polite"></div>
+</section>
+<section id="p-fam" role="tabpanel" hidden>
+  <div id="alerts"></div>
+  <div id="stats"></div>
+  <p class="small">כאן רואים רק מה קרה, לא את תוכן ההודעות. התראה מיידית נשלחת רק אם לחצו על קישור שסומן כמסוכן. את השאר מקבלים כסיכום יומי.</p>
+  <table><thead><tr><th>שעה</th><th>תוצאה</th><th>גוף</th><th>כתובת</th></tr></thead><tbody id="rows"></tbody></table>
+</section>
+</main>
+<script>
+const EX = [
+  "דואר ישראל: החבילה שלך נעצרה בגלל כתובת שגויה. אנא אשר כתובת https://israelpost.paliet.top/il",
+  "דואר ישראל: החבילה שלך הגיעה לסניף. מעקב: https://israelpost.co.il/track",
+  "מנהרות הכרמל: חוב פתוח. לתשלום https://carmeltunnels.co.il.pay-now.top/bills",
+  "קיבלת חבילה https://bit.ly/3xYz"
+];
+const ICON = { dont_click:"⛔", cant_verify:"❓", matches_official:"✔" };
+const LABEL = { dont_click:"לא ללחוץ", cant_verify:"לא ניתן לאמת", matches_official:"תואם לאתר הרשמי" };
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#msg").value = EX[b.dataset.ex]; $("#msg").focus(); });
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-selected", x === b));
+  $("#p-user").hidden = b.id !== "tab-user"; $("#p-fam").hidden = b.id !== "tab-fam";
+  if (b.id === "tab-fam") loadFamily();
+});
+
+$("#go").onclick = async () => {
+  const text = $("#msg").value.trim(); if (!text) return;
+  const r = await (await fetch("/api/check", { method:"POST", body: JSON.stringify({ text }) })).json();
+  const o = $("#out"); o.hidden = false; o.className = "verdict " + r.verdict;
+  if (!r.applicable) {
+    o.className = "verdict cant_verify";
+    o.innerHTML = "<h2>אין מה לבדוק</h2><p>בהודעה אין קישור או גוף מוכר. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה.</p>"; return;
+  }
+  const reasons = r.reasons_he.map(x => "<li>" + esc(x) + "</li>").join("");
+  const official = r.official_url ? `<a class="official" href="${esc(r.official_url)}" rel="noopener" target="_blank">לפתוח את האתר הרשמי</a>` : "";
+  const risky = r.verdict !== "matches_official" && r.event_id
+    ? `<button class="official" id="tapsim" style="width:100%;color:#a31621;border-color:#a31621">הדגמה: לחצתי על הקישור בכל זאת</button>` : "";
+  o.innerHTML = `<h2><span class="icon" aria-hidden="true">${ICON[r.verdict]}</span>${esc(r.headline_he)}</h2><ul>${reasons}</ul><p>${esc(r.advice_he)}</p>${official}${risky}
+    <p class="small">אנחנו לא אומרים שקישור "בטוח". אנחנו רק בודקים אם הוא תואם לאתר הרשמי.</p>`;
+  const t = $("#tapsim");
+  if (t) t.onclick = async () => { await fetch("/api/tapped", { method:"POST", body: JSON.stringify({ event_id: r.event_id }) }); t.textContent = "נשלחה התראה לבן המשפחה"; t.disabled = true; };
+};
+
+async function loadFamily() {
+  const g = await (await fetch("/api/guardian")).json();
+  $("#alerts").innerHTML = g.alerts.map(a => `<div class="alert" role="alert">⚠ התראה מיידית: נלחץ קישור שסומן כמסוכן (${esc(a.host || "ללא כתובת")})</div>`).join("");
+  $("#stats").innerHTML = ["dont_click","cant_verify","matches_official"].map(k =>
+    `<div class="stat verdict ${k}" style="margin-top:0"><b>${g.counts[k]}</b>${LABEL[k]}</div>`).join("");
+  $("#rows").innerHTML = g.recent.map(e => `<tr><td>${new Date(e.ts*1000).toLocaleTimeString("he-IL")}</td><td>${ICON[e.verdict]} ${LABEL[e.verdict]}</td><td>${esc(e.org||"-")}</td><td dir="ltr">${esc(e.host||"-")}</td></tr>`).join("");
+}
+</script>
+</body>
+</html>

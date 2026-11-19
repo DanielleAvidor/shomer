@@ -1,0 +1,106 @@
+{
+  "_readme": "Trusted Directory of official domains for frequently impersonated Israeli organizations. Only entries with verified=true can produce a 'matches official' verdict. Entries with verified=false are kept so lookalikes can still be caught, but a link to them is reported as 'can't verify' until someone confirms the domain from an official source.",
+  "orgs": [
+    {
+      "id": "israel_post",
+      "name_he": "דואר ישראל",
+      "aliases": ["דואר ישראל", "israel post", "israelpost", "postil"],
+      "brand_tokens": ["israelpost", "postil", "ilpost", "postisrael", "israelposta"],
+      "domains": ["israelpost.co.il"],
+      "official_url": "https://israelpost.co.il",
+      "app": "אפליקציית דואר ישראל",
+      "verified": true,
+      "source": "National Cyber Directorate warning (JDN/Maariv coverage); Israel Hayom article naming israelpost.co.il as the official address"
+    },
+    {
+      "id": "carmel_tunnels",
+      "name_he": "מנהרות הכרמל",
+      "aliases": ["מנהרות הכרמל", "carmel tunnels", "carmeltunnels", "כרמלטון"],
+      "brand_tokens": ["carmeltunnels", "carmelton", "carmeltunnel"],
+      "domains": ["carmeltunnels.co.il"],
+      "official_url": "https://www.carmeltunnels.co.il/bills",
+      "app": "",
+      "verified": true,
+      "source": "Walla (15.7.2025): the operator recommends checking debts only via carmeltunnels.co.il/bills or by calling *5424"
+    },
+    {
+      "id": "israel_police_fines",
+      "name_he": "משטרת ישראל (דוחות וקנסות)",
+      "aliases": ["משטרת ישראל", "דוח תנועה", "קנס תנועה", "מרכז פניות נהגים"],
+      "brand_tokens": ["govil", "policegov", "israelpolice"],
+      "domains": ["gov.il", "police.gov.il"],
+      "official_url": "https://www.gov.il/he/service/enforcement-reports",
+      "app": "",
+      "verified": true,
+      "source": "gov.il service page 'Fines and administrative enforcement reports received from Israel Police'; Mako: official correspondence carries the gov.il suffix"
+    },
+    {
+      "id": "home_front_command",
+      "name_he": "פיקוד העורף",
+      "aliases": ["פיקוד העורף", "home front command"],
+      "brand_tokens": ["oref", "pikudhaoref"],
+      "domains": ["oref.org.il"],
+      "official_url": "https://www.oref.org.il",
+      "app": "אפליקציית פיקוד העורף",
+      "verified": true,
+      "source": "oref.org.il pages referenced in an official municipal document"
+    },
+    {
+      "id": "kvish6",
+      "name_he": "כביש 6 (דרך ארץ)",
+      "aliases": ["כביש 6", "דרך ארץ", "kvish 6", "kvish6"],
+      "brand_tokens": ["kvish6", "derechertz", "derecheretz"],
+      "domains": ["kvish6.co.il"],
+      "official_url": "https://www.kvish6.co.il",
+      "app": "",
+      "verified": false,
+      "source": "TO VERIFY: Derech Eretz published a warning on its own site (Globes, 25.8.2025) but the exact domain was not confirmed in desk research"
+    },
+    {
+      "id": "bank_leumi",
+      "name_he": "בנק לאומי",
+      "aliases": ["בנק לאומי", "bank leumi", "leumi"],
+      "brand_tokens": ["leumi"],
+      "domains": ["leumi.co.il"],
+      "official_url": "https://www.leumi.co.il",
+      "app": "אפליקציית בנק לאומי",
+      "verified": false,
+      "source": "TO VERIFY from the bank's official site"
+    },
+    {
+      "id": "bank_hapoalim",
+      "name_he": "בנק הפועלים",
+      "aliases": ["בנק הפועלים", "bank hapoalim", "hapoalim", "poalim"],
+      "brand_tokens": ["hapoalim", "poalim"],
+      "domains": ["bankhapoalim.co.il", "poalim.co.il"],
+      "official_url": "https://www.bankhapoalim.co.il",
+      "app": "אפליקציית בנק הפועלים",
+      "verified": false,
+      "source": "TO VERIFY from the bank's official site"
+    },
+    {
+      "id": "bit",
+      "name_he": "ביט",
+      "aliases": ["ביט", "bit payment"],
+      "brand_tokens": ["bitpay"],
+      "domains": ["bitpay.co.il"],
+      "official_url": "https://www.bitpay.co.il",
+      "app": "אפליקציית ביט",
+      "verified": false,
+      "source": "TO VERIFY from the official site"
+    },
+    {
+      "id": "btl",
+      "name_he": "ביטוח לאומי",
+      "aliases": ["ביטוח לאומי", "btl"],
+      "brand_tokens": ["bituachleumi", "btlgov"],
+      "domains": ["btl.gov.il"],
+      "official_url": "https://www.btl.gov.il",
+      "app": "",
+      "verified": false,
+      "source": "TO VERIFY from the official site"
+    }
+  ],
+  "shorteners": ["bit.ly", "rebrand.ly", "tinyurl.com", "cutt.ly", "t.ly", "is.gd", "goo.gl", "ow.ly", "shorturl.at", "t.co", "tiny.cc"],
+  "suspicious_tlds": ["top", "xyz", "icu", "cc", "click", "live", "shop", "site", "online", "vip", "cyou", "buzz", "rest", "sbs", "cfd", "work", "link"]
+}
