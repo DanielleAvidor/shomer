@@ -3,134 +3,168 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#14365d">
+<meta name="theme-color" content="#E8EEE6">
 <title>שומר – בודקים הודעה לפני שלוחצים</title>
 <style>
   @font-face{font-family:"Open Sans";src:url(/static/fonts/opensans.woff) format("woff");font-weight:400 800;font-display:swap}
   @font-face{font-family:"Cardo";src:url(/static/fonts/cardo-bold.woff) format("woff");font-weight:700;font-display:swap}
+  /* Palette "ink on pressed-leaf paper":
+     Leaf Paper #E8EEE6 · Sheet #FBFBF7 · Bottle Ink #16302A · Pine #1D4B41 (the one action colour)
+     Oxblood stamp #9E2320 · Bronze #76500A · Indigo seal #224C8C */
   :root{
-    --ink:#0f1f2e; --soft:#4a5b6b; --dim:#5f6f7c; --paper:#f3f5f8; --surface:#fff; --line:#d3dae2; --line-strong:#8798a5;
-    --navy:#14365d; --red:#b3261e; --red-bg:#fcebe9; --blue:#1f4e8c; --blue-bg:#e6eef8; --amber:#7a5200; --amber-bg:#fff2d1; --wa:#14663f;
-    --serif:"Cardo","Frank Ruhl Libre","David",Georgia,serif; --sans:"Open Sans",system-ui,"Segoe UI","Arial Hebrew",Arial,sans-serif;
+    --paper:#E8EEE6; --sheet:#FBFBF7; --ink:#16302A; --soft:#41564E; --dim:#52655D;
+    --line:#CBD6CB; --line-strong:#7E9187; --pine:#1D4B41; --pine-d:#143630; --wash:#DCE5DA;
+    --red:#9E2320; --red-bg:#F8E9E5; --bronze:#76500A; --bronze-bg:#F7EDD2; --indigo:#224C8C; --indigo-bg:#E5ECF7;
+    --serif:"Open Sans",system-ui,"Arial Hebrew",Arial,sans-serif; --sans:"Open Sans",system-ui,"Segoe UI","Arial Hebrew",Arial,sans-serif;
     --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+    --shadow:0 1px 0 rgba(22,48,42,.06),0 10px 28px -14px rgba(22,48,42,.28);
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--paper);color:var(--ink);font:400 20px/1.6 var(--sans)}
+  body{margin:0;background:var(--paper);color:var(--ink);font:400 18px/1.65 var(--sans);overflow-x:hidden}
   button{font:inherit;color:inherit}
-  :focus-visible{outline:4px solid #5b93d6;outline-offset:2px}
+  :focus-visible{outline:4px solid #4C8BD9;outline-offset:3px}
   [hidden]{display:none!important}
+  bdi,.ltr{unicode-bidi:isolate}
 
   /* frame */
-  .top{background:var(--paper);color:var(--ink);border-bottom:1px solid var(--line)}
-  .top-in{max-width:1080px;margin:0 auto;padding:14px 20px 14px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 28px}
-  .brand{display:flex;align-items:baseline;gap:12px}
-  .brand h1{font:700 32px/1 var(--serif);margin:0;color:var(--navy)}
-  .brand span{font-size:16px;color:var(--soft)}
-  nav{display:flex;gap:4px;margin-inline-start:auto;width:100%;background:#e6eaf0;padding:4px;border-radius:14px}
-  nav button{flex:1;white-space:nowrap;min-height:44px;border:0;background:transparent;color:var(--soft);font:600 clamp(15px,4.2vw,18px) var(--sans);cursor:pointer;border-radius:11px}
-  nav button[aria-selected="true"]{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(15,31,46,.18)}
-  @media(min-width:760px){nav{width:auto}nav button{flex:none;padding:0 26px}}
-  main{max-width:1080px;margin:0 auto;padding:22px 20px 64px}
+  .top{border-bottom:1px solid var(--line)}
+  .top-in{max-width:1120px;margin:0 auto;padding:18px 20px 0;display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 32px}
+  .brand{display:flex;align-items:center;gap:12px;padding-bottom:12px}
+  .brand svg{width:38px;height:38px;color:var(--pine);flex:none}
+  .brand h1{font:800 36px/1 var(--serif);margin:0;color:var(--ink)}
+  .brand span{font-size:16px;color:var(--soft);border-inline-start:1.5px solid var(--line-strong);padding-inline-start:12px;line-height:1.3}
+  nav{display:flex;gap:2px;margin-inline-start:auto;width:100%}
+  nav button{flex:1;white-space:nowrap;min-height:52px;border:0;background:transparent;color:var(--soft);font:600 17px var(--sans);cursor:pointer;border-bottom:4px solid transparent;margin-bottom:-1px;padding:0 6px}
+  nav button:hover{color:var(--ink)}
+  nav button[aria-selected="true"]{color:var(--pine-d);border-bottom-color:var(--pine);font-weight:800}
+  @media(min-width:760px){nav{width:auto}nav button{flex:none;padding:0 22px}}
+  @media(max-width:520px){.brand span{display:none}}
+  main{max-width:1120px;margin:0 auto;padding:28px 20px 72px}
 
-  /* check screen layout */
-  .check{display:grid;gap:26px}
-  @media(min-width:900px){.check{grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-areas:"input result" "recent result";grid-template-rows:auto 1fr;align-items:start}.input-col{grid-area:input}.result-col{grid-area:result;position:sticky;top:16px}.recent-col{grid-area:recent}}
-  label.q{display:block;font:800 26px/1.25 var(--sans);margin-bottom:12px}
-  textarea{display:block;width:100%;min-height:168px;font:400 21px/1.55 var(--sans);padding:14px 16px;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:18px;resize:vertical}
-  textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,54,92,.15)}
+  /* check screen */
+  .check{display:grid;gap:28px;grid-template-columns:minmax(0,1fr)}
+  @media(min-width:900px){
+    .check{grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-areas:"input result" "recent result";grid-template-rows:auto 1fr;gap:28px 48px;align-items:start}
+    .input-col{grid-area:input}.result-col{grid-area:result;position:sticky;top:20px}.recent-col{grid-area:recent}
+    #samples[hidden]{display:block!important}
+  }
+  label.q{display:block;font:800 30px/1.25 var(--serif);margin-bottom:14px}
+  textarea{display:block;width:100%;min-height:176px;font:400 20px/1.6 var(--sans);padding:16px 18px;color:var(--ink);background:var(--sheet);border:1.5px solid var(--line-strong);border-radius:16px;resize:vertical;box-shadow:inset 0 2px 0 rgba(22,48,42,.04)}
+  textarea:focus{border-color:var(--pine);box-shadow:0 0 0 4px rgba(29,75,65,.16)}
   textarea::placeholder{color:var(--dim)}
-  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 22px;border-radius:14px;border:2px solid var(--navy);background:var(--surface);color:var(--navy);font:700 20px var(--sans);cursor:pointer;text-decoration:none;text-align:center}
-  .btn.primary{background:var(--navy);color:#fff;flex:1 1 220px;font-size:24px;min-height:62px}
-  .btn.wa{border-color:var(--line-strong);color:var(--ink)}
-  .btn.quiet{border-color:transparent;min-height:48px;font-weight:600;text-decoration:underline;color:var(--soft)}
-  .btn:active{transform:translateY(1px)}
-  .hint{font-size:16px;color:var(--soft);margin:10px 0 0}
-  .samples{margin-top:22px}
-  .samples b,.recent h2{font:600 16px var(--sans);color:var(--soft);display:block;margin-bottom:8px}
-  .chip{min-height:48px;padding:0 16px;margin:0 0 8px 8px;border-radius:999px;border:1.5px solid var(--line-strong);background:var(--surface);cursor:pointer;font-size:17px}
-  .chip:hover{border-color:var(--navy)}
-  .recent{margin-top:26px}
+  .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:0 20px;border-radius:14px;border:1.5px solid var(--line-strong);background:var(--sheet);color:var(--ink);font:700 17px/1.2 var(--sans);cursor:pointer;text-decoration:none;text-align:center;white-space:nowrap}
+  .btn:hover{border-color:var(--pine);background:#fff}
+  .btn.primary{background:var(--pine);border-color:var(--pine);color:#fff;font-size:21px;min-height:62px;padding:0 30px;box-shadow:0 3px 0 var(--pine-d)}
+  .btn.primary:hover{background:var(--pine-d)}
+  .btn.primary:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pine-d)}
+  .row .btn.primary{flex:1 1 200px}
+  .btn.quiet{border-color:transparent;background:transparent;min-height:48px;font-weight:600;text-decoration:underline;text-underline-offset:4px;color:var(--soft)}
+  .btn.quiet:hover{background:transparent;color:var(--ink)}
+  .hint{font-size:16px;color:var(--soft);margin:12px 0 0;max-width:46ch}
+  .samples{margin-top:26px}
+  .samples b,.recent h2{font:700 17px var(--sans);color:var(--soft);display:block;margin:0 0 10px}
+  .chip{min-height:48px;padding:0 16px;margin:0 0 8px 8px;border-radius:12px;border:1.5px dashed var(--line-strong);background:transparent;cursor:pointer;font-size:17px;color:var(--ink)}
+  .chip:hover{border-style:solid;border-color:var(--pine);background:var(--sheet)}
   .recent ul{list-style:none;margin:0;padding:0}
-  .recent li{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:18px}
+  .recent li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:17px}
+  .recent li>div,.feed li>div{min-width:0;flex:1}
   .dot{flex:none;width:14px;height:14px;border-radius:50%}
-  .dot.dont_click{background:var(--red)} .dot.cant_verify{background:#c98a00} .dot.matches_official{background:var(--blue)}
-  .recent time{margin-inline-start:auto;font-size:15px;color:var(--soft)}
-  .recent .h{direction:ltr;font:400 15px var(--mono);color:var(--soft)}
+  .dot.dont_click{background:var(--red)} .dot.cant_verify{background:#C28A12} .dot.matches_official{background:var(--indigo)}
+  .recent time,.feed time{margin-inline-start:auto;font-size:15px;color:var(--soft);white-space:nowrap}
+  .h{direction:ltr;unicode-bidi:isolate;text-align:right;font:400 15px var(--mono);color:var(--soft);overflow-wrap:anywhere}
+  .recent .h{text-align:start}
+  .recent li>.n{margin-inline-start:6px;font-size:14px;background:var(--wash);border-radius:99px;padding:0 9px;color:var(--soft)}
 
-  /* how it works (empty state) */
-  .how{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px}
-  .how h2{font:800 24px/1.25 var(--sans);margin:0 0 14px}
+  /* home / how it works */
+  .how{border:1.5px dashed var(--line-strong);border-radius:20px;padding:26px 24px}
+  .how h2{font:800 28px/1.25 var(--serif);margin:0 0 6px}
   .how ol{margin:0;padding:0;list-style:none;counter-reset:s}
-  .how li{counter-increment:s;display:flex;gap:14px;padding:12px 0;border-top:1px dashed var(--line-strong)}
-  .how li::before{content:counter(s);flex:none;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font:700 18px var(--sans)}
+  .how li{counter-increment:s;display:flex;gap:16px;padding:14px 0 0}
+  .how li::before{content:counter(s);flex:none;width:36px;height:36px;border-radius:50%;border:2px solid var(--pine);color:var(--pine);display:grid;place-items:center;font:800 18px var(--serif)}
+  .how li b{display:block}
+  .how li span{color:var(--soft);font-size:17px}
 
   /* the stamp card: the result */
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 1px 0 var(--line)}
-  .card .strip{height:8px}
-  .dont_click .strip{background:var(--red)} .cant_verify .strip{background:#c98a00} .matches_official .strip{background:var(--blue)}
-  .head{display:flex;gap:18px;align-items:center;padding:22px 22px 18px}
-  .seal{flex:none;width:104px;height:104px;transform:rotate(-7deg)}
-  .dont_click .seal{color:var(--red)} .cant_verify .seal{color:var(--amber)} .matches_official .seal{color:var(--blue)}
-  .head h2{font:700 clamp(30px,6.2vw,40px)/1.12 var(--serif);margin:0}
-  .dont_click .head h2{color:var(--red)} .cant_verify .head h2{color:var(--amber)} .matches_official .head h2{color:var(--blue)}
-  .adv{padding:0 22px 18px;font-weight:600;font-size:21px;margin:0}
-  .sec{padding:16px 22px;border-top:2px dashed var(--line)}
-  .sec h3{font:600 16px var(--sans);color:var(--soft);margin:0 0 8px}
-  .host{direction:ltr;text-align:left;unicode-bidi:isolate;font:700 clamp(24px,5.4vw,32px)/1.25 var(--mono);overflow-wrap:anywhere}
-  .host.long{font-size:clamp(19px,4.3vw,26px)}
+  .card{background:var(--sheet);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
+  .dont_click{--c:var(--red);--cb:var(--red-bg)} .cant_verify{--c:var(--bronze);--cb:var(--bronze-bg)} .matches_official{--c:var(--indigo);--cb:var(--indigo-bg)}
+  .head{background:var(--cb);padding:28px 22px 26px;border-bottom:1px solid color-mix(in srgb,var(--c) 25%,transparent)}
+  .stamp-wrap{display:grid;justify-items:center;gap:10px;text-align:center;color:var(--c);padding:22px 18px 20px;margin:0 4px;border:4px solid var(--c);border-radius:18px;box-shadow:inset 0 0 0 6px var(--cb),inset 0 0 0 8px var(--c);transform:rotate(-2deg);mix-blend-mode:multiply;filter:url(#rough)}
+  .stamp-wrap svg{width:54px;height:54px}
+  .stamp-wrap h2{font:800 clamp(27px,7.6vw,36px)/1.15 var(--serif);margin:0;color:var(--c);text-wrap:balance;letter-spacing:-.01em}
+  .adv{padding:20px 24px 4px;font-weight:700;font-size:21px;line-height:1.5;margin:0}
+  .sec{padding:18px 24px 6px}
+  .sec+.sec{border-top:1px dashed var(--line-strong);margin-top:12px;padding-top:20px}
+  .sec h3{font:700 16px var(--sans);color:var(--soft);margin:0 0 8px}
+  .host{direction:ltr;text-align:left;unicode-bidi:isolate;font:700 clamp(21px,5.6vw,30px)/1.3 var(--mono);overflow-wrap:anywhere;word-break:normal}
+  .host.long{font-size:clamp(18px,4.8vw,24px)}
   .host .dim{color:var(--dim);font-weight:400}
-  .dont_click .host b{color:var(--red);text-decoration:underline wavy var(--red);text-decoration-thickness:2px;text-underline-offset:7px}
-  .cant_verify .host b{color:var(--amber)} .matches_official .host b{color:var(--blue)}
+  .host b{color:var(--c)}
+  .dont_click .host b{text-decoration:underline wavy var(--red);text-decoration-thickness:2px;text-underline-offset:7px}
   .why{list-style:none;margin:0;padding:0}
-  .why li{display:flex;gap:10px;padding:7px 0}
-  .why li::before{content:"";flex:none;width:8px;height:8px;margin-top:12px;border-radius:50%;background:var(--dim)}
+  .why li{display:flex;gap:12px;padding:6px 0}
+  .why li::before{content:"";flex:none;width:8px;height:8px;margin-top:12px;border-radius:50%;background:var(--c)}
   .steps{margin:0;padding:0;list-style:none;counter-reset:s}
-  .steps li{counter-increment:s;display:flex;gap:12px;padding:8px 0}
-  .steps li::before{content:counter(s);flex:none;width:30px;height:30px;margin-top:2px;border-radius:50%;border:2px solid var(--navy);color:var(--navy);display:grid;place-items:center;font:700 16px var(--sans)}
-  details.clicked{border:2px solid var(--line-strong);border-radius:12px;padding:0 14px}
-  details.clicked summary{min-height:52px;display:flex;align-items:center;font-weight:700;cursor:pointer}
-  details.clicked ul{margin:0 0 12px;padding-inline-start:22px}
-  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px 22px 6px}.actions .btn.official,.actions .btn.quiet{grid-column:1/-1}.actions .btn{min-height:48px;font-size:17px;padding:0 10px}
-  .foot{padding:6px 22px 20px;font-size:15px;color:var(--soft)}
+  .steps li{counter-increment:s;display:flex;gap:14px;padding:8px 0}
+  .steps li::before{content:counter(s);flex:none;width:32px;height:32px;margin-top:1px;border-radius:50%;background:var(--pine);color:#fff;display:grid;place-items:center;font:800 17px var(--serif)}
+  details.clicked{border:1.5px solid var(--line-strong);border-radius:14px;padding:0 16px;background:#fff}
+  details.clicked summary{min-height:56px;display:flex;align-items:center;font-weight:700;cursor:pointer;line-height:1.4;padding:6px 0}
+  details.clicked[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+  details.clicked ul{margin:0 0 14px;padding-inline-start:22px}
+  details.clicked li{padding:3px 0}
+  .actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:22px 24px 8px}
+  .actions .btn.primary{grid-column:1/-1}
+  .actions .btn{font-size:17px;padding:0 10px;min-height:52px}
+  .actions .btn.primary{font-size:21px;min-height:60px}
+  .actions .btn.quiet{grid-column:1/-1}
+  .foot{padding:6px 24px 22px;font-size:15px;color:var(--soft);margin:0}
+  @media(max-width:520px){.actions{grid-template-columns:minmax(0,1fr)}}
 
   /* family + setup */
-  .page{max-width:720px;margin:0 auto}
-  .page h2{font:800 30px/1.2 var(--sans);margin:0 0 6px}
-  .lead{color:var(--soft);margin:0 0 18px}
-  .alert{border:1px solid #e3b8b3;border-inline-start:5px solid var(--red);background:var(--red-bg);border-radius:14px;padding:16px 18px;margin-bottom:12px}
-  .alert b{display:block;font-size:21px;color:var(--red)}
-  .alert .row{margin-top:10px}.alert .h{direction:ltr;text-align:right;font:400 15px var(--mono);overflow-wrap:anywhere}.alert time{font-size:15px;color:var(--soft)}
-  .feed .h,.recent .h{overflow-wrap:anywhere}
-  .calm{border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:16px 18px;margin-bottom:12px;font-weight:600}
-  .stats{display:flex;gap:22px;flex-wrap:wrap;margin:18px 0 6px;font-size:18px;color:var(--soft)}
-  .stats b{font:800 26px var(--sans);color:var(--ink);margin-inline-end:6px}
-  .feed{list-style:none;margin:10px 0 0;padding:0}
-  .feed li{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line)}
+  .page{max-width:680px;margin:0 auto}
+  .page h2{font:800 36px/1.2 var(--serif);margin:0 0 8px}
+  .lead{color:var(--soft);margin:0 0 22px}
+  .alert{border:1px solid #E3B7AF;border-inline-start:6px solid var(--red);background:var(--red-bg);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+  .alert b{display:block;font-size:21px;line-height:1.35;color:var(--red)}
+  .alert .row{margin-top:12px}.alert time{font-size:15px;color:var(--soft)}
+  .calm{display:flex;gap:14px;align-items:center;border:1.5px dashed var(--line-strong);border-radius:16px;padding:18px 20px;margin-bottom:14px;font-weight:600}
+  .calm svg{flex:none;width:30px;height:30px;color:var(--pine)}
+  .stats{display:flex;gap:12px;margin:22px 0 8px}
+  .stats span{flex:1;background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:16px;color:var(--soft);line-height:1.35}
+  .stats b{display:block;font:800 34px/1.1 var(--serif);color:var(--ink)}
+  .feed-h{font:700 17px var(--sans);color:var(--soft);margin:26px 0 0}
+  .feed{list-style:none;margin:6px 0 0;padding:0}
+  .feed li{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--line)}
   .feed .dot{margin-top:9px}
-  .feed time{margin-inline-start:auto;font-size:15px;color:var(--soft);white-space:nowrap}
-  .feed .h{direction:ltr;text-align:right;font:400 15px var(--mono);color:var(--soft)}
+  .feed .h{text-align:start}
   .feed .done{color:var(--soft)}
-  .note{background:var(--blue-bg);color:var(--ink);border-radius:12px;padding:12px 16px;font-size:16px;margin:0 0 20px}
-  .form{display:grid;gap:18px}
-  .form label.f{display:grid;gap:6px;font-weight:600}
-  .form input[type=text],.form select{font:400 20px var(--sans);min-height:54px;padding:0 14px;border:2px solid var(--line-strong);border-radius:12px;background:var(--surface)}
-  .consent{border:2px solid var(--line);border-radius:14px;padding:6px 18px;background:var(--surface)}
-  .consent ul{margin:8px 0;padding-inline-start:22px}
-  .check-row{display:flex;gap:12px;align-items:flex-start;font-weight:600}
-  .check-row input{width:28px;height:28px;margin-top:4px;flex:none}
-  .invite{white-space:pre-wrap;background:var(--surface);border:2px dashed var(--line-strong);border-radius:14px;padding:16px;margin-top:14px}
+  .invite{margin-top:14px}
+  #s-done{margin-top:18px}
+  .note{background:var(--wash);color:var(--ink);border-radius:14px;padding:14px 18px;font-size:16px;margin:0 0 22px}
+  .note.bad{background:var(--red-bg);color:var(--red);font-weight:700}
+  .form{display:grid;gap:22px}
+  .form label.f{display:grid;gap:8px;font-weight:700}
+  .form input[type=text],.form select{font:400 20px var(--sans);min-height:56px;padding:0 16px;border:1.5px solid var(--line-strong);border-radius:14px;background:var(--sheet);color:var(--ink)}
+  .form input[type=text]:focus,.form select:focus{border-color:var(--pine);outline:0;box-shadow:0 0 0 4px rgba(29,75,65,.16)}
+  .consent{border:1px solid var(--line);border-radius:18px;padding:8px 22px 12px;background:var(--sheet);box-shadow:var(--shadow)}
+  .consent p{margin:12px 0 0;font:800 22px var(--serif)}
+  .consent ul{margin:10px 0 0;padding-inline-start:22px}
+  .consent li{padding:3px 0}
+  .check-row{display:flex;gap:14px;align-items:flex-start;font-weight:600;cursor:pointer}
+  .check-row input{width:28px;height:28px;margin-top:3px;flex:none;accent-color:var(--pine)}
+  .invite{white-space:pre-wrap;background:var(--sheet);border:1.5px dashed var(--line-strong);border-radius:16px;padding:18px;margin-top:14px}
 
   @media (prefers-reduced-motion:no-preference){
-    .seal.stamp{animation:stamp .42s cubic-bezier(.2,.9,.3,1.2)}
-    @keyframes stamp{from{transform:rotate(-14deg) scale(1.5);opacity:0}60%{opacity:1}to{transform:rotate(-7deg) scale(1)}}
+    .stamp-wrap.stamp{animation:stamp .42s cubic-bezier(.2,.9,.3,1.2)}
+    @keyframes stamp{from{transform:rotate(-9deg) scale(1.3);opacity:0}60%{opacity:1}to{transform:rotate(-2deg) scale(1)}}
   }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.6"/></filter></svg>
 <div class="top"><div class="top-in">
-  <div class="brand"><h1>שומר</h1><span>בודקים הודעה לפני שלוחצים</span></div>
+  <div class="brand"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="20" cy="20" r="17"/><circle cx="20" cy="20" r="12.5" stroke-width="1.4" stroke-dasharray="1.5 4"/><circle cx="20" cy="17.5" r="3.2"/><path d="M20 21v6.5"/></svg><h1>שומר</h1><span>בודקים הודעה<br>לפני שלוחצים</span></div>
   <nav role="tablist" aria-label="מסכים">
     <button role="tab" id="tab-check" aria-selected="true">בדיקת הודעה</button>
     <button role="tab" id="tab-fam" aria-selected="false">משפחה</button>
@@ -185,10 +219,8 @@ const get = u => fetch(u).then(r => r.json());
 const hm = ts => new Date(ts*1000).toLocaleTimeString("he-IL", {hour:"2-digit", minute:"2-digit"});
 let last = null, settings = {name:"", relation:"", consented:false};
 
-function seal(v){
-  return `<svg class="seal stamp" viewBox="0 0 120 120" fill="none" stroke="currentColor" aria-hidden="true">
-    <circle cx="60" cy="60" r="56" stroke-width="4"/><circle cx="60" cy="60" r="47" stroke-width="1.6" stroke-dasharray="2 5" stroke-linecap="round"/>
-    <g transform="translate(26 26) scale(3.17)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICON[v]}</g></svg>`;
+function seal(v, headline){
+  return `<div class="stamp-wrap stamp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[v]}</svg><h2>${esc(headline)}</h2></div>`;
 }
 function hostHtml(host){
   const l = host.split("."), second = ["co.il","org.il","gov.il","muni.il","ac.il"];
@@ -207,9 +239,9 @@ for (const t of ["check","fam","setup"]) $("#tab-"+t).onclick = () => show(t);
 /* ---------- check ---------- */
 function howItWorks(){
   $("#out").innerHTML = `<div class="how"><h2>איך שומר בודק</h2><ol>
-    <li><div><b>מדביקים הודעה.</b><br>כל הודעה שנראית לכם חשודה: SMS, מייל או וואטסאפ.</div></li>
-    <li><div><b>שומר משווה לאתר הרשמי.</b><br>הוא בודק אם הקישור שייך לגוף ששלח, ומחפש גם לחץ ובקשות חשודות.</div></li>
-    <li><div><b>מקבלים תשובה ברורה.</b><br>מה לעשות עכשיו, ומה לעשות אם כבר לחצתם.</div></li></ol></div>`;
+    <li><div><b>מדביקים הודעה.</b><span>כל הודעה שנראית לכם חשודה: SMS, מייל או וואטסאפ.</span></div></li>
+    <li><div><b>שומר משווה לאתר הרשמי.</b><span>הוא בודק אם הקישור שייך לגוף ששלח, ומחפש גם לחץ ובקשות חשודות.</span></div></li>
+    <li><div><b>מקבלים תשובה ברורה.</b><span>מה לעשות עכשיו, ומה לעשות אם כבר לחצתם.</span></div></li></ol></div>`;
 }
 async function run(){
   const text = $("#msg").value.trim(); if (!text){ $("#msg").focus(); return; }
@@ -219,22 +251,23 @@ async function run(){
 function render(r){
   const out = $("#out"), v = r.verdict;
   if (!r.applicable){
-    out.innerHTML = `<div class="card cant_verify"><div class="strip"></div><div class="head"><h2>${esc(r.headline_he)}</h2></div><p class="adv">${esc(r.advice_he)}</p>
+    out.innerHTML = `<div class="card cant_verify"><div class="head">${seal("cant_verify", r.headline_he)}</div><p class="adv">${esc(r.advice_he)}</p>
       <div class="actions"><button class="btn quiet" id="again">בודקים הודעה אחרת</button></div></div>`;
     $("#again").onclick = reset; return;
   }
+  $("#go").classList.remove("primary");
   const link = r.links[0];
   const dest = link && link.host ? `<div class="sec"><h3>הקישור בהודעה פותח את האתר</h3><div class="host${link.host.length > 22 ? " long" : ""}">${hostHtml(link.host)}</div></div>` : "";
   const why = r.reasons_he.length ? `<div class="sec"><h3>מה מצאנו</h3><ul class="why">${r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
   const steps = r.steps_he.length ? `<div class="sec"><h3>מה עושים עכשיו</h3><ol class="steps">${r.steps_he.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>` : "";
   const clicked = r.if_clicked_he.length ? `<div class="sec"><details class="clicked"><summary>כבר לחצתי או מסרתי פרטים. מה עושים?</summary><ul>${r.if_clicked_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
-  const official = r.official_url ? `<a class="btn primary official" href="${esc(r.official_url)}" target="_blank" rel="noopener" style="flex:none">פותחים את האתר הרשמי</a>` : "";
+  const official = r.official_url ? `<a class="btn primary official" href="${esc(r.official_url)}" target="_blank" rel="noopener">פותחים את האתר הרשמי</a>` : "";
   const note = v === "dont_click" ? "" : ` שומר לא קובע שהודעה אמיתית או בטוחה. הוא בודק רק אם הכתובת שייכת לאתר הרשמי של השולח.`;
-  out.innerHTML = `<div class="card ${v}"><div class="strip"></div>
-    <div class="head">${seal(v)}<h2>${esc(r.headline_he)}</h2></div>
+  out.innerHTML = `<div class="card ${v}">
+    <div class="head">${seal(v, r.headline_he)}</div>
     <p class="adv">${esc(r.advice_he)}</p>${dest}${why}${steps}${clicked}
     <div class="actions">${official}
-      <button class="btn wa" id="share">שליחה לבן משפחה בוואטסאפ</button>
+      <button class="btn ${r.official_url ? "wa" : "primary"}" id="share">שליחה לבן משפחה בוואטסאפ</button>
       <button class="btn" id="save">שמירה כתמונה</button>
       <button class="btn quiet" id="again">בודקים הודעה אחרת</button></div>
     <p class="foot">נבדק בשעה <bdi>${hm(Date.now()/1000)}</bdi>.${note}</p></div>`;
@@ -243,11 +276,18 @@ function render(r){
   $("#again").onclick = reset;
   if (!matchMedia("(min-width: 900px)").matches) out.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
 }
-function reset(){ $("#msg").value = ""; $("#samples").hidden = false; howItWorks(); last = null; window.scrollTo({top:0}); $("#msg").focus(); }
+function reset(){ $("#go").classList.add("primary"); $("#msg").value = ""; $("#samples").hidden = false; howItWorks(); last = null; window.scrollTo({top:0}); $("#msg").focus(); }
+function dedupe(list){
+  const out = [];
+  for (const e of list){ const p = out[out.length-1];
+    if (p && p.verdict === e.verdict && (p.host||"") === (e.host||"") && (p.org||"") === (e.org||"") && !!p.handled === !!e.handled){ p.n = (p.n||1) + 1; continue; }
+    out.push({...e}); }
+  return out;
+}
 async function loadRecent(){
   const g = await get("/api/guardian"); settings = g.settings;
   $("#recent").hidden = !g.recent.length;
-  $("#recent-list").innerHTML = g.recent.slice(0,5).map(e => `<li><span class="dot ${e.verdict}"></span><div>${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}<div class="h">${esc(e.host || "")}</div></div><time>${hm(e.ts)}</time></li>`).join("");
+  $("#recent-list").innerHTML = dedupe(g.recent).slice(0,5).map(e => `<li><span class="dot ${e.verdict}"></span><div>${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}<div class="h">${esc(e.host || "")}</div></div>${e.n > 1 ? `<span class="n">×${e.n}</span>` : ""}<time>${hm(e.ts)}</time></li>`).join("");
 }
 
 $("#go").onclick = run;
@@ -297,17 +337,19 @@ async function loadFamily(){
   const g = await get("/api/guardian"); settings = g.settings;
   const who = settings.name || "המשפחה";
   const el = $("#p-fam");
-  const alerts = g.alerts.map(a => `<div class="alert" role="alert"><b>${settings.name ? "הודעה מסוכנת הגיעה אל " + esc(settings.name) : "הגיעה הודעה מסוכנת"}</b>${esc(a.org || "גוף לא מזוהה")}<div class="h"><bdi>${esc(a.host || "בלי קישור")}</bdi></div><time><bdi>${hm(a.ts)}</bdi></time>
-    <div class="row"><button class="btn" data-handled="${a.id}">סימון כטופל</button></div></div>`).join("");
-  const calm = !g.alerts.length ? `<div class="calm">אין כרגע התראות פתוחות. כשמשהו חשוד יגיע, זה יופיע כאן מיד.</div>` : "";
+  const groups = []; for (const a of g.alerts){ const q = groups[groups.length-1]; if (q && q.host === a.host && q.org === a.org){ q.ids.push(a.id); q.n++; } else groups.push({...a, ids:[a.id], n:1}); }
+  const shown = groups.slice(0,3), more = groups.slice(3).reduce((t,x) => t + x.n, 0);
+  const alerts = shown.map(a => `<div class="alert" role="alert"><b>${settings.name ? "הודעה מסוכנת הגיעה אל " + esc(settings.name) : "הגיעה הודעה מסוכנת"}</b>${esc(a.org || "גוף לא מזוהה")}${a.n > 1 ? ` (${a.n} פעמים)` : ""}<div class="h"><bdi>${esc(a.host || "בלי קישור")}</bdi></div><time><bdi>${hm(a.ts)}</bdi></time>
+    <div class="row"><button class="btn" data-handled="${a.ids.join(",")}">סימון כטופל</button></div></div>`).join("") + (more ? `<p class="lead">ועוד ${more} התראות פתוחות.</p>` : "");
+  const calm = !g.alerts.length ? `<div class="calm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg><span>אין כרגע התראות פתוחות. כשמשהו חשוד יגיע, זה יופיע כאן מיד.</span></div>` : "";
   const total = g.counts.dont_click + g.counts.cant_verify + g.counts.matches_official;
-  const feed = g.recent.length ? g.recent.map(e => `<li><span class="dot ${e.verdict}"></span><div class="${e.handled ? "done" : ""}">${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}${e.handled ? " · טופל" : ""}<div class="h">${esc(e.host || "")}</div></div><time>${hm(e.ts)}</time></li>`).join("") : `<li style="color:var(--soft)">עוד לא נבדקו הודעות.</li>`;
+  const feed = g.recent.length ? dedupe(g.recent).slice(0,8).map(e => `<li><span class="dot ${e.verdict}"></span><div class="${e.handled ? "done" : ""}">${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}${e.handled ? " · טופל" : ""}<div class="h">${esc(e.host || "")}</div></div>${e.n > 1 ? `<span class="n">×${e.n}</span>` : ""}<time>${hm(e.ts)}</time></li>`).join("") : `<li style="color:var(--soft)">עוד לא נבדקו הודעות.</li>`;
   el.innerHTML = `<h2>${esc(who)} – מה קורה</h2><p class="lead">מי שהוגדר כשומר המשפחתי רואה כאן רק מה קרה, ואף פעם לא את תוכן ההודעות.</p>
     ${settings.consented ? "" : `<p class="note">עוד לא הוגדרה הסכמה. עברו ללשונית "הגדרה" כדי להפעיל את השיתוף עם המשפחה.</p>`}
     ${settings.consented ? alerts + calm : ""}
     ${settings.consented ? `<div class="stats"><span><b>${total}</b>הודעות נבדקו</span><span><b>${g.counts.dont_click}</b>סומנו כמסוכנות</span></div>
-    <ul class="feed">${feed}</ul>` : ""}`;
-  el.querySelectorAll("[data-handled]").forEach(b => b.onclick = async () => { await post("/api/handled", {event_id: +b.dataset.handled}); loadFamily(); });
+    <h3 class="feed-h">מה קרה לאחרונה</h3><ul class="feed">${feed}</ul>` : ""}`;
+  el.querySelectorAll("[data-handled]").forEach(b => b.onclick = async () => { for (const id of b.dataset.handled.split(",")) await post("/api/handled", {event_id: +id}); loadFamily(); });
 }
 
 /* ---------- setup ---------- */
@@ -318,16 +360,16 @@ function renderSetup(){
     <div class="form">
       <label class="f">איך קוראים למי שמוגן?<input type="text" id="s-name" value="${esc(settings.name)}" placeholder="למשל: סבתא רחל"></label>
       <label class="f">מה הקשר?<select id="s-rel">${["סבתא","סבא","אמא","אבא","אחר"].map(o => `<option ${o === settings.relation ? "selected" : ""}>${o}</option>`).join("")}</select></label>
-      <div class="consent"><p style="margin:12px 0 0;font-weight:700">מה שומר עושה, ומה הוא לא עושה</p><ul>
+      <div class="consent"><p>מה שומר עושה, ומה הוא לא עושה</p><ul>
         <li>קורא הודעות SMS שנכנסות, רק כדי לבדוק אם יש בהן קישור או בקשה חשודה.</li>
         <li>הבדיקה נעשית בטלפון עצמו. תוכן ההודעות לא נשמר ולא נשלח.</li>
         <li>לבן המשפחה נשלחים רק: מה התוצאה, שם הגוף וכתובת האתר.</li>
         <li>אפשר להפסיק בכל רגע בהגדרות הטלפון.</li></ul></div>
       <label class="check-row"><input type="checkbox" id="s-ok" ${settings.consented ? "checked" : ""}><span>המוגן/ת קרא/ה והסכים/ה לכל האמור לעיל</span></label>
-      <button class="btn primary" id="s-save" style="flex:none">שמירת הגדרה</button>
+      <button class="btn primary" id="s-save">שמירת הגדרה</button>
     </div><div id="s-done"></div>`;
   $("#s-save").onclick = async () => {
-    if (!$("#s-ok").checked){ $("#s-done").innerHTML = `<p class="note" style="background:var(--red-bg)">כדי להמשיך צריך הסכמה של מי שמוגן.</p>`; return; }
+    if (!$("#s-ok").checked){ $("#s-done").innerHTML = `<p class="note bad">כדי להמשיך צריך הסכמה של מי שמוגן.</p>`; return; }
     settings = await post("/api/settings", {name: $("#s-name").value.trim(), relation: $("#s-rel").value, consented: true});
     const invite = `הגדרתי עבורך את שומר. הוא בודק הודעות לפני שלוחצים עליהן, ומעדכן אותי רק כשמשהו חשוד, בלי לקרוא את ההודעות שלך.`;
     $("#s-done").innerHTML = `<p class="note">נשמר. עכשיו אפשר לשלוח הודעת הסבר.</p><div class="invite">${esc(invite)}</div>
