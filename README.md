@@ -82,3 +82,6 @@ The Kotlin source in `app/` has been statically reviewed but **never compiled or
 1. Install Android Studio, then File > Open and choose the `app` folder (the one with `settings.gradle.kts`).
 2. Wait for the Gradle sync and accept the SDK download.
 3. Right-click `ShomerEngineTest` and Run. It checks the Kotlin engine against the same `corpus.jsonl` as the Python tests. A failure prints the message id.
+
+## User research survey
+`survey/index.html` is a short Hebrew survey (about 3 minutes, 13 questions) for older adults and their relatives: what suspicious messages they get, what they did, and whether they would paste a message into an app or let a relative see alerts. It stores and sends nothing by itself. At the end it builds a text summary that the respondent can send on WhatsApp. It can be opened as a file or hosted on GitHub Pages. Real answers belong in `docs/research/` (anonymised) and should be summarised in the PRD.
