@@ -71,3 +71,28 @@ def test_matches_verdict_always_recommends_opening_app_yourself():
     r = E.check("דואר ישראל https://israelpost.co.il")
     assert r.verdict is Verdict.MATCHES_OFFICIAL
     assert "בעצמכם" in r.advice_he
+
+
+def test_official_link_without_claimed_organization_never_matches():
+    assert E.check("Amazon: your order https://israelpost.co.il/x").verdict is Verdict.CANT_VERIFY
+
+
+def test_phone_number_downgrades_a_match():
+    assert E.check("דואר ישראל התקשרו 050-1234567 https://israelpost.co.il").verdict is Verdict.CANT_VERIFY
+    assert E.check("דואר ישראל https://israelpost.co.il").verdict is Verdict.MATCHES_OFFICIAL
+
+
+def test_shared_government_domain_needs_the_right_path():
+    ok = E.check("משטרת ישראל https://www.gov.il/he/service/enforcement-reports")
+    bad = E.check("משטרת ישראל https://www.gov.il/he/service/other")
+    assert ok.verdict is Verdict.MATCHES_OFFICIAL and bad.verdict is Verdict.CANT_VERIFY
+
+
+def test_brand_token_must_start_a_host_part():
+    assert E._lookalike_of("storefront.com") is None
+    assert E._lookalike_of("pay-israelpost.top").id == "israel_post"
+
+
+def test_app_store_links_are_neutral():
+    r = E.check("דואר ישראל https://play.google.com/store/apps/details?id=x")
+    assert r.verdict is Verdict.CANT_VERIFY

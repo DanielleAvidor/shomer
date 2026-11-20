@@ -21,3 +21,11 @@
 {"id":"l06","kind":"legit","text":"נתראה מחר בשש אצל סבתא","expected":"not_applicable","note":"no link, no organization"}
 {"id":"l07","kind":"legit","text":"הקוד שלך לאישור הכניסה הוא 4821","expected":"not_applicable","note":"one-time code, no link"}
 {"id":"l08","kind":"legit","text":"תראי את התמונות מהחתונה https://photos.example.com/album/42","expected":"cant_verify","note":"personal link from a person; engine cannot verify, friction accepted"}
+{"id":"s16","kind":"scam","text":"Amazon: your order is on hold https://israelpost.co.il/x","expected":"cant_verify","note":"critic: official domain of an unrelated organization, no organization claimed"}
+{"id":"s17","kind":"scam","text":"בנק מזרחי: חשבונך נחסם https://israelpost.co.il/login","expected":"cant_verify","note":"critic: organization not in directory"}
+{"id":"s18","kind":"scam","text":"דואר ישראל: שלמו עכשיו בטלפון 050-1234567 https://israelpost.co.il","expected":"cant_verify","note":"critic: official link plus a phone number to call"}
+{"id":"s19","kind":"scam","text":"דוח תנועה שלך https://www.gov.il/he/service/something-else","expected":"cant_verify","note":"critic: gov.il is shared, only the fines service path counts"}
+{"id":"l09","kind":"legit","text":"דואר ישראל: החבילה מחכה לך. אפליקציה: https://play.google.com/store/apps/details?id=il.post and https://israelpost.co.il","expected":"cant_verify","note":"critic: app-store link is neutral, never a match, never a false alarm"}
+{"id":"l10","kind":"legit","text":"קופון 20% https://storefront.com/sale","expected":"cant_verify","note":"critic: 'oref' inside 'storefront' must not look like Home Front Command"}
+{"id":"l11","kind":"legit","text":"בנק לאומי: פרטי כרטיס האשראי באתר https://www.leumicard.co.il/x","expected":"cant_verify","note":"critic: Leumi Card domain; unverified entry so cannot verify, but no false alarm"}
+{"id":"l12","kind":"legit","text":"משטרת ישראל: לצפייה בדוחות היכנסו https://www.gov.il/he/service/enforcement-reports/","expected":"matches_official","note":"restricted path matches"}

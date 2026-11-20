@@ -23,6 +23,8 @@ _URL_RE = re.compile(
 )
 _IP_RE = re.compile(r"^\d{1,3}(?:\.\d{1,3}){3}$")
 _TRAILING = ".,;:!?)]}״\"'"
+# Israeli phone numbers (mobile 05x, landline 02-09, 07x). Star numbers such as *5424 are not matched.
+_PHONE_RE = re.compile(r"(?<![\d*])0(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)")
 
 
 class Verdict(str, Enum):
@@ -42,6 +44,7 @@ class Org:
     app: str
     verified: bool
     source: str
+    restricted_paths: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -97,6 +100,28 @@ def parse_host(url: str) -> tuple[str, bool]:
     return host, "@" in parts.netloc
 
 
+def parse_path(url: str) -> str:
+    u = url if re.match(r"^[a-z][a-z0-9+.-]*://", url, re.I) else "http://" + url
+    return urlsplit(u).path or "/"
+
+
+def _token_hit(host: str, tokens: list) -> bool:
+    """A brand token counts only if it starts a dot/hyphen-separated part of the host (so 'storefront' does not contain 'oref')."""
+    segs = re.split(r"[.-]", host)
+    collapsed = "".join(segs)
+    starts, pos = set(), 0
+    for seg in segs:
+        starts.add(pos)
+        pos += len(seg)
+    for t in tokens:
+        i = collapsed.find(t)
+        while i != -1:
+            if i in starts:
+                return True
+            i = collapsed.find(t, i + 1)
+    return False
+
+
 def _alias_pattern(alias: str) -> re.Pattern:
     a = re.escape(alias.lower())
     if re.search(r"[א-ת]", alias):
@@ -112,6 +137,7 @@ class Engine:
         self.by_id = {o.id: o for o in self.orgs}
         self.shorteners = set(raw["shorteners"])
         self.bad_tlds = set(raw["suspicious_tlds"])
+        self.neutral = set(raw.get("neutral_domains", []))
         self._alias_res = [(o, [_alias_pattern(a) for a in o.aliases]) for o in self.orgs]
 
     # ---- extraction -------------------------------------------------------
@@ -124,21 +150,26 @@ class Engine:
         return urls
 
     def claimed_orgs(self, text: str) -> list:
-        low = text.lower()
+        # Look for organization names only outside links: a link must not vouch for itself.
+        low = _URL_RE.sub(" ", text).lower()
         return [o for o, pats in self._alias_res if any(p.search(low) for p in pats)]
 
     # ---- per-link analysis ------------------------------------------------
-    def _official_org(self, host: str):
+    def _official_match(self, host: str):
+        """Return (org, matched_domain) for the longest official domain that host equals or is a subdomain of."""
+        best = (None, "")
         for o in self.orgs:
             for d in o.domains:
-                if host == d or host.endswith("." + d):
-                    return o
-        return None
+                if (host == d or host.endswith("." + d)) and len(d) > len(best[1]):
+                    best = (o, d)
+        return best
+
+    def _official_org(self, host: str):
+        return self._official_match(host)[0]
 
     def _lookalike_of(self, host: str):
-        collapsed = host.replace("-", "").replace(".", "")
         for o in self.orgs:
-            if any(t in collapsed for t in o.brand_tokens):
+            if _token_hit(host, o.brand_tokens):
                 return o
         core = registrable(host).split(".")[0]
         for o in self.orgs:
@@ -155,21 +186,30 @@ class Engine:
         if not host:
             return LinkReport(url, host, Verdict.CANT_VERIFY, ["לא הצלחנו לקרוא את כתובת הקישור"])
         if userinfo:
-            reasons.append("הקישור משתמש בטריק של הסימן @ כדי להסוות לאן הוא באמת מוביל")
+            reasons.append("הקישור משתמש בטריק של הסימן @ כדי להסוות לאן הוא באמת פותח")
         if _IP_RE.match(host):
-            return LinkReport(url, host, Verdict.DONT_CLICK, reasons + ["הקישור מוביל למספר ולא לכתובת אתר רגילה"])
-        official = self._official_org(host)
+            return LinkReport(url, host, Verdict.DONT_CLICK, reasons + ["הקישור פותח למספר ולא לכתובת אתר רגילה"])
+        if host in self.neutral:
+            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור לחנות אפליקציות ולא לאתר של השולח, ולכן לא בדקנו אותו"])
+        official, matched = self._official_match(host)
         if official and not userinfo:
-            if claimed_ids and official.id not in claimed_ids:
+            prefixes = official.restricted_paths.get(matched)
+            if prefixes and not any(parse_path(url).startswith(p) for p in prefixes):
+                return LinkReport(url, host, Verdict.CANT_VERIFY,
+                                  [f"{matched} הוא אתר ממשלתי כללי, ולא הצלחנו לוודא שהדף הזה שייך ל{official.name_he}"], official.id)
+            if not claimed_ids:
+                return LinkReport(url, host, Verdict.CANT_VERIFY,
+                                  [f"הכתובת שייכת ל{official.name_he}, אבל ההודעה לא אומרת מי שלח אותה"], official.id)
+            if official.id not in claimed_ids:
                 return LinkReport(url, host, Verdict.CANT_VERIFY,
                                   ["ההודעה מציגה גוף אחד אבל הקישור שייך לגוף אחר: " + official.name_he], official.id)
             if not official.verified:
                 return LinkReport(url, host, Verdict.CANT_VERIFY,
-                                  [f"הכתובת נראית כמו האתר של {official.name_he}, אבל הכתובת הרשמית עוד לא אומתה אצלנו"], official.id)
+                                  [f"הכתובת נראית כמו האתר של {official.name_he}, אבל הכתובת הרשמית עוד לא נבדקה אצלנו"], official.id)
             return LinkReport(url, host, Verdict.MATCHES_OFFICIAL,
                               [f"הכתובת תואמת לאתר הרשמי של {official.name_he}"], official.id)
         if host in self.shorteners or registrable(host) in self.shorteners:
-            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור מקוצר, אי אפשר לראות לאן הוא מוביל"])
+            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור מקוצר, אי אפשר לראות לאן הוא פותח"])
         look = self._lookalike_of(host)
         punycode = any(l.startswith("xn--") for l in host.split(".")) or not host.isascii()
         if punycode:
@@ -179,7 +219,7 @@ class Engine:
             return LinkReport(url, host, Verdict.DONT_CLICK, reasons, look.id)
         if claimed:
             names = ", ".join(o.name_he for o in claimed)
-            reasons.append(f"ההודעה מציגה את עצמה כ{names}, אבל הקישור מוביל לאתר אחר")
+            reasons.append(f"ההודעה מציגה את עצמה כ{names}, אבל הקישור פותח לאתר אחר")
             return LinkReport(url, host, Verdict.DONT_CLICK, reasons)
         if punycode or userinfo:
             return LinkReport(url, host, Verdict.DONT_CLICK, reasons)
@@ -204,13 +244,18 @@ class Engine:
         else:
             verdict = Verdict.CANT_VERIFY
 
-        reasons = []
+        if verdict is Verdict.MATCHES_OFFICIAL and _PHONE_RE.search(text):
+            verdict = Verdict.CANT_VERIFY
+            phone_note = "ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק"
+        else:
+            phone_note = None
+        reasons = [phone_note] if phone_note else []
         for r in reports:
             for why in r.reasons:
                 if why not in reasons:
                     reasons.append(why)
         if not urls and claimed:
-            reasons.append("ההודעה מתיימרת להגיע מ" + ", ".join(o.name_he for o in claimed) + " אבל אין בה קישור שאפשר לאמת")
+            reasons.append("ההודעה מתיימרת להגיע מ" + ", ".join(o.name_he for o in claimed) + " אבל אין בה קישור שאפשר לבדוק")
         if not urls and not claimed:
             reasons.append("אין בהודעה קישור או גוף מוכר לבדוק")
 
@@ -221,6 +266,6 @@ class Engine:
             headline = "הקישור תואם לאתר הרשמי"
             advice = "גם כך, הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
         else:
-            headline = "אי אפשר לאמת. אל תלחצו, ושאלו מישהו מהמשפחה"
+            headline = "לא הצלחנו לבדוק. אל תלחצו ושאלו מישהו מהמשפחה"
             advice = "אם ההודעה נוגעת לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי, או התקשרו למוקד הרשמי."
         return Result(verdict, headline, advice, reasons, [o.id for o in claimed], reports, official_url, applicable)

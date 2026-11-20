@@ -4,9 +4,22 @@
     {
       "id": "israel_post",
       "name_he": "דואר ישראל",
-      "aliases": ["דואר ישראל", "israel post", "israelpost", "postil"],
-      "brand_tokens": ["israelpost", "postil", "ilpost", "postisrael", "israelposta"],
-      "domains": ["israelpost.co.il"],
+      "aliases": [
+        "דואר ישראל",
+        "israel post",
+        "israelpost",
+        "postil"
+      ],
+      "brand_tokens": [
+        "israelpost",
+        "postil",
+        "ilpost",
+        "postisrael",
+        "israelposta"
+      ],
+      "domains": [
+        "israelpost.co.il"
+      ],
       "official_url": "https://israelpost.co.il",
       "app": "אפליקציית דואר ישראל",
       "verified": true,
@@ -15,9 +28,20 @@
     {
       "id": "carmel_tunnels",
       "name_he": "מנהרות הכרמל",
-      "aliases": ["מנהרות הכרמל", "carmel tunnels", "carmeltunnels", "כרמלטון"],
-      "brand_tokens": ["carmeltunnels", "carmelton", "carmeltunnel"],
-      "domains": ["carmeltunnels.co.il"],
+      "aliases": [
+        "מנהרות הכרמל",
+        "carmel tunnels",
+        "carmeltunnels",
+        "כרמלטון"
+      ],
+      "brand_tokens": [
+        "carmeltunnels",
+        "carmelton",
+        "carmeltunnel"
+      ],
+      "domains": [
+        "carmeltunnels.co.il"
+      ],
       "official_url": "https://www.carmeltunnels.co.il/bills",
       "app": "",
       "verified": true,
@@ -26,31 +50,67 @@
     {
       "id": "israel_police_fines",
       "name_he": "משטרת ישראל (דוחות וקנסות)",
-      "aliases": ["משטרת ישראל", "דוח תנועה", "קנס תנועה", "מרכז פניות נהגים"],
-      "brand_tokens": ["govil", "policegov", "israelpolice"],
-      "domains": ["gov.il", "police.gov.il"],
+      "aliases": [
+        "משטרת ישראל",
+        "דוח תנועה",
+        "קנס תנועה",
+        "מרכז פניות נהגים"
+      ],
+      "brand_tokens": [
+        "govil",
+        "policegov",
+        "israelpolice"
+      ],
+      "domains": [
+        "gov.il",
+        "police.gov.il"
+      ],
       "official_url": "https://www.gov.il/he/service/enforcement-reports",
       "app": "",
       "verified": true,
-      "source": "gov.il service page 'Fines and administrative enforcement reports received from Israel Police'; Mako: official correspondence carries the gov.il suffix"
+      "source": "gov.il service page 'Fines and administrative enforcement reports received from Israel Police'. gov.il is a general government site, so only this service path counts as official; police.gov.il was seen in search results but not yet confirmed from the police site itself",
+      "restricted_paths": {
+        "gov.il": [
+          "/he/service/enforcement-reports"
+        ]
+      }
     },
     {
       "id": "home_front_command",
       "name_he": "פיקוד העורף",
-      "aliases": ["פיקוד העורף", "home front command"],
-      "brand_tokens": ["oref", "pikudhaoref"],
-      "domains": ["oref.org.il"],
+      "aliases": [
+        "פיקוד העורף",
+        "home front command"
+      ],
+      "brand_tokens": [
+        "oref",
+        "pikudhaoref"
+      ],
+      "domains": [
+        "oref.org.il"
+      ],
       "official_url": "https://www.oref.org.il",
       "app": "אפליקציית פיקוד העורף",
       "verified": true,
-      "source": "oref.org.il pages referenced in an official municipal document"
+      "source": "oref.org.il appears in an official municipal document; TO RE-CHECK directly on the Home Front Command site"
     },
     {
       "id": "kvish6",
       "name_he": "כביש 6 (דרך ארץ)",
-      "aliases": ["כביש 6", "דרך ארץ", "kvish 6", "kvish6"],
-      "brand_tokens": ["kvish6", "derechertz", "derecheretz"],
-      "domains": ["kvish6.co.il"],
+      "aliases": [
+        "כביש 6",
+        "דרך ארץ",
+        "kvish 6",
+        "kvish6"
+      ],
+      "brand_tokens": [
+        "kvish6",
+        "derechertz",
+        "derecheretz"
+      ],
+      "domains": [
+        "kvish6.co.il"
+      ],
       "official_url": "https://www.kvish6.co.il",
       "app": "",
       "verified": false,
@@ -59,9 +119,18 @@
     {
       "id": "bank_leumi",
       "name_he": "בנק לאומי",
-      "aliases": ["בנק לאומי", "bank leumi", "leumi"],
-      "brand_tokens": ["leumi"],
-      "domains": ["leumi.co.il"],
+      "aliases": [
+        "בנק לאומי",
+        "bank leumi",
+        "leumi"
+      ],
+      "brand_tokens": [
+        "leumi"
+      ],
+      "domains": [
+        "leumi.co.il",
+        "leumicard.co.il"
+      ],
       "official_url": "https://www.leumi.co.il",
       "app": "אפליקציית בנק לאומי",
       "verified": false,
@@ -70,9 +139,20 @@
     {
       "id": "bank_hapoalim",
       "name_he": "בנק הפועלים",
-      "aliases": ["בנק הפועלים", "bank hapoalim", "hapoalim", "poalim"],
-      "brand_tokens": ["hapoalim", "poalim"],
-      "domains": ["bankhapoalim.co.il", "poalim.co.il"],
+      "aliases": [
+        "בנק הפועלים",
+        "bank hapoalim",
+        "hapoalim",
+        "poalim"
+      ],
+      "brand_tokens": [
+        "hapoalim",
+        "poalim"
+      ],
+      "domains": [
+        "bankhapoalim.co.il",
+        "poalim.co.il"
+      ],
       "official_url": "https://www.bankhapoalim.co.il",
       "app": "אפליקציית בנק הפועלים",
       "verified": false,
@@ -81,9 +161,16 @@
     {
       "id": "bit",
       "name_he": "ביט",
-      "aliases": ["ביט", "bit payment"],
-      "brand_tokens": ["bitpay"],
-      "domains": ["bitpay.co.il"],
+      "aliases": [
+        "ביט",
+        "bit payment"
+      ],
+      "brand_tokens": [
+        "bitpay"
+      ],
+      "domains": [
+        "bitpay.co.il"
+      ],
       "official_url": "https://www.bitpay.co.il",
       "app": "אפליקציית ביט",
       "verified": false,
@@ -92,15 +179,57 @@
     {
       "id": "btl",
       "name_he": "ביטוח לאומי",
-      "aliases": ["ביטוח לאומי", "btl"],
-      "brand_tokens": ["bituachleumi", "btlgov"],
-      "domains": ["btl.gov.il"],
+      "aliases": [
+        "ביטוח לאומי",
+        "btl"
+      ],
+      "brand_tokens": [
+        "bituachleumi",
+        "btlgov"
+      ],
+      "domains": [
+        "btl.gov.il"
+      ],
       "official_url": "https://www.btl.gov.il",
       "app": "",
       "verified": false,
       "source": "TO VERIFY from the official site"
     }
   ],
-  "shorteners": ["bit.ly", "rebrand.ly", "tinyurl.com", "cutt.ly", "t.ly", "is.gd", "goo.gl", "ow.ly", "shorturl.at", "t.co", "tiny.cc"],
-  "suspicious_tlds": ["top", "xyz", "icu", "cc", "click", "live", "shop", "site", "online", "vip", "cyou", "buzz", "rest", "sbs", "cfd", "work", "link"]
+  "shorteners": [
+    "bit.ly",
+    "rebrand.ly",
+    "tinyurl.com",
+    "cutt.ly",
+    "t.ly",
+    "is.gd",
+    "goo.gl",
+    "ow.ly",
+    "shorturl.at",
+    "t.co",
+    "tiny.cc"
+  ],
+  "suspicious_tlds": [
+    "top",
+    "xyz",
+    "icu",
+    "cc",
+    "click",
+    "live",
+    "shop",
+    "site",
+    "online",
+    "vip",
+    "cyou",
+    "buzz",
+    "rest",
+    "sbs",
+    "cfd",
+    "work",
+    "link"
+  ],
+  "neutral_domains": [
+    "play.google.com",
+    "apps.apple.com"
+  ]
 }
