@@ -104,9 +104,12 @@ Platform vendors are expanding built-in detection and will likely make basic det
 | US-7 | P1 | As an older adult, I can share any message (WhatsApp, email) to the app to check it. | Android share target accepts plain text and shows the same verdict. |
 | US-8 | P1 | As a guardian, I can see what happened over time. | Family screen shows counts and recent events without message text. |
 | US-9 | P2 | As a guardian, I can add or correct a directory entry. | Not built; directory is edited by hand in v1. |
+| US-10 | P1 | As an older adult, I'm warned about scams that have no link. | Messages that pressure, threaten, ask for card details or codes, or impersonate a relative asking for money are flagged by content signals (defined in `directory.json`, shared by the Python and Kotlin engines). A weak word alone (for example "gift") never triggers a warning. |
+| US-11 | P1 | As an older adult who already clicked, I know what to do. | Every risky result has a "what if I already clicked" section: stop entering details, block the card, change passwords, tell the family and report to 119. |
+| US-12 | P1 | As an older adult, I can pass a result to a relative. | One tap opens WhatsApp with a short summary (verdict and address, never the message text). |
 
 ### Edge cases handled or tracked
-- No link, but a named organization (e.g., "call this number"): returns "can't verify" with the official route; flagged as a known gap, not solved.
+- No link: judged by content signals. Pressure plus a threat, a request for card details or codes, or a relative asking for money returns "don't act"; a named organization with nothing else returns "can't verify". Keyword-based, so unusual wording can be missed.
 - Link to an app store (Google Play, App Store): neutral, reported as "can't verify", never a match and never a false alarm.
 - Official domain but the message names no organization, or names one not in the directory: "can't verify".
 - Message with an official link and a phone number to call: downgraded to "can't verify".
@@ -144,6 +147,8 @@ For each link, in this order:
 4. Lookalike (brand token starting a part of a foreign host, e.g. `israelpost.x.top` but not `storefront.com`; or a domain within edit distance 2 of an official one; or punycode) → **Don't click**.
 5. The message names an organization but the link goes elsewhere → **Don't click**.
 6. Otherwise → **can't verify**.
+
+Content signals (outside links) add a score: family impersonation 3, request for card details or codes 3, threat 2, prize 2, urgency 1, payment 1, plus 1 for a named organization together with a phone number. A match is downgraded to "can't verify" if the message asks for secrets or applies two kinds of pressure. An unverifiable link with a score of 3 or more becomes "Don't click". With no link at all, a score of 3 or more is "don't act", and anything else that names an organization is "can't verify".
 
 Message level: any "Don't click" wins; "matches official" only if every link matches; otherwise "can't verify". Messages with no link and no known organization are not applicable.
 
@@ -206,14 +211,16 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 
 ## 12. Build status (prototype)
 
+**Second round.** After the redesign (stamp-style result, new signals, family and setup screens) three agents ran again: the simulated older adult, the simulated young user, and an adversarial tester for the new content rules (reports in the review log folder when available). Results are summarized in the README.
+
 **Review log.** Five review agents (designer, hiring-manager, product critic, simulated older adult, simulated young user) ran against the repo. Changes made because of them: links no longer vouch for their own organization; shared gov.il restricted to a path; brand matching no longer fires inside unrelated words; app-store links neutral; phone numbers downgrade a match; a match is shown in calm blue with a link icon instead of a green check (a simulated older adult read green as "safe"); the recommended action now comes first; plainer Hebrew ("לא הצלחנו לבדוק" instead of "אי אפשר לאמת"); paste instructions; no external font request. Open items from the reviews: the problem statistics need source links; 5 real conversations and a real incident are still missing; the Android app is uncompiled; the simulated users' findings need confirmation with real older adults.
 
 
 | Part | Status |
 |---|---|
-| Verification engine (Python) | Built, 50 tests passing (including 8 cases added after an adversarial review) |
+| Verification engine (Python) | Built, 62 tests passing. Checks link destination and message content (urgency, threats, requests for card details or codes, prizes, family impersonation); scams without a link are now caught |
 | Trusted Directory | 9 organizations; **4 marked verified** (Israel Post, Carmel Tunnels, police fines on one gov.il path, Home Front Command, which still needs a direct check); 5 pending (Kvish 6, Bank Leumi, Bank Hapoalim, Bit, National Insurance) |
-| Web demo (Hebrew, RTL, older-adult screen and family screen) | Built and exercised in a browser; API tests passing |
+| Web demo (Hebrew, RTL) | Built and exercised in a browser on phone and desktop widths: check screen with stamp-style result, share to WhatsApp, save as picture; family screen with alerts and "handled"; one-time setup with consent |
 | Android app (Kotlin) | **Source written, not compiled or run**: no Android SDK in the build environment. Needs a first build in Android Studio |
 | Real-message evaluation, interviews, user comprehension test | **Not started**; requires the builder's family |
 

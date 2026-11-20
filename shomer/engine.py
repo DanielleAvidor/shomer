@@ -215,7 +215,7 @@ class Engine:
             return LinkReport(url, host, Verdict.MATCHES_OFFICIAL,
                               [f"הכתובת תואמת לאתר הרשמי של {official.name_he}"], official.id)
         if host in self.shorteners or registrable(host) in self.shorteners:
-            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור מקוצר, אי אפשר לראות לאן הוא פותח"])
+            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור קצר, ואי אפשר לראות לאן הוא באמת מוביל"])
         look = self._lookalike_of(host)
         punycode = any(l.startswith("xn--") for l in host.split(".")) or not host.isascii()
         if punycode:
@@ -300,7 +300,7 @@ class Engine:
         if not applicable:
             reasons.append("אין בהודעה קישור, גוף מוכר או בקשה חשודה")
 
-        route = f"פתחו בעצמכם את {claimed[0].app or 'האתר הרשמי'} של {claimed[0].name_he}" if claimed else "פתחו בעצמכם את האפליקציה או האתר הרשמי"
+        route = (f"פתחו בעצמכם את {claimed[0].app}" if claimed[0].app else f"פתחו בעצמכם את האתר הרשמי של {claimed[0].name_he}") if claimed else "פתחו בעצמכם את האפליקציה או האתר הרשמי"
         if verdict is Verdict.DONT_CLICK and urls:
             headline = "אל תלחצו על הקישור"
             advice = "אל תמסרו פרטים ואל תשלמו דרך ההודעה. אם זה נוגע לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי."
@@ -326,7 +326,7 @@ class Engine:
             headline = "אין כאן מה לבדוק"
             advice = "בהודעה אין קישור, גוף מוכר או בקשה חשודה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
             steps = []
-        if_clicked = [] if verdict is Verdict.MATCHES_OFFICIAL or not applicable else [
+        if_clicked = [] if verdict is Verdict.MATCHES_OFFICIAL or not applicable or not urls else [
             "אל תכניסו שום פרט נוסף",
             "אם הזנתם פרטי כרטיס אשראי, התקשרו מיד לחברת האשראי וחסמו את הכרטיס",
             "אם הזנתם סיסמה, החליפו אותה עכשיו, וגם בכל מקום שבו השתמשתם באותה סיסמה",

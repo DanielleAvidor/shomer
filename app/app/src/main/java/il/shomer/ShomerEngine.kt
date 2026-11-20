@@ -120,7 +120,7 @@ class ShomerEngine(directoryJson: String) {
             return LinkReport(url, host, Verdict.MATCHES_OFFICIAL, listOf("הכתובת תואמת לאתר הרשמי של ${official.nameHe}"), official.id)
         }
         if (host in shorteners || registrable(host) in shorteners)
-            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + "זה קישור מקוצר, אי אפשר לראות לאן הוא פותח")
+            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + "זה קישור קצר, ואי אפשר לראות לאן הוא באמת מוביל")
         val look = lookalikeOf(host)
         val punycode = host.split(".").any { it.startsWith("xn--") } || host.any { it.code > 127 }
         if (punycode) reasons.add("בכתובת יש תווים מוסווים שנראים כמו אותיות רגילות")

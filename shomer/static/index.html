@@ -22,14 +22,14 @@
   [hidden]{display:none!important}
 
   /* frame */
-  .top{background:var(--navy);color:#fff}
-  .top-in{max-width:1080px;margin:0 auto;padding:14px 20px 0;display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 28px}
-  .brand{display:flex;align-items:baseline;gap:12px;padding-bottom:12px}
-  .brand h1{font:700 40px/1 var(--serif);margin:0}
-  .brand span{font-size:16px;opacity:.85}
-  nav{display:flex;gap:4px;margin-inline-start:auto;width:100%}
-  nav button{flex:1;min-height:52px;border:0;background:transparent;color:#cfdcec;font:600 18px var(--sans);cursor:pointer;border-radius:12px 12px 0 0}
-  nav button[aria-selected="true"]{background:var(--paper);color:var(--navy)}
+  .top{background:var(--paper);color:var(--ink);border-bottom:1px solid var(--line)}
+  .top-in{max-width:1080px;margin:0 auto;padding:14px 20px 14px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 28px}
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand h1{font:700 32px/1 var(--serif);margin:0;color:var(--navy)}
+  .brand span{font-size:16px;color:var(--soft)}
+  nav{display:flex;gap:4px;margin-inline-start:auto;width:100%;background:#e6eaf0;padding:4px;border-radius:14px}
+  nav button{flex:1;white-space:nowrap;min-height:44px;border:0;background:transparent;color:var(--soft);font:600 clamp(15px,4.2vw,18px) var(--sans);cursor:pointer;border-radius:11px}
+  nav button[aria-selected="true"]{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(15,31,46,.18)}
   @media(min-width:760px){nav{width:auto}nav button{flex:none;padding:0 26px}}
   main{max-width:1080px;margin:0 auto;padding:22px 20px 64px}
 
@@ -37,12 +37,13 @@
   .check{display:grid;gap:26px}
   @media(min-width:900px){.check{grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-areas:"input result" "recent result";grid-template-rows:auto 1fr;align-items:start}.input-col{grid-area:input}.result-col{grid-area:result;position:sticky;top:16px}.recent-col{grid-area:recent}}
   label.q{display:block;font:800 26px/1.25 var(--sans);margin-bottom:12px}
-  textarea{display:block;width:100%;min-height:168px;font:400 21px/1.55 var(--sans);padding:14px 16px;color:var(--ink);background:var(--surface);border:2px solid var(--line-strong);border-radius:14px;resize:vertical}
+  textarea{display:block;width:100%;min-height:168px;font:400 21px/1.55 var(--sans);padding:14px 16px;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:18px;resize:vertical}
+  textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,54,92,.15)}
   textarea::placeholder{color:var(--dim)}
   .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 22px;border-radius:14px;border:2px solid var(--navy);background:var(--surface);color:var(--navy);font:700 20px var(--sans);cursor:pointer;text-decoration:none;text-align:center}
   .btn.primary{background:var(--navy);color:#fff;flex:1 1 220px;font-size:24px;min-height:62px}
-  .btn.wa{border-color:var(--wa);color:var(--wa)}
+  .btn.wa{border-color:var(--line-strong);color:var(--ink)}
   .btn.quiet{border-color:transparent;min-height:48px;font-weight:600;text-decoration:underline;color:var(--soft)}
   .btn:active{transform:translateY(1px)}
   .hint{font-size:16px;color:var(--soft);margin:10px 0 0}
@@ -91,16 +92,17 @@
   details.clicked{border:2px solid var(--line-strong);border-radius:12px;padding:0 14px}
   details.clicked summary{min-height:52px;display:flex;align-items:center;font-weight:700;cursor:pointer}
   details.clicked ul{margin:0 0 12px;padding-inline-start:22px}
-  .actions{display:flex;flex-direction:column;gap:10px;padding:18px 22px 6px}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px 22px 6px}.actions .btn.official,.actions .btn.quiet{grid-column:1/-1}.actions .btn{min-height:48px;font-size:17px;padding:0 10px}
   .foot{padding:6px 22px 20px;font-size:15px;color:var(--soft)}
 
   /* family + setup */
   .page{max-width:720px;margin:0 auto}
   .page h2{font:800 30px/1.2 var(--sans);margin:0 0 6px}
   .lead{color:var(--soft);margin:0 0 18px}
-  .alert{border:2px solid var(--red);background:var(--red-bg);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+  .alert{border:1px solid #e3b8b3;border-inline-start:5px solid var(--red);background:var(--red-bg);border-radius:14px;padding:16px 18px;margin-bottom:12px}
   .alert b{display:block;font-size:21px;color:var(--red)}
-  .alert .row{margin-top:10px}
+  .alert .row{margin-top:10px}.alert .h{direction:ltr;text-align:right;font:400 15px var(--mono);overflow-wrap:anywhere}.alert time{font-size:15px;color:var(--soft)}
+  .feed .h,.recent .h{overflow-wrap:anywhere}
   .calm{border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:16px 18px;margin-bottom:12px;font-weight:600}
   .stats{display:flex;gap:22px;flex-wrap:wrap;margin:18px 0 6px;font-size:18px;color:var(--soft)}
   .stats b{font:800 26px var(--sans);color:var(--ink);margin-inline-end:6px}
@@ -217,7 +219,7 @@ async function run(){
 function render(r){
   const out = $("#out"), v = r.verdict;
   if (!r.applicable){
-    out.innerHTML = `<div class="card cant_verify"><div class="strip"></div><div class="head">${seal("cant_verify")}<h2>${esc(r.headline_he)}</h2></div><p class="adv">${esc(r.advice_he)}</p>
+    out.innerHTML = `<div class="card cant_verify"><div class="strip"></div><div class="head"><h2>${esc(r.headline_he)}</h2></div><p class="adv">${esc(r.advice_he)}</p>
       <div class="actions"><button class="btn quiet" id="again">בודקים הודעה אחרת</button></div></div>`;
     $("#again").onclick = reset; return;
   }
@@ -226,7 +228,7 @@ function render(r){
   const why = r.reasons_he.length ? `<div class="sec"><h3>מה מצאנו</h3><ul class="why">${r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
   const steps = r.steps_he.length ? `<div class="sec"><h3>מה עושים עכשיו</h3><ol class="steps">${r.steps_he.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>` : "";
   const clicked = r.if_clicked_he.length ? `<div class="sec"><details class="clicked"><summary>כבר לחצתי או מסרתי פרטים. מה עושים?</summary><ul>${r.if_clicked_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
-  const official = r.official_url ? `<a class="btn primary" href="${esc(r.official_url)}" target="_blank" rel="noopener" style="flex:none">פותחים את האתר הרשמי</a>` : "";
+  const official = r.official_url ? `<a class="btn primary official" href="${esc(r.official_url)}" target="_blank" rel="noopener" style="flex:none">פותחים את האתר הרשמי</a>` : "";
   const note = v === "dont_click" ? "" : ` שומר לא קובע שהודעה אמיתית או בטוחה. הוא בודק רק אם הכתובת שייכת לאתר הרשמי של השולח.`;
   out.innerHTML = `<div class="card ${v}"><div class="strip"></div>
     <div class="head">${seal(v)}<h2>${esc(r.headline_he)}</h2></div>
@@ -295,16 +297,16 @@ async function loadFamily(){
   const g = await get("/api/guardian"); settings = g.settings;
   const who = settings.name || "המשפחה";
   const el = $("#p-fam");
-  const alerts = g.alerts.map(a => `<div class="alert" role="alert"><b>${settings.name ? "הודעה מסוכנת הגיעה אל " + esc(settings.name) : "הגיעה הודעה מסוכנת"}</b>${esc(a.org || "גוף לא מזוהה")} · ${esc(a.host || "בלי קישור")} · ${hm(a.ts)}
+  const alerts = g.alerts.map(a => `<div class="alert" role="alert"><b>${settings.name ? "הודעה מסוכנת הגיעה אל " + esc(settings.name) : "הגיעה הודעה מסוכנת"}</b>${esc(a.org || "גוף לא מזוהה")}<div class="h"><bdi>${esc(a.host || "בלי קישור")}</bdi></div><time><bdi>${hm(a.ts)}</bdi></time>
     <div class="row"><button class="btn" data-handled="${a.id}">סימון כטופל</button></div></div>`).join("");
   const calm = !g.alerts.length ? `<div class="calm">אין כרגע התראות פתוחות. כשמשהו חשוד יגיע, זה יופיע כאן מיד.</div>` : "";
   const total = g.counts.dont_click + g.counts.cant_verify + g.counts.matches_official;
   const feed = g.recent.length ? g.recent.map(e => `<li><span class="dot ${e.verdict}"></span><div class="${e.handled ? "done" : ""}">${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}${e.handled ? " · טופל" : ""}<div class="h">${esc(e.host || "")}</div></div><time>${hm(e.ts)}</time></li>`).join("") : `<li style="color:var(--soft)">עוד לא נבדקו הודעות.</li>`;
   el.innerHTML = `<h2>${esc(who)} – מה קורה</h2><p class="lead">מי שהוגדר כשומר המשפחתי רואה כאן רק מה קרה, ואף פעם לא את תוכן ההודעות.</p>
     ${settings.consented ? "" : `<p class="note">עוד לא הוגדרה הסכמה. עברו ללשונית "הגדרה" כדי להפעיל את השיתוף עם המשפחה.</p>`}
-    ${alerts}${calm}
-    <div class="stats"><span><b>${total}</b>הודעות נבדקו</span><span><b>${g.counts.dont_click}</b>סומנו כמסוכנות</span></div>
-    <ul class="feed">${feed}</ul>`;
+    ${settings.consented ? alerts + calm : ""}
+    ${settings.consented ? `<div class="stats"><span><b>${total}</b>הודעות נבדקו</span><span><b>${g.counts.dont_click}</b>סומנו כמסוכנות</span></div>
+    <ul class="feed">${feed}</ul>` : ""}`;
   el.querySelectorAll("[data-handled]").forEach(b => b.onclick = async () => { await post("/api/handled", {event_id: +b.dataset.handled}); loadFamily(); });
 }
 

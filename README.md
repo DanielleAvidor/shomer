@@ -10,7 +10,7 @@ I started this because my grandmother and mother get these messages all the time
 
 ## What it does
 
-For each message it returns one of three verdicts, and **never says a link is "safe"**:
+It looks at two things: **where the link really goes**, and **what the message asks for** (rushing you, threatening a block or fine, asking for card details or codes, promising a prize, pretending to be a family member who needs money). That second part lets it catch scams that have no link at all. For each message it returns one of three verdicts, and **never says a link is "safe"**:
 
 | Verdict | Meaning |
 |---|---|
@@ -22,13 +22,15 @@ Design choices that matter:
 - **Trusted Directory with provenance.** Each organization has its official domains, a source, and a `verified` flag. Only verified entries can ever produce "matches official". Unverified ones degrade to "can't verify" rather than guessing.
 - **Family loop.** A high-confidence "Don't click" notifies the family member right away; everything else goes into a summary. The family screen shows what happened, never the message text.
 - **Privacy by design.** Analysis happens on the device. Message text is never stored or sent. Only verdict, organization id and link host are reported, and only if a server address was configured.
-- **Calm, large, one-button UI** for older adults, RTL Hebrew.
+- **A result that explains itself.** A stamp-style card shows the real destination of the link (the part that actually owns the address is highlighted), what was found, numbered steps for what to do now, and a "what if I already clicked?" section (stop entering details, block the card, change passwords, report to the national cyber hotline 119).
+- **Family features.** Send the result to a family member on WhatsApp (verdict and address only, never the message), save the result as a picture, a family screen with alerts you can mark as handled, and a one-time setup with an explicit consent screen.
+- **Calm, large UI** for older adults and families: RTL Hebrew, embedded fonts (Open Sans and Cardo, both open license), no external requests.
 
 ## Try it
 
 ```bash
 python -m shomer.server        # then open http://localhost:8000
-python -m pytest               # 50 tests
+python -m pytest               # 62 tests
 python eval/run_eval.py        # regression summary (see caveat below)
 ```
 
@@ -50,14 +52,14 @@ Standard library only; Python 3.10+. In the page, use the example buttons, then 
 **Proven (by tests in this repo):** the engine handles lookalike domains, subdomain tricks, `@` tricks, punycode, IPs, shorteners, multiple links and organizations. A link can only be reported as matching if the message itself names the same organization (a link never vouches for itself), the domain is verified, shared government domains match only on a specific path, and the message does not also ask the reader to phone a number. Unverified directory entries never produce a reassuring verdict. Message text is not persisted by the server. The Hebrew UI works end to end in a browser.
 
 **Not proven:**
-- **Accuracy on real messages.** The evaluation corpus (31 messages) is written by me, modeled on published warnings. It is also partly tautological: several cases were added after an adversarial review, so they test fixes, not unseen data. It is a regression check, not an accuracy estimate. The PRD sets numeric targets to measure on at least 50 real, consented messages.
+- **Accuracy on real messages.** The evaluation corpus (36 messages) is written by me, modeled on published warnings. It is also partly tautological: several cases were added after an adversarial review, so they test fixes, not unseen data. It is a regression check, not an accuracy estimate. The PRD sets numeric targets to measure on at least 50 real, consented messages.
 - **Android.** The Kotlin source has not been built. Open questions: whether a sideloaded app keeps SMS-receive permission, Android's restricted-settings behavior, Gmail API access for a non-published app.
 - **That users understand the alerts.** Needs testing with real older adults.
 - **Directory coverage.** 4 of 9 entries are marked verified, with sources of uneven quality (see `directory.json`); the Home Front Command entry still needs a direct check, and the rest are marked `TO VERIFY`.
 - **Statistics in the PRD** (elder-fraud case counts, growth rates) come from press coverage; the original source links still need to be added.
 - **"Analysis on the device"** is a design goal for the Android app only. In the web demo the text is sent to the local demo server (running on your own machine) and is not stored.
 
-**Known limits (by design, for now):** scams without links (phone numbers, "reply to this number", family-impersonation texts) return "can't verify"; a matching domain is not proof a message is genuine (compromised accounts); iPhone cannot read other apps' messages, so iPhone support would rely on share-to-check; WhatsApp is end-to-end encrypted and out of scope for v1.
+**Known limits (by design, for now):** content signals are keyword patterns, so they miss unusual wording and could flag an odd legitimate message (see the review log); scams that depend on a phone call or a screenshot are only partly covered; a matching domain is not proof a message is genuine (compromised accounts); iPhone cannot read other apps' messages, so iPhone support would rely on share-to-check; WhatsApp is end-to-end encrypted and out of scope for v1.
 
 ## Existing options (desk research, not hands-on)
 
