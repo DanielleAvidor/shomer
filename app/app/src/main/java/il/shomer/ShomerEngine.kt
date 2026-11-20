@@ -72,7 +72,8 @@ class ShomerEngine(directoryJson: String) {
         return out
     }
 
-    fun claimedOrgs(text: String): List<Org> {
+    fun claimedOrgs(rawText: String): List<Org> {
+        val text = normalize(rawText)
         // Look for organization names only outside links: a link must not vouch for itself.
         val low = URL_RE.replace(text, " ").lowercase()
         return aliasPatterns.filter { (_, pats) -> pats.any { it.containsMatchIn(low) } }.map { it.first }
@@ -142,7 +143,8 @@ class ShomerEngine(directoryJson: String) {
         val urls = extractUrls(text)
         val claimed = claimedOrgs(text)
         val reports = urls.map { analyzeLink(it, claimed) }
-        val body = URL_RE.replace(text, " ").lowercase()
+        val body = URL_RE.replace(normalize(text), " ").lowercase()
+        val badTld = reports.any { it.host.isNotEmpty() && it.host.substringAfterLast('.') in badTlds }
         val sigs = signals.filter { it.rx.containsMatchIn(body) }
         val ids = sigs.map { it.id }.toSet()
         val pressure = sigs.filter { it.kind == "pressure" }.map { it.id }.toSet()
@@ -168,7 +170,7 @@ class ShomerEngine(directoryJson: String) {
             }
         }
         // An unverifiable link plus a pushy message is treated as a scam.
-        if (verdict == Verdict.CANT_VERIFY && urls.isNotEmpty() && score >= 3 && !downgraded) verdict = Verdict.DONT_CLICK
+        if (verdict == Verdict.CANT_VERIFY && urls.isNotEmpty() && (score >= 3 || (score >= 2 && badTld)) && !downgraded) verdict = Verdict.DONT_CLICK
         // No link at all: judge by what the message asks for.
         if (urls.isEmpty()) {
             if (score >= 3) verdict = Verdict.DONT_CLICK
@@ -259,3 +261,9 @@ class ShomerEngine(directoryJson: String) {
         }
     }
 }
+
+
+private val OBFUSCATION = Regex("(?<=[א-ת])[.\\-_*·\\u200b-\\u200f\\u05b0-\\u05c7](?=[א-ת])")
+
+/** Undo common obfuscation: dots, dashes, zero-width characters or niqqud between Hebrew letters. */
+fun normalize(text: String): String = OBFUSCATION.replace(text, "")

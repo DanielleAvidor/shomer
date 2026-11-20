@@ -135,6 +135,16 @@ def _alias_pattern(alias: str) -> re.Pattern:
     return re.compile(r"(?<![a-z0-9])" + a + r"(?![a-z0-9])")
 
 
+_OBFUSCATION = re.compile(r"(?<=[א-ת])[.\-_*·\u200b-\u200f\u05b0-\u05c7](?=[א-ת])")
+_SPACED = re.compile(r"(?<![א-ת])([א-ת]) (?=[א-ת](?: [א-ת])*(?: |$|[.,!?]))")
+
+
+def normalize(text: str) -> str:
+    """Undo common obfuscation: dots, dashes, zero-width characters or niqqud between Hebrew letters."""
+    text = _OBFUSCATION.sub("", text)
+    return text
+
+
 class Engine:
     def __init__(self, directory_path: Path | str = DATA):
         raw = json.loads(Path(directory_path).read_text(encoding="utf-8"))
@@ -156,6 +166,7 @@ class Engine:
         return urls
 
     def claimed_orgs(self, text: str) -> list:
+        text = normalize(text)
         # Look for organization names only outside links: a link must not vouch for itself.
         low = _URL_RE.sub(" ", text).lower()
         return [o for o, pats in self._alias_res if any(p.search(low) for p in pats)]
@@ -238,7 +249,7 @@ class Engine:
     # ---- message level ----------------------------------------------------
     def content_signals(self, text: str) -> list:
         """Signals about what the message asks for (outside links)."""
-        body = _URL_RE.sub(" ", text).lower()
+        body = _URL_RE.sub(" ", normalize(text)).lower()
         return [g for g, rx in self.signals if rx.search(body)]
 
     def check(self, text: str) -> Result:
@@ -249,6 +260,7 @@ class Engine:
         sig_ids = {g["id"] for g in sigs}
         pressure = {g["id"] for g in sigs if g["kind"] == "pressure"}
         phone = bool(_PHONE_RE.search(text))
+        bad_tld = any(r.host.rsplit('.', 1)[-1] in self.bad_tlds for r in reports if r.host)
         score = sum(g["weight"] for g in sigs) + (1 if phone and claimed else 0)
         applicable = bool(urls or claimed or score >= 3)
         official_url = claimed[0].official_url if claimed else None
@@ -274,7 +286,7 @@ class Engine:
                 downgraded = True
                 reasons.append("הכתובת תואמת, אבל ההודעה מלחיצה או מבקשת פרטים. גופים רשמיים לא עושים את זה בהודעה")
         # An unverifiable link plus a pushy message is treated as a scam.
-        if verdict is Verdict.CANT_VERIFY and urls and score >= 3 and not downgraded:
+        if verdict is Verdict.CANT_VERIFY and urls and (score >= 3 or (score >= 2 and bad_tld)) and not downgraded:
             verdict = Verdict.DONT_CLICK
         # No link at all: judge by what the message asks for.
         if not urls:

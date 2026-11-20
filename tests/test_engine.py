@@ -127,3 +127,22 @@ def test_guidance_fields_present_for_risky_results_only():
 def test_share_text_never_contains_the_message():
     msg = "דואר ישראל סיסמה-סודית https://israelpost.paliet.top/il"
     assert "סודית" not in E.check(msg).share_text_he
+
+
+@pytest.mark.parametrize("text", [
+    "כאן מחלקת הונאות בבנק, העבר לנו את הקוד שקיבלת",
+    "פייפאל: הכנס קוד חד פעמי כדי לשחרר את החשבון",
+    "ז.כ.י.ת ב.ה.ג.ר.ל.ה מתנה https://prize-il.xyz/win",
+    "Your account is suspended. Verify your account now: enter your password",
+])
+def test_round2_scams_are_blocked(text):
+    assert Engine().check(text).verdict.value == "dont_click"
+
+
+@pytest.mark.parametrize("text", [
+    "אבא, החלפתי מספר? לא, זה עדיין אני",
+    "אבא, תעביר לי בבקשה את המספר של האינסטלטור",
+    "ביט אליי 50 על הפיצה",
+])
+def test_round2_legit_family_messages_not_blocked(text):
+    assert Engine().check(text).verdict.value != "dont_click"
