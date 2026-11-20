@@ -30,7 +30,7 @@ lines = [
     "# Evaluation summary (synthetic corpus, regression check only)",
     "",
     f"- Scam messages: {len(scams)}; legitimate messages: {len(legit)} ({len(legit_app)} contain a link or a named organization)",
-    f"- Scams never reported as 'matches official' (user is not reassured): {len(caught)}/{len(scams)}",
+    f"- Scams not reported as 'matches official' (includes 'cant verify', so not a catch rate): {len(caught)}/{len(scams)}",
     f"- Scams hard-blocked with 'Don't click': {len(hard)}/{len(scams)}",
     f"- Scams wrongly reported as 'matches official' (worst failure): {len(false_ok)}",
     f"- Legitimate messages wrongly told 'Don't click' (false alarms): {len(false_alarm)}/{len(legit_app)}",

@@ -1,36 +1,36 @@
-{"id":"s01","kind":"scam","text":"דואר ישראל: החבילה שלך נעצרה בגלל כתובת שגויה. אנא אשר כתובת https://israelpost.paliet.top/il","expected":"dont_click","note":"modeled on a published Israel Post lookalike (israelpost.paliet.top)"}
-{"id":"s02","kind":"scam","text":"##בנק לאומי לישראל## חשבון הבנק שלך סגור אנא בדוק אותו עכשיו https://rebrand.ly/Leumi_Bank","expected":"cant_verify","note":"modeled on a 2019 published bank SMS; shortened link"}
-{"id":"s03","kind":"scam","text":"כביש 6: נרשם חוב על נסיעה. שלמו עכשיו כדי להימנע מקנס www.kvish6-pay.com/p","expected":"dont_click","note":"Kvish 6 debt-message pattern from Cyber Directorate warnings"}
-{"id":"s04","kind":"scam","text":"מנהרות הכרמל: חוב פתוח. לתשלום https://carmeltunnels.co.il.pay-now.top/bills","expected":"dont_click","note":"official domain used as a subdomain prefix"}
-{"id":"s05","kind":"scam","text":"דואר ישראל חבילה ממתינה https://israelpost.co.il@evil-login.com/track","expected":"dont_click","note":"@ trick"}
-{"id":"s06","kind":"scam","text":"משטרת ישראל: דוח תנועה ממתין לתשלום https://gov-il-fines.xyz/x","expected":"dont_click","note":"police fine pattern"}
-{"id":"s07","kind":"scam","text":"ביטוח לאומי: זכאות להחזר כספי, לחצו כאן http://btl-refund.top","expected":"dont_click","note":"claims org, link elsewhere"}
-{"id":"s08","kind":"scam","text":"דואר ישראל עדכון משלוח https://xn--israelpst-3ya.co.il/","expected":"dont_click","note":"punycode"}
-{"id":"s09","kind":"scam","text":"עקוב אחר החבילה שלך https://israelposta.com/track","expected":"dont_click","note":"no org named in text, brand lookalike in link"}
-{"id":"s10","kind":"scam","text":"בנק הפועלים: פעילות חשודה, היכנסו http://185.12.4.9/login","expected":"dont_click","note":"IP address"}
-{"id":"s11","kind":"scam","text":"זכית בשובר 750 ש\"ח מבנק הפועלים https://poalim-gift.com","expected":"dont_click","note":"modeled on a published 'gift' campaign"}
-{"id":"s12","kind":"scam","text":"בנק הפועלים: חשבונך ייחסם היום. התקשרו עכשיו למספר 03-5551234","expected":"dont_click","note":"no link: caught by content signals (threat + call-this-number + named bank)"}
-{"id":"s13","kind":"scam","text":"אמא החלפתי מספר, אפשר להעביר לי כסף בביט? אני אסביר אחר כך","expected":"dont_click","note":"family impersonation without link: caught by content signals"}
-{"id":"s14","kind":"scam","text":"קיבלת חבילה https://bit.ly/3xYz","expected":"cant_verify","note":"shortener, no org"}
-{"id":"s15","kind":"scam","text":"פיקוד העורף: עדכון הנחיות דחוף https://oref-alerts.top/update","expected":"dont_click","note":"emergency-themed lookalike"}
-{"id":"l01","kind":"legit","text":"דואר ישראל: החבילה שלך הגיעה לסניף. מעקב: https://israelpost.co.il/track","expected":"matches_official","note":"official domain"}
-{"id":"l02","kind":"legit","text":"מנהרות הכרמל: לבדיקת חוב היכנסו ל https://www.carmeltunnels.co.il/bills","expected":"matches_official","note":"official domain with www"}
-{"id":"l03","kind":"legit","text":"משטרת ישראל: לצפייה בדוחות היכנסו לאזור האישי https://www.gov.il/he/service/enforcement-reports","expected":"matches_official","note":"gov.il service page"}
-{"id":"l04","kind":"legit","text":"פיקוד העורף: הנחיות מעודכנות באתר https://www.oref.org.il/heb","expected":"matches_official","note":"official domain"}
-{"id":"l05","kind":"legit","text":"בנק לאומי: הצהרון החודשי זמין באתר https://www.leumi.co.il","expected":"cant_verify","note":"unverified directory entry: reports 'cannot verify' rather than guessing"}
-{"id":"l06","kind":"legit","text":"נתראה מחר בשש אצל סבתא","expected":"not_applicable","note":"no link, no organization"}
-{"id":"l07","kind":"legit","text":"הקוד שלך לאישור הכניסה הוא 4821","expected":"not_applicable","note":"one-time code, no link"}
-{"id":"l08","kind":"legit","text":"תראי את התמונות מהחתונה https://photos.example.com/album/42","expected":"cant_verify","note":"personal link from a person; engine cannot verify, friction accepted"}
-{"id":"s16","kind":"scam","text":"Amazon: your order is on hold https://israelpost.co.il/x","expected":"cant_verify","note":"critic: official domain of an unrelated organization, no organization claimed"}
-{"id":"s17","kind":"scam","text":"בנק מזרחי: חשבונך נחסם https://israelpost.co.il/login","expected":"cant_verify","note":"critic: organization not in directory"}
-{"id":"s18","kind":"scam","text":"דואר ישראל: שלמו עכשיו בטלפון 050-1234567 https://israelpost.co.il","expected":"cant_verify","note":"critic: official link plus a phone number to call"}
-{"id":"s19","kind":"scam","text":"דוח תנועה שלך https://www.gov.il/he/service/something-else","expected":"cant_verify","note":"critic: gov.il is shared, only the fines service path counts"}
-{"id":"l09","kind":"legit","text":"דואר ישראל: החבילה מחכה לך. אפליקציה: https://play.google.com/store/apps/details?id=il.post and https://israelpost.co.il","expected":"cant_verify","note":"critic: app-store link is neutral, never a match, never a false alarm"}
-{"id":"l10","kind":"legit","text":"קופון 20% https://storefront.com/sale","expected":"cant_verify","note":"critic: 'oref' inside 'storefront' must not look like Home Front Command"}
-{"id":"l11","kind":"legit","text":"בנק לאומי: פרטי כרטיס האשראי באתר https://www.leumicard.co.il/x","expected":"cant_verify","note":"critic: Leumi Card domain; unverified entry so cannot verify, but no false alarm"}
-{"id":"l12","kind":"legit","text":"משטרת ישראל: לצפייה בדוחות היכנסו https://www.gov.il/he/service/enforcement-reports/","expected":"matches_official","note":"restricted path matches"}
-{"id":"s20","kind":"scam","text":"זכית בהגרלה! דחוף: הזינו פרטי כרטיס אשראי כדי לקבל את הפרס https://bit.ly/prize9","expected":"dont_click","note":"unverifiable short link plus prize, urgency and a card-details request"}
-{"id":"s21","kind":"scam","text":"הי אבא זה אני, הטלפון נפל ואני במספר חדש. תעביר לי 2,000 ש\"ח דחוף לחשבון","expected":"dont_click","note":"family impersonation, urgent money, no link"}
-{"id":"s22","kind":"scam","text":"דואר ישראל: עדכנו פרטי אשראי תוך 24 שעות אחרת החבילה תוחזר https://israelpost.co.il/pay","expected":"cant_verify","note":"official domain but the message pressures and asks for card details: never reassure"}
-{"id":"l13","kind":"legit","text":"בנק הפועלים: לעולם אל תמסרו קוד אימות לאף אחד, גם לא לנציג בנק.","expected":"cant_verify","note":"warning text must not count as a request for secrets"}
-{"id":"l14","kind":"legit","text":"קיבלתי מתנה מדהימה מסבתא, תודה על היום!","expected":"not_applicable","note":"a weak word like 'gift' alone must not trigger anything"}
+{"id": "s01", "kind": "scam", "text": "דואר ישראל: החבילה שלך נעצרה בגלל כתובת שגויה. אנא אשר כתובת https://israelpost.paliet.top/il", "expected": "dont_click", "note": "modeled on a published Israel Post lookalike (israelpost.paliet.top)"}
+{"id": "s02", "kind": "scam", "text": "##בנק לאומי לישראל## חשבון הבנק שלך סגור אנא בדוק אותו עכשיו https://rebrand.ly/Leumi_Bank", "expected": "cant_verify", "note": "modeled on a 2019 published bank SMS; shortened link"}
+{"id": "s03", "kind": "scam", "text": "כביש 6: נרשם חוב על נסיעה. שלמו עכשיו כדי להימנע מקנס www.kvish6-pay.com/p", "expected": "dont_click", "note": "Kvish 6 debt-message pattern from Cyber Directorate warnings"}
+{"id": "s04", "kind": "scam", "text": "מנהרות הכרמל: חוב פתוח. לתשלום https://carmeltunnels.co.il.pay-now.top/bills", "expected": "dont_click", "note": "official domain used as a subdomain prefix"}
+{"id": "s05", "kind": "scam", "text": "דואר ישראל חבילה ממתינה https://israelpost.co.il@evil-login.com/track", "expected": "dont_click", "note": "@ trick"}
+{"id": "s06", "kind": "scam", "text": "משטרת ישראל: דוח תנועה ממתין לתשלום https://gov-il-fines.xyz/x", "expected": "dont_click", "note": "police fine pattern"}
+{"id": "s07", "kind": "scam", "text": "ביטוח לאומי: זכאות להחזר כספי, לחצו כאן http://btl-refund.top", "expected": "dont_click", "note": "claims org, link elsewhere"}
+{"id": "s08", "kind": "scam", "text": "דואר ישראל עדכון משלוח https://xn--israelpst-3ya.co.il/", "expected": "dont_click", "note": "punycode"}
+{"id": "s09", "kind": "scam", "text": "עקוב אחר החבילה שלך https://israelposta.com/track", "expected": "dont_click", "note": "no org named in text, brand lookalike in link"}
+{"id": "s10", "kind": "scam", "text": "בנק הפועלים: פעילות חשודה, היכנסו http://185.12.4.9/login", "expected": "dont_click", "note": "IP address"}
+{"id": "s11", "kind": "scam", "text": "זכית בשובר 750 ש\"ח מבנק הפועלים https://poalim-gift.com", "expected": "dont_click", "note": "modeled on a published 'gift' campaign"}
+{"id": "s12", "kind": "scam", "text": "בנק הפועלים: חשבונך ייחסם היום. התקשרו עכשיו למספר 03-5551234", "expected": "dont_click", "note": "no link: caught by content signals (threat + call-this-number + named bank)"}
+{"id": "s13", "kind": "scam", "text": "אמא החלפתי מספר, אפשר להעביר לי כסף בביט? אני אסביר אחר כך", "expected": "dont_click", "note": "family impersonation without link: caught by content signals"}
+{"id": "s14", "kind": "scam", "text": "קיבלת חבילה https://bit.ly/3xYz", "expected": "cant_verify", "note": "shortener, no org"}
+{"id": "s15", "kind": "scam", "text": "פיקוד העורף: עדכון הנחיות דחוף https://oref-alerts.top/update", "expected": "dont_click", "note": "emergency-themed lookalike"}
+{"id": "l01", "kind": "legit", "text": "דואר ישראל: החבילה שלך הגיעה לסניף. מעקב: https://israelpost.co.il/track", "expected": "matches_official", "note": "official domain"}
+{"id": "l02", "kind": "legit", "text": "מנהרות הכרמל: לבדיקת חוב היכנסו ל https://www.carmeltunnels.co.il/bills", "expected": "matches_official", "note": "official domain with www"}
+{"id": "l03", "kind": "legit", "text": "משטרת ישראל: לצפייה בדוחות היכנסו לאזור האישי https://www.gov.il/he/service/enforcement-reports", "expected": "matches_official", "note": "gov.il service page"}
+{"id": "l04", "kind": "legit", "text": "פיקוד העורף: הנחיות מעודכנות באתר https://www.oref.org.il/heb", "expected": "cant_verify", "note": "domain plausible but entry not yet verified from the official site"}
+{"id": "l05", "kind": "legit", "text": "בנק לאומי: הצהרון החודשי זמין באתר https://www.leumi.co.il", "expected": "cant_verify", "note": "unverified directory entry: reports 'cannot verify' rather than guessing"}
+{"id": "l06", "kind": "legit", "text": "נתראה מחר בשש אצל סבתא", "expected": "not_applicable", "note": "no link, no organization"}
+{"id": "l07", "kind": "legit", "text": "הקוד שלך לאישור הכניסה הוא 4821", "expected": "not_applicable", "note": "one-time code, no link"}
+{"id": "l08", "kind": "legit", "text": "תראי את התמונות מהחתונה https://photos.example.com/album/42", "expected": "cant_verify", "note": "personal link from a person; engine cannot verify, friction accepted"}
+{"id": "s16", "kind": "scam", "text": "Amazon: your order is on hold https://israelpost.co.il/x", "expected": "cant_verify", "note": "critic: official domain of an unrelated organization, no organization claimed"}
+{"id": "s17", "kind": "scam", "text": "בנק מזרחי: חשבונך נחסם https://israelpost.co.il/login", "expected": "cant_verify", "note": "critic: organization not in directory"}
+{"id": "s18", "kind": "scam", "text": "דואר ישראל: שלמו עכשיו בטלפון 050-1234567 https://israelpost.co.il", "expected": "cant_verify", "note": "critic: official link plus a phone number to call"}
+{"id": "s19", "kind": "scam", "text": "דוח תנועה שלך https://www.gov.il/he/service/something-else", "expected": "cant_verify", "note": "critic: gov.il is shared, only the fines service path counts"}
+{"id": "l09", "kind": "legit", "text": "דואר ישראל: החבילה מחכה לך. אפליקציה: https://play.google.com/store/apps/details?id=il.post and https://israelpost.co.il", "expected": "cant_verify", "note": "critic: app-store link is neutral, never a match, never a false alarm"}
+{"id": "l10", "kind": "legit", "text": "קופון 20% https://storefront.com/sale", "expected": "cant_verify", "note": "critic: 'oref' inside 'storefront' must not look like Home Front Command"}
+{"id": "l11", "kind": "legit", "text": "בנק לאומי: פרטי כרטיס האשראי באתר https://www.leumicard.co.il/x", "expected": "cant_verify", "note": "critic: Leumi Card domain; unverified entry so cannot verify, but no false alarm"}
+{"id": "l12", "kind": "legit", "text": "משטרת ישראל: לצפייה בדוחות היכנסו https://www.gov.il/he/service/enforcement-reports/", "expected": "matches_official", "note": "restricted path matches"}
+{"id": "s20", "kind": "scam", "text": "זכית בהגרלה! דחוף: הזינו פרטי כרטיס אשראי כדי לקבל את הפרס https://bit.ly/prize9", "expected": "dont_click", "note": "unverifiable short link plus prize, urgency and a card-details request"}
+{"id": "s21", "kind": "scam", "text": "הי אבא זה אני, הטלפון נפל ואני במספר חדש. תעביר לי 2,000 ש\"ח דחוף לחשבון", "expected": "dont_click", "note": "family impersonation, urgent money, no link"}
+{"id": "s22", "kind": "scam", "text": "דואר ישראל: עדכנו פרטי אשראי תוך 24 שעות אחרת החבילה תוחזר https://israelpost.co.il/pay", "expected": "cant_verify", "note": "official domain but the message pressures and asks for card details: never reassure"}
+{"id": "l13", "kind": "legit", "text": "בנק הפועלים: לעולם אל תמסרו קוד אימות לאף אחד, גם לא לנציג בנק.", "expected": "cant_verify", "note": "warning text must not count as a request for secrets"}
+{"id": "l14", "kind": "legit", "text": "קיבלתי מתנה מדהימה מסבתא, תודה על היום!", "expected": "not_applicable", "note": "a weak word like 'gift' alone must not trigger anything"}

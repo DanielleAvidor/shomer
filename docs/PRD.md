@@ -130,7 +130,7 @@ Platform vendors are expanding built-in detection and will likely make basic det
 - Alert in large-text, plain Hebrew, with a button that opens the official site or app directly.
 - Notification to the family guardian.
 - Language rule: the app **never says "safe"**. It uses three states: "Don't click (mismatch/lookalike)", "Link matches the official site, but it's still safest to open the app yourself", and "I can't verify this, don't click, ask [guardian]".
-- Privacy by design: analysis on the device where possible; only the minimum (link, claimed organization) is sent to a server; full messages aren't stored by default; consent screens in Hebrew.
+- Privacy by design (target for the Android app; the web demo sends text to a local server that does not store it); only the minimum (link, claimed organization) is sent to a server; full messages aren't stored by default; consent screens in Hebrew.
 
 ### Version 1 (out, deliberately)
 - iPhone support (planned after v1), WhatsApp monitoring, phone-call scams.
@@ -174,7 +174,7 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 - Manual "is this real?" questions to the guardian: **down by at least a third**.
 - Comprehension: **at least 4 of 5** older adults can explain in their own words what to do after a "Don't click" alert.
 
-**Current status:** the synthetic regression corpus (31 messages written by the author, modeled on published examples, 8 added after the adversarial review) passes: 0 scams reported as matching, 0 false "Don't click" on legitimate messages. This is **not** the quality measurement above; it only guards against regressions (`eval/results.md`). Note on the target arithmetic: 0 misses out of 25 scams is still consistent with a true miss rate of up to about 12%, so the real test set needs enough scams to make the 95% target meaningful.
+**Current status:** the synthetic regression corpus (written by the author, modeled on published examples, 8 added after the adversarial review) passes (run `python eval/run_eval.py` for the current count): 0 scams reported as matching, 0 false "Don't click" on legitimate messages. This is **not** the quality measurement above; it only guards against regressions (`eval/results.md`). Note on the target arithmetic: 0 misses out of 25 scams is still consistent with a true miss rate of up to about 12%, so the real test set needs enough scams to make the 95% target meaningful.
 
 ## 8. Validation plan
 
@@ -218,8 +218,8 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 
 | Part | Status |
 |---|---|
-| Verification engine (Python) | Built, 62 tests passing. Checks link destination and message content (urgency, threats, requests for card details or codes, prizes, family impersonation); scams without a link are now caught |
-| Trusted Directory | 9 organizations; **4 marked verified** (Israel Post, Carmel Tunnels, police fines on one gov.il path, Home Front Command, which still needs a direct check); 5 pending (Kvish 6, Bank Leumi, Bank Hapoalim, Bit, National Insurance) |
+| Verification engine (Python) | Built, tests passing (`python -m pytest`). Checks link destination and message content (urgency, threats, requests for card details or codes, prizes, family impersonation); scams without a link are now caught |
+| Trusted Directory | Only entries marked verified can produce "matches official": currently Israel Post, Carmel Tunnels and the police fines service on one gov.il path. Home Front Command, Kvish 6, the banks, Bit, National Insurance and other organizations are kept so lookalikes can be caught, but are unverified until someone confirms their domain from an official source |
 | Web demo (Hebrew, RTL) | Built and exercised in a browser on phone and desktop widths: check screen with stamp-style result, share to WhatsApp, save as picture; family screen with alerts and "handled"; one-time setup with consent |
 | Android app (Kotlin) | **Source written, not compiled or run**: no Android SDK in the build environment. Needs a first build in Android Studio |
 | Real-message evaluation, interviews, user comprehension test | **Not started**; requires the builder's family |

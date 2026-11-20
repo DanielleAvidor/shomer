@@ -113,7 +113,7 @@ class Handler(BaseHTTPRequestHandler):
             text = str(data.get("text", ""))[:5000]
             result = ENGINE.check(text)
             out = result.to_dict()
-            out["event_id"] = record(result) if result.applicable else None
+            out["event_id"] = record(result) if (result.applicable and get_settings()["consented"]) else None
             self._json(out)
         elif self.path == "/api/report":
             # Used by the phone: metadata only (verdict, org id, link host). Never the message text.

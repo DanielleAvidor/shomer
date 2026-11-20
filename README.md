@@ -20,8 +20,8 @@ It looks at two things: **where the link really goes**, and **what the message a
 
 Design choices that matter:
 - **Trusted Directory with provenance.** Each organization has its official domains, a source, and a `verified` flag. Only verified entries can ever produce "matches official". Unverified ones degrade to "can't verify" rather than guessing.
-- **Family loop.** A high-confidence "Don't click" notifies the family member right away; everything else goes into a summary. The family screen shows what happened, never the message text.
-- **Privacy by design.** Analysis happens on the device. Message text is never stored or sent. Only verdict, organization id and link host are reported, and only if a server address was configured.
+- **Family loop (demo level).** In this demo the "family screen" is a second tab on the same local server, not a message to another person's phone, and the server listens only on your own machine. What exists is the data model and the screen: alerts, "handled", and a WhatsApp share that carries only the verdict and the address. Real delivery to another phone needs a hosted backend and sign-in, which is not built. Events are recorded only after the protected person has ticked the consent box. A "Don't click" alert means the message was flagged, not that anyone tapped the link.
+- **Privacy by design.** The server never stores the message text (checked by a test). In the web demo the text is sent to the local demo server for analysis, so "analysis on the device" is a goal for the Android app only, and that app has not been compiled yet. Only verdict, organization id and link host are ever recorded.
 - **A result that explains itself.** A stamp-style card shows the real destination of the link (the part that actually owns the address is highlighted), what was found, numbered steps for what to do now, and a "what if I already clicked?" section (stop entering details, block the card, change passwords, report to the national cyber hotline 119).
 - **Family features.** Send the result to a family member on WhatsApp (verdict and address only, never the message), save the result as a picture, a family screen with alerts you can mark as handled, and a one-time setup with an explicit consent screen.
 - **Calm, large UI** for older adults and families: RTL Hebrew, embedded fonts (Open Sans and Cardo, both open license), no external requests.
@@ -30,7 +30,7 @@ Design choices that matter:
 
 ```bash
 python -m shomer.server        # then open http://localhost:8000
-python -m pytest               # 62 tests
+python -m pytest
 python eval/run_eval.py        # regression summary (see caveat below)
 ```
 
@@ -52,7 +52,7 @@ Standard library only; Python 3.10+. In the page, use the example buttons, then 
 **Proven (by tests in this repo):** the engine handles lookalike domains, subdomain tricks, `@` tricks, punycode, IPs, shorteners, multiple links and organizations. A link can only be reported as matching if the message itself names the same organization (a link never vouches for itself), the domain is verified, shared government domains match only on a specific path, and the message does not also ask the reader to phone a number. Unverified directory entries never produce a reassuring verdict. Message text is not persisted by the server. The Hebrew UI works end to end in a browser.
 
 **Not proven:**
-- **Accuracy on real messages.** The evaluation corpus (36 messages) is written by me, modeled on published warnings. It is also partly tautological: several cases were added after an adversarial review, so they test fixes, not unseen data. It is a regression check, not an accuracy estimate. The PRD sets numeric targets to measure on at least 50 real, consented messages.
+- **Accuracy on real messages.** The evaluation corpus is written by me, modeled on published warnings. It is also partly tautological: several cases were added after an adversarial review, so they test fixes, not unseen data. It is a regression check, not an accuracy estimate. The PRD sets numeric targets to measure on at least 50 real, consented messages.
 - **Android.** The Kotlin source has not been built. Open questions: whether a sideloaded app keeps SMS-receive permission, Android's restricted-settings behavior, Gmail API access for a non-published app.
 - **That users understand the alerts.** Needs testing with real older adults.
 - **Directory coverage.** 4 of 9 entries are marked verified, with sources of uneven quality (see `directory.json`); the Home Front Command entry still needs a direct check, and the rest are marked `TO VERIFY`.

@@ -28,6 +28,7 @@ def post(base, path, obj):
 
 def test_check_does_not_store_message_text(base):
     secret = "דואר ישראל https://israelpost.paliet.top/il סיסמה-סודית-12345"
+    post(base, "/api/settings", {"name": "בדיקה", "relation": "סבתא", "consented": True})
     status, out = post(base, "/api/check", {"text": secret})
     assert status == 200 and out["verdict"] == "dont_click" and out["event_id"]
     cols = [c[1] for c in server.DB.execute("PRAGMA table_info(events)")]
@@ -73,3 +74,11 @@ def test_settings_roundtrip_and_font_served(base):
         assert r.status == 200 and r.headers["Content-Type"] == "font/woff"
     with pytest.raises(urllib.error.HTTPError):
         urllib.request.urlopen(base + "/static/fonts/../server.py")
+
+
+def test_no_event_is_recorded_before_consent(base):
+    server.DB.execute("DELETE FROM settings WHERE k='consented'"); server.DB.commit()
+    before = server.DB.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+    status, out = post(base, "/api/check", {"text": "דואר ישראל https://israelpost.paliet.top/il"})
+    assert status == 200 and out["verdict"] == "dont_click" and out["event_id"] is None
+    assert server.DB.execute("SELECT COUNT(*) FROM events").fetchone()[0] == before

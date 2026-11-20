@@ -1,12 +1,12 @@
 # Evaluation summary (synthetic corpus, regression check only)
 
 - Scam messages: 22; legitimate messages: 14 (11 contain a link or a named organization)
-- Scams never reported as 'matches official' (user is not reassured): 22/22
+- Scams not reported as 'matches official' (includes 'cant verify', so not a catch rate): 22/22
 - Scams hard-blocked with 'Don't click': 15/22
 - Scams wrongly reported as 'matches official' (worst failure): 0
 - Legitimate messages wrongly told 'Don't click' (false alarms): 0/11
-- Legitimate messages told 'can't verify' (friction): 6/11
-- Legitimate messages confirmed as matching the official site: 5/11
+- Legitimate messages told 'can't verify' (friction): 7/11
+- Legitimate messages confirmed as matching the official site: 4/11
 - Cases where verdict differs from expectation: 0
 
 ## Scams that are only 'can't verify' (known gaps)

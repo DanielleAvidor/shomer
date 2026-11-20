@@ -232,7 +232,7 @@ class Engine:
         if punycode:
             reasons.append("בכתובת יש תווים מוסווים שנראים כמו אותיות רגילות")
         if look:
-            reasons.append(f"הכתובת מנסה להידמות ל{look.name_he} אבל היא לא האתר שלהם")
+            reasons.append(f"הכתובת מנסה לחקות את {look.name_he} אבל היא לא האתר שלהם")
             return LinkReport(url, host, Verdict.DONT_CLICK, reasons, look.id)
         if claimed:
             names = ", ".join(o.name_he for o in claimed)
@@ -242,8 +242,8 @@ class Engine:
             return LinkReport(url, host, Verdict.DONT_CLICK, reasons)
         tld = host.rsplit(".", 1)[-1]
         if tld in self.bad_tlds:
-            reasons.append("סיומת הכתובת נפוצה באתרי הונאה")
-        reasons.append("לא מצאנו את הגוף השולח ברשימת הגופים שאנחנו מכירים")
+            reasons.append("הכתובת נגמרת בסיומת שנפוצה בהונאות")
+        reasons.append("לא זיהינו מי שלח את ההודעה")
         return LinkReport(url, host, Verdict.CANT_VERIFY, reasons)
 
     # ---- message level ----------------------------------------------------
@@ -308,7 +308,7 @@ class Engine:
         if phone and claimed and not urls:
             reasons.append("ההודעה מבקשת להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
         if not urls and claimed:
-            reasons.append("ההודעה מתיימרת להגיע מ" + names + " אבל אין בה קישור שאפשר לבדוק")
+            reasons.append("ההודעה מציגה את עצמה כמגיעה מ" + names + " אבל אין בה קישור שאפשר לבדוק")
         if not applicable:
             reasons.append("אין בהודעה קישור, גוף מוכר או בקשה חשודה")
 
@@ -318,13 +318,13 @@ class Engine:
             advice = "אל תמסרו פרטים ואל תשלמו דרך ההודעה. אם זה נוגע לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי."
             steps = ["אל תלחצו על הקישור ואל תענו להודעה", "אל תמסרו פרטים, סיסמאות או קודים", route, "ספרו לבן משפחה"]
         elif verdict is Verdict.DONT_CLICK and "family" in sig_ids:
-            headline = "יכול להיות שזה לא מי שאתם חושבים"
+            headline = "אל תעבירו כסף. ייתכן שזה לא מי שחשבתם"
             advice = "התקשרו אליו במספר שאתם מכירים, לפני שאתם מעבירים כסף."
             steps = ["אל תעבירו כסף ואל תשלחו קודים", "התקשרו לאדם במספר שכבר שמור אצלכם ושמעו את הקול שלו", "ספרו לבן משפחה"]
         elif verdict is Verdict.DONT_CLICK:
             headline = "אל תענו ואל תשלמו"
-            advice = "אל תמסרו פרטים ואל תתקשרו למספר שבהודעה. אם זה נוגע לכם, פנו בעצמכם לערוץ הרשמי."
-            steps = ["אל תענו ואל תתקשרו למספר שבהודעה", "אל תמסרו פרטים, סיסמאות או קודים", route, "ספרו לבן משפחה"]
+            advice = "אל תמסרו פרטים ואל תענו להודעה. אם זה נוגע לכם, פנו בעצמכם דרך האתר, האפליקציה או הטלפון הרשמיים."
+            steps = ["אל תענו ואל תחזרו למי ששלח", "אל תמסרו פרטים, סיסמאות או קודים", route, "ספרו לבן משפחה"]
         elif verdict is Verdict.MATCHES_OFFICIAL:
             headline = "הקישור תואם לאתר הרשמי"
             advice = "גם כך, הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."

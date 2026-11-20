@@ -126,7 +126,7 @@ class ShomerEngine(directoryJson: String) {
         val punycode = host.split(".").any { it.startsWith("xn--") } || host.any { it.code > 127 }
         if (punycode) reasons.add("בכתובת יש תווים מוסווים שנראים כמו אותיות רגילות")
         if (look != null) {
-            reasons.add("הכתובת מנסה להידמות ל${look.nameHe} אבל היא לא האתר שלהם")
+            reasons.add("הכתובת מנסה לחקות את ${look.nameHe} אבל היא לא האתר שלהם")
             return LinkReport(url, host, Verdict.DONT_CLICK, reasons, look.id)
         }
         if (claimed.isNotEmpty()) {
@@ -134,8 +134,8 @@ class ShomerEngine(directoryJson: String) {
             return LinkReport(url, host, Verdict.DONT_CLICK, reasons)
         }
         if (punycode || userinfo) return LinkReport(url, host, Verdict.DONT_CLICK, reasons)
-        if (host.substringAfterLast('.') in badTlds) reasons.add("סיומת הכתובת נפוצה באתרי הונאה")
-        reasons.add("לא מצאנו את הגוף השולח ברשימת הגופים שאנחנו מכירים")
+        if (host.substringAfterLast('.') in badTlds) reasons.add("הכתובת נגמרת בסיומת שנפוצה בהונאות")
+        reasons.add("לא זיהינו מי שלח את ההודעה")
         return LinkReport(url, host, Verdict.CANT_VERIFY, reasons)
     }
 
@@ -181,15 +181,15 @@ class ShomerEngine(directoryJson: String) {
         if ("payment" in ids && verdict != Verdict.MATCHES_OFFICIAL) reasons.add(sigs.first { it.id == "payment" }.he)
         if (phone && claimed.isNotEmpty() && urls.isEmpty()) reasons.add("ההודעה מבקשת להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
         if (urls.isEmpty() && claimed.isNotEmpty())
-            reasons.add("ההודעה מתיימרת להגיע מ" + claimed.joinToString(", ") { it.nameHe } + " אבל אין בה קישור שאפשר לבדוק")
+            reasons.add("ההודעה מציגה את עצמה כמגיעה מ" + claimed.joinToString(", ") { it.nameHe } + " אבל אין בה קישור שאפשר לבדוק")
         if (!applicable) reasons.add("אין בהודעה קישור, גוף מוכר או בקשה חשודה")
         var (headline, advice) = when {
             verdict == Verdict.DONT_CLICK && urls.isNotEmpty() ->
                 "אל תלחצו על הקישור" to "אל תמסרו פרטים ואל תשלמו דרך ההודעה. אם זה נוגע לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי."
             verdict == Verdict.DONT_CLICK && "family" in ids ->
-                "יכול להיות שזה לא מי שאתם חושבים" to "התקשרו אליו במספר שאתם מכירים, לפני שאתם מעבירים כסף."
+                "אל תעבירו כסף. ייתכן שזה לא מי שחשבתם" to "התקשרו אליו במספר שאתם מכירים, לפני שאתם מעבירים כסף."
             verdict == Verdict.DONT_CLICK ->
-                "אל תענו ואל תשלמו" to "אל תמסרו פרטים ואל תתקשרו למספר שבהודעה. אם זה נוגע לכם, פנו בעצמכם לערוץ הרשמי."
+                "אל תענו ואל תשלמו" to "אל תמסרו פרטים ואל תענו להודעה. אם זה נוגע לכם, פנו בעצמכם דרך האתר, האפליקציה או הטלפון הרשמיים."
             verdict == Verdict.MATCHES_OFFICIAL ->
                 "הקישור תואם לאתר הרשמי" to "גם כך, הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
             else -> (if (urls.isNotEmpty()) "לא הצלחנו לבדוק. אל תלחצו ושאלו מישהו מהמשפחה"
