@@ -102,10 +102,10 @@
       <textarea name="paste_why" aria-label="מה מפריע"></textarea>
     </fieldset>
 
-    <fieldset><legend>היית מרשה לקרוב משפחה לראות שהגיעה אליך הודעה מסוכנת? (בלי תוכן ההודעה)</legend>
-      <label class="opt"><input type="radio" name="family" value="כן, תמיד"> כן, תמיד</label>
-      <label class="opt"><input type="radio" name="family" value="רק כשיש סכנה"> רק כשיש סכנה ממשית</label>
-      <label class="opt"><input type="radio" name="family" value="לא"> לא</label>
+    <fieldset><legend>אם מגיעה אליכם הודעה שנראית כמו הונאה, מי הייתם רוצים שיידע על זה?</legend>
+      <label class="opt"><input type="radio" name="family" value="אף אחד"> אף אחד, זה עניין שלי</label>
+      <label class="opt"><input type="radio" name="family" value="בן משפחה, רק אם הייתה סכנה"> בן משפחה שאני בוחר/ת, רק אם הייתה סכנה ממשית</label>
+      <label class="opt"><input type="radio" name="family" value="בן משפחה, כל פעם"> בן משפחה שאני בוחר/ת, בכל פעם</label>
       <label class="opt"><input type="radio" name="family" value="לא יודע"> לא יודע/ת</label>
     </fieldset>
 
@@ -151,7 +151,7 @@
       "ביטחון בזיהוי (1-5): " + val("conf"),
       "הדבקה באפליקציה: " + val("paste"),
       "מה מפריע: " + txt("paste_why"),
-      "שיתוף עם משפחה: " + val("family"),
+      "מי שיידע על הודעה חשודה: " + val("family"),
       "מה יגרום לסמוך: " + txt("trust"),
       "הודעה לדוגמה: " + txt("sample")
     ].join("\n");
