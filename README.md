@@ -28,7 +28,7 @@ Design choices that matter:
 
 ```bash
 python -m shomer.server        # then open http://localhost:8000
-python -m pytest               # 37 tests
+python -m pytest               # 50 tests
 python eval/run_eval.py        # regression summary (see caveat below)
 ```
 
@@ -47,19 +47,25 @@ Standard library only; Python 3.10+. In the page, use the example buttons, then 
 
 ## What is and isn't proven
 
-**Proven (by tests in this repo):** the engine handles lookalike domains, subdomain tricks, `@` tricks, punycode, IPs, shorteners, multiple links and organizations; unverified directory entries never produce a reassuring verdict; message text is not persisted; the server and the Hebrew UI work end to end.
+**Proven (by tests in this repo):** the engine handles lookalike domains, subdomain tricks, `@` tricks, punycode, IPs, shorteners, multiple links and organizations. A link can only be reported as matching if the message itself names the same organization (a link never vouches for itself), the domain is verified, shared government domains match only on a specific path, and the message does not also ask the reader to phone a number. Unverified directory entries never produce a reassuring verdict. Message text is not persisted by the server. The Hebrew UI works end to end in a browser.
 
 **Not proven:**
-- **Accuracy on real messages.** The evaluation corpus (23 messages) is written by me, modeled on published warnings. It is a regression check, not an accuracy estimate. The PRD sets numeric targets to measure on at least 50 real, consented messages.
+- **Accuracy on real messages.** The evaluation corpus (31 messages) is written by me, modeled on published warnings. It is also partly tautological: several cases were added after an adversarial review, so they test fixes, not unseen data. It is a regression check, not an accuracy estimate. The PRD sets numeric targets to measure on at least 50 real, consented messages.
 - **Android.** The Kotlin source has not been built. Open questions: whether a sideloaded app keeps SMS-receive permission, Android's restricted-settings behavior, Gmail API access for a non-published app.
 - **That users understand the alerts.** Needs testing with real older adults.
-- **Directory coverage.** 4 of 9 entries are verified from public sources; the rest are marked `TO VERIFY`.
+- **Directory coverage.** 4 of 9 entries are marked verified, with sources of uneven quality (see `directory.json`); the Home Front Command entry still needs a direct check, and the rest are marked `TO VERIFY`.
+- **Statistics in the PRD** (elder-fraud case counts, growth rates) come from press coverage; the original source links still need to be added.
+- **"Analysis on the device"** is a design goal for the Android app only. In the web demo the text is sent to the local demo server (running on your own machine) and is not stored.
 
 **Known limits (by design, for now):** scams without links (phone numbers, "reply to this number", family-impersonation texts) return "can't verify"; a matching domain is not proof a message is genuine (compromised accounts); iPhone cannot read other apps' messages, so iPhone support would rely on share-to-check; WhatsApp is end-to-end encrypted and out of scope for v1.
 
 ## Existing options (desk research, not hands-on)
 
 General AI checkers (e.g. Bitdefender Scamio), platform detection (Google Messages, WhatsApp Scam Alert, both limited to non-contacts), and Israeli tools (Fisherman SMS filter for iPhone, ScanMySMS upload checker). The bet here is not better detection but a verified official route, Israeli coverage, and the family loop. A hands-on comparison on real messages is a planned validation step before claiming any difference.
+
+## How this was reviewed
+
+I ran five review agents against the repo (definitions in `.claude/agents/`): a designer, a hiring-manager reviewer, a product critic, and two simulated users (an older adult and a design-literate 23-year-old). Their findings changed the product: an adversarial pass found scams that were wrongly confirmed, which led to the rules above; the older-adult simulation found that a green check reads as "safe", so a matching link now gets a calm blue link icon and the action comes first. The simulated users are not real users and their findings still need confirming with real people.
 
 ## Next steps
 

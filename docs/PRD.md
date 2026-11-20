@@ -98,7 +98,7 @@ Platform vendors are expanding built-in detection and will likely make basic det
 | US-1 | P0 | As an older adult, I get a verdict on a message with a link. | Verdict is one of three states; shown in under 1 second on device; text is Hebrew, large; never uses the word "safe". |
 | US-2 | P0 | As an older adult, I can open the official site or app in one tap. | When the organization is in the directory, the alert has a button to its official URL. |
 | US-3 | P0 | As an older adult, a lookalike link is stopped. | Official domain used as a prefix/subdomain of another domain, `@` tricks, punycode, IP links and brand-token lookalikes all return "Don't click". |
-| US-4 | P0 | As the system, I never reassure on unverified data. | A link may only return "matches official" if its directory entry has `verified: true` with a source. |
+| US-4 | P0 | As the system, I never reassure on weak evidence. | A link may only return "matches official" if: its directory entry is `verified` with a source; the message itself names that same organization (a link never vouches for itself); a shared domain such as gov.il matches only on a listed path; and the message does not also ask the reader to phone a number. |
 | US-5 | P0 | As a guardian, I'm told when a high-confidence risky message arrives. | A "Don't click" verdict creates an immediate alert; other verdicts appear in the daily summary. |
 | US-6 | P0 | As an older adult, my messages stay private. | Message text is never stored or sent; only verdict, organization id and link host leave the phone, and only if a server address was configured with consent. |
 | US-7 | P1 | As an older adult, I can share any message (WhatsApp, email) to the app to check it. | Android share target accepts plain text and shows the same verdict. |
@@ -107,6 +107,9 @@ Platform vendors are expanding built-in detection and will likely make basic det
 
 ### Edge cases handled or tracked
 - No link, but a named organization (e.g., "call this number"): returns "can't verify" with the official route; flagged as a known gap, not solved.
+- Link to an app store (Google Play, App Store): neutral, reported as "can't verify", never a match and never a false alarm.
+- Official domain but the message names no organization, or names one not in the directory: "can't verify".
+- Message with an official link and a phone number to call: downgraded to "can't verify".
 - Shortened link: always "can't verify" (the destination can't be seen without following it, which would expose the user).
 - Two links in one message: the worst verdict wins.
 - Two organizations named: both are detected; a link must belong to one of them.
@@ -119,7 +122,7 @@ Platform vendors are expanding built-in detection and will likely make basic det
 - Android app, installed directly for family use (not published on the Play Store in v1). **Why Android first:** it allows the deeper integration the core experience needs (reading SMS and notifications with consent). iPhone users are part of the target segment and are planned for after v1 through lighter paths (share-to-app, SMS filtering).
 - Reads incoming SMS (with explicit consent) and email via the Gmail API in test mode **[to verify feasibility]**.
 - Extracts links and the claimed organization from each message.
-- **Trusted Directory:** a curated list of the ~15 most-impersonated Israeli organizations, with their official domains and the correct way to check or pay. The list is prioritized from public warnings.
+- **Trusted Directory:** a curated list of the most-impersonated Israeli organizations (9 in the prototype, target ~15), with their official domains and the correct way to check or pay. The list is prioritized from public warnings.
 - Domain checks: exact match against the directory, lookalike detection (typos, wrong suffix, extra words), and basic reputation signals.
 - Alert in large-text, plain Hebrew, with a button that opens the official site or app directly.
 - Notification to the family guardian.
@@ -136,9 +139,9 @@ Platform vendors are expanding built-in detection and will likely make basic det
 
 For each link, in this order:
 1. Raw IP address → **Don't click**.
-2. Host (the real destination after removing `user@` tricks) equals or is a subdomain of an official domain: **matches official** only if the directory entry is verified and the claimed organization is consistent; unverified entry or a different organization → **can't verify**.
+2. Host (the real destination after removing `user@` tricks) equals or is a subdomain of an official domain (longest match wins): **matches official** only if the entry is verified, the message names the same organization (organization names are searched outside links only), and any path restriction is met; otherwise **can't verify**. A message that also asks to call a phone number is downgraded to **can't verify**.
 3. Known URL shortener → **can't verify**.
-4. Lookalike (brand token inside a foreign host, or a domain within edit distance 2 of an official one, or punycode) → **Don't click**.
+4. Lookalike (brand token starting a part of a foreign host, e.g. `israelpost.x.top` but not `storefront.com`; or a domain within edit distance 2 of an official one; or punycode) → **Don't click**.
 5. The message names an organization but the link goes elsewhere → **Don't click**.
 6. Otherwise → **can't verify**.
 
@@ -166,7 +169,7 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 - Manual "is this real?" questions to the guardian: **down by at least a third**.
 - Comprehension: **at least 4 of 5** older adults can explain in their own words what to do after a "Don't click" alert.
 
-**Current status:** the synthetic regression corpus (23 messages written by the author, modeled on published examples) passes: 0 scams reported as matching, 0 false "Don't click" on legitimate messages. This is **not** the quality measurement above; it only guards against regressions (`eval/results.md`).
+**Current status:** the synthetic regression corpus (31 messages written by the author, modeled on published examples, 8 added after the adversarial review) passes: 0 scams reported as matching, 0 false "Don't click" on legitimate messages. This is **not** the quality measurement above; it only guards against regressions (`eval/results.md`). Note on the target arithmetic: 0 misses out of 25 scams is still consistent with a true miss rate of up to about 12%, so the real test set needs enough scams to make the 95% target meaningful.
 
 ## 8. Validation plan
 
@@ -203,10 +206,13 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 
 ## 12. Build status (prototype)
 
+**Review log.** Five review agents (designer, hiring-manager, product critic, simulated older adult, simulated young user) ran against the repo. Changes made because of them: links no longer vouch for their own organization; shared gov.il restricted to a path; brand matching no longer fires inside unrelated words; app-store links neutral; phone numbers downgrade a match; a match is shown in calm blue with a link icon instead of a green check (a simulated older adult read green as "safe"); the recommended action now comes first; plainer Hebrew ("לא הצלחנו לבדוק" instead of "אי אפשר לאמת"); paste instructions; no external font request. Open items from the reviews: the problem statistics need source links; 5 real conversations and a real incident are still missing; the Android app is uncompiled; the simulated users' findings need confirmation with real older adults.
+
+
 | Part | Status |
 |---|---|
-| Verification engine (Python) | Built, 33 unit tests passing |
-| Trusted Directory | 9 organizations; **4 verified** (Israel Post, Carmel Tunnels, police fines via gov.il, Home Front Command); 5 pending verification (Kvish 6, Bank Leumi, Bank Hapoalim, Bit, National Insurance) |
+| Verification engine (Python) | Built, 50 tests passing (including 8 cases added after an adversarial review) |
+| Trusted Directory | 9 organizations; **4 marked verified** (Israel Post, Carmel Tunnels, police fines on one gov.il path, Home Front Command, which still needs a direct check); 5 pending (Kvish 6, Bank Leumi, Bank Hapoalim, Bit, National Insurance) |
 | Web demo (Hebrew, RTL, older-adult screen and family screen) | Built and exercised in a browser; API tests passing |
 | Android app (Kotlin) | **Source written, not compiled or run**: no Android SDK in the build environment. Needs a first build in Android Studio |
 | Real-message evaluation, interviews, user comprehension test | **Not started**; requires the builder's family |
