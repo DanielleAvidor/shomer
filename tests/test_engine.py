@@ -96,3 +96,34 @@ def test_brand_token_must_start_a_host_part():
 def test_app_store_links_are_neutral():
     r = E.check("דואר ישראל https://play.google.com/store/apps/details?id=x")
     assert r.verdict is Verdict.CANT_VERIFY
+
+
+def test_family_impersonation_without_link_is_flagged():
+    r = E.check("אמא החלפתי מספר, אפשר להעביר לי כסף בביט?")
+    assert r.verdict is Verdict.DONT_CLICK and r.kind == "content"
+    assert "אל תעבירו כסף" in r.steps_he[0]
+
+
+def test_warning_about_codes_is_not_a_request_for_codes():
+    ids = {g["id"] for g in E.content_signals("לעולם אל תמסרו קוד אימות לאף אחד")}
+    assert "credentials" not in ids
+    ids = {g["id"] for g in E.content_signals("אנא הזינו את קוד אימות שנשלח אליכם ואת מספר הכרטיס")}
+    assert "credentials" in ids
+
+
+def test_pressure_downgrades_an_official_match():
+    r = E.check("דואר ישראל: עדכנו פרטי אשראי תוך 24 שעות https://israelpost.co.il/pay")
+    assert r.verdict is Verdict.CANT_VERIFY
+
+
+def test_guidance_fields_present_for_risky_results_only():
+    risky = E.check("דואר ישראל https://israelpost.paliet.top/il")
+    assert risky.if_clicked_he and "119" in " ".join(risky.if_clicked_he)
+    assert "israelpost.paliet.top" in risky.share_text_he
+    ok = E.check("דואר ישראל https://israelpost.co.il")
+    assert ok.if_clicked_he == []
+
+
+def test_share_text_never_contains_the_message():
+    msg = "דואר ישראל סיסמה-סודית https://israelpost.paliet.top/il"
+    assert "סודית" not in E.check(msg).share_text_he

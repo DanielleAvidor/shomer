@@ -9,8 +9,8 @@
 {"id":"s09","kind":"scam","text":"עקוב אחר החבילה שלך https://israelposta.com/track","expected":"dont_click","note":"no org named in text, brand lookalike in link"}
 {"id":"s10","kind":"scam","text":"בנק הפועלים: פעילות חשודה, היכנסו http://185.12.4.9/login","expected":"dont_click","note":"IP address"}
 {"id":"s11","kind":"scam","text":"זכית בשובר 750 ש\"ח מבנק הפועלים https://poalim-gift.com","expected":"dont_click","note":"modeled on a published 'gift' campaign"}
-{"id":"s12","kind":"scam","text":"בנק הפועלים: חשבונך ייחסם היום. התקשרו עכשיו למספר 03-5551234","expected":"cant_verify","note":"no link: engine cannot judge a phone number; known limitation"}
-{"id":"s13","kind":"scam","text":"אמא החלפתי מספר, אפשר להעביר לי כסף בביט? אני אסביר אחר כך","expected":"cant_verify","note":"family impersonation without link: out of scope"}
+{"id":"s12","kind":"scam","text":"בנק הפועלים: חשבונך ייחסם היום. התקשרו עכשיו למספר 03-5551234","expected":"dont_click","note":"no link: caught by content signals (threat + call-this-number + named bank)"}
+{"id":"s13","kind":"scam","text":"אמא החלפתי מספר, אפשר להעביר לי כסף בביט? אני אסביר אחר כך","expected":"dont_click","note":"family impersonation without link: caught by content signals"}
 {"id":"s14","kind":"scam","text":"קיבלת חבילה https://bit.ly/3xYz","expected":"cant_verify","note":"shortener, no org"}
 {"id":"s15","kind":"scam","text":"פיקוד העורף: עדכון הנחיות דחוף https://oref-alerts.top/update","expected":"dont_click","note":"emergency-themed lookalike"}
 {"id":"l01","kind":"legit","text":"דואר ישראל: החבילה שלך הגיעה לסניף. מעקב: https://israelpost.co.il/track","expected":"matches_official","note":"official domain"}
@@ -29,3 +29,8 @@
 {"id":"l10","kind":"legit","text":"קופון 20% https://storefront.com/sale","expected":"cant_verify","note":"critic: 'oref' inside 'storefront' must not look like Home Front Command"}
 {"id":"l11","kind":"legit","text":"בנק לאומי: פרטי כרטיס האשראי באתר https://www.leumicard.co.il/x","expected":"cant_verify","note":"critic: Leumi Card domain; unverified entry so cannot verify, but no false alarm"}
 {"id":"l12","kind":"legit","text":"משטרת ישראל: לצפייה בדוחות היכנסו https://www.gov.il/he/service/enforcement-reports/","expected":"matches_official","note":"restricted path matches"}
+{"id":"s20","kind":"scam","text":"זכית בהגרלה! דחוף: הזינו פרטי כרטיס אשראי כדי לקבל את הפרס https://bit.ly/prize9","expected":"dont_click","note":"unverifiable short link plus prize, urgency and a card-details request"}
+{"id":"s21","kind":"scam","text":"הי אבא זה אני, הטלפון נפל ואני במספר חדש. תעביר לי 2,000 ש\"ח דחוף לחשבון","expected":"dont_click","note":"family impersonation, urgent money, no link"}
+{"id":"s22","kind":"scam","text":"דואר ישראל: עדכנו פרטי אשראי תוך 24 שעות אחרת החבילה תוחזר https://israelpost.co.il/pay","expected":"cant_verify","note":"official domain but the message pressures and asks for card details: never reassure"}
+{"id":"l13","kind":"legit","text":"בנק הפועלים: לעולם אל תמסרו קוד אימות לאף אחד, גם לא לנציג בנק.","expected":"cant_verify","note":"warning text must not count as a request for secrets"}
+{"id":"l14","kind":"legit","text":"קיבלתי מתנה מדהימה מסבתא, תודה על היום!","expected":"not_applicable","note":"a weak word like 'gift' alone must not trigger anything"}

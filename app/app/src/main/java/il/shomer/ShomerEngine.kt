@@ -23,11 +23,15 @@ data class CheckResult(
     val claimedOrgs: List<String>, val links: List<LinkReport>, val officialUrl: String?, val applicable: Boolean,
 )
 
+/** A content signal: what the message asks for (pressure, threats, secrets, prizes, money, family impersonation). */
+data class Signal(val id: String, val kind: String, val weight: Int, val rx: Regex, val he: String)
+
 class ShomerEngine(directoryJson: String) {
     private val orgs: List<Org>
     private val shorteners: Set<String>
     private val badTlds: Set<String>
     private val neutral: Set<String>
+    private val signals: List<Signal>
     private val aliasPatterns: List<Pair<Org, List<Regex>>>
 
     init {
@@ -42,6 +46,12 @@ class ShomerEngine(directoryJson: String) {
         }
         shorteners = strings(root.getJSONArray("shorteners")).toSet()
         badTlds = strings(root.getJSONArray("suspicious_tlds")).toSet()
+        signals = root.optJSONArray("signals")?.let { a ->
+            List(a.length()) { i ->
+                val g = a.getJSONObject(i)
+                Signal(g.getString("id"), g.getString("kind"), g.getInt("weight"), Regex(g.getString("pattern"), RegexOption.IGNORE_CASE), g.getString("he"))
+            }
+        } ?: emptyList()
         neutral = root.optJSONArray("neutral_domains")?.let { strings(it).toSet() } ?: emptySet()
         aliasPatterns = orgs.map { o -> o to o.aliases.map { aliasPattern(it) } }
     }
@@ -132,26 +142,59 @@ class ShomerEngine(directoryJson: String) {
         val urls = extractUrls(text)
         val claimed = claimedOrgs(text)
         val reports = urls.map { analyzeLink(it, claimed) }
-        val applicable = urls.isNotEmpty() || claimed.isNotEmpty()
+        val body = URL_RE.replace(text, " ").lowercase()
+        val sigs = signals.filter { it.rx.containsMatchIn(body) }
+        val ids = sigs.map { it.id }.toSet()
+        val pressure = sigs.filter { it.kind == "pressure" }.map { it.id }.toSet()
+        val phone = PHONE_RE.containsMatchIn(text)
+        val score = sigs.sumOf { it.weight } + if (phone && claimed.isNotEmpty()) 1 else 0
+        val applicable = urls.isNotEmpty() || claimed.isNotEmpty() || score >= 3
         var verdict = when {
             reports.any { it.verdict == Verdict.DONT_CLICK } -> Verdict.DONT_CLICK
             reports.isNotEmpty() && reports.all { it.verdict == Verdict.MATCHES_OFFICIAL } -> Verdict.MATCHES_OFFICIAL
             else -> Verdict.CANT_VERIFY
         }
         val reasons = mutableListOf<String>()
-        if (verdict == Verdict.MATCHES_OFFICIAL && PHONE_RE.containsMatchIn(text)) {
-            verdict = Verdict.CANT_VERIFY
-            reasons.add("ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
+        var downgraded = false
+        // A matching link is not enough when the message also pressures, asks for secrets or for a call.
+        if (verdict == Verdict.MATCHES_OFFICIAL) {
+            if (phone) {
+                verdict = Verdict.CANT_VERIFY; downgraded = true
+                reasons.add("ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
+            }
+            if ("credentials" in ids || pressure.size >= 2) {
+                verdict = Verdict.CANT_VERIFY; downgraded = true
+                reasons.add("הכתובת תואמת, אבל ההודעה מלחיצה או מבקשת פרטים. גופים רשמיים לא עושים את זה בהודעה")
+            }
         }
-        reasons.addAll(reports.flatMap { it.reasons }.distinct())
+        // An unverifiable link plus a pushy message is treated as a scam.
+        if (verdict == Verdict.CANT_VERIFY && urls.isNotEmpty() && score >= 3 && !downgraded) verdict = Verdict.DONT_CLICK
+        // No link at all: judge by what the message asks for.
+        if (urls.isEmpty()) {
+            if (score >= 3) verdict = Verdict.DONT_CLICK
+            else if (applicable || claimed.isNotEmpty()) verdict = Verdict.CANT_VERIFY
+        }
+        for (why in reports.flatMap { it.reasons }) if (why !in reasons) reasons.add(why)
+        for (g in sigs) if (g.he !in reasons && g.id != "payment") reasons.add(g.he)
+        if ("payment" in ids && verdict != Verdict.MATCHES_OFFICIAL) reasons.add(sigs.first { it.id == "payment" }.he)
+        if (phone && claimed.isNotEmpty() && urls.isEmpty()) reasons.add("ההודעה מבקשת להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
         if (urls.isEmpty() && claimed.isNotEmpty())
             reasons.add("ההודעה מתיימרת להגיע מ" + claimed.joinToString(", ") { it.nameHe } + " אבל אין בה קישור שאפשר לבדוק")
-        if (urls.isEmpty() && claimed.isEmpty()) reasons.add("אין בהודעה קישור או גוף מוכר לבדוק")
-        val (headline, advice) = when (verdict) {
-            Verdict.DONT_CLICK -> "אל תלחצו על הקישור" to "אל תמסרו פרטים ואל תשלמו דרך ההודעה. אם זה נוגע לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי."
-            Verdict.MATCHES_OFFICIAL -> "הקישור תואם לאתר הרשמי" to "גם כך, הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
-            Verdict.CANT_VERIFY -> "לא הצלחנו לבדוק. אל תלחצו ושאלו מישהו מהמשפחה" to "אם ההודעה נוגעת לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי, או התקשרו למוקד הרשמי."
+        if (!applicable) reasons.add("אין בהודעה קישור, גוף מוכר או בקשה חשודה")
+        var (headline, advice) = when {
+            verdict == Verdict.DONT_CLICK && urls.isNotEmpty() ->
+                "אל תלחצו על הקישור" to "אל תמסרו פרטים ואל תשלמו דרך ההודעה. אם זה נוגע לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי."
+            verdict == Verdict.DONT_CLICK && "family" in ids ->
+                "יכול להיות שזה לא מי שאתם חושבים" to "התקשרו אליו במספר שאתם מכירים, לפני שאתם מעבירים כסף."
+            verdict == Verdict.DONT_CLICK ->
+                "אל תענו ואל תשלמו" to "אל תמסרו פרטים ואל תתקשרו למספר שבהודעה. אם זה נוגע לכם, פנו בעצמכם לערוץ הרשמי."
+            verdict == Verdict.MATCHES_OFFICIAL ->
+                "הקישור תואם לאתר הרשמי" to "גם כך, הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
+            else -> (if (urls.isNotEmpty()) "לא הצלחנו לבדוק. אל תלחצו ושאלו מישהו מהמשפחה"
+                     else "לא הצלחנו לבדוק. אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה") to
+                "אם ההודעה נוגעת לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי, או התקשרו למוקד הרשמי."
         }
+        if (!applicable) { headline = "אין כאן מה לבדוק"; advice = "בהודעה אין קישור, גוף מוכר או בקשה חשודה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה." }
         return CheckResult(verdict, headline, advice, reasons, claimed.map { it.id }, reports, claimed.firstOrNull()?.officialUrl, applicable)
     }
 

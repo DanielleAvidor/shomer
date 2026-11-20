@@ -55,3 +55,21 @@ def test_report_from_phone_alerts_only_for_dont_click(base):
 def test_report_rejects_bad_verdict(base):
     status, _ = post(base, "/api/report", {"verdict": "safe"})
     assert status == 400
+
+
+def test_handled_event_leaves_the_alert_list(base):
+    _, r = post(base, "/api/report", {"verdict": "dont_click", "org": "", "host": "handled-test.top"})
+    with urllib.request.urlopen(base + "/api/guardian") as resp:
+        assert any(a["host"] == "handled-test.top" for a in json.loads(resp.read())["alerts"])
+    post(base, "/api/handled", {"event_id": r["event_id"]})
+    with urllib.request.urlopen(base + "/api/guardian") as resp:
+        assert not any(a["host"] == "handled-test.top" for a in json.loads(resp.read())["alerts"])
+
+
+def test_settings_roundtrip_and_font_served(base):
+    _, s = post(base, "/api/settings", {"name": "סבתא", "relation": "סבתא", "consented": True})
+    assert s == {"name": "סבתא", "relation": "סבתא", "consented": True}
+    with urllib.request.urlopen(base + "/static/fonts/opensans.woff") as r:
+        assert r.status == 200 and r.headers["Content-Type"] == "font/woff"
+    with pytest.raises(urllib.error.HTTPError):
+        urllib.request.urlopen(base + "/static/fonts/../server.py")

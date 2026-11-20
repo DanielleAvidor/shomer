@@ -3,172 +3,338 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14365d">
 <title>שומר – בודקים הודעה לפני שלוחצים</title>
 <style>
-  :root {
-    --ink:#0e2233; --soft:#4a5d6e; --dim:#5f6f7c; --blue:#134a6b; --blue-bg:#e4eef5; --paper:#f3f6f8; --white:#fff; --line:#cfd9e0;
-    --brand:#0f4c5c; --brand-ink:#fff;
-    --red:#b3261e; --red-bg:#fbe9e7; --amber:#7a5200; --amber-bg:#fff1cf; --green:#17653a; --green-bg:#e3f3e9;
+  @font-face{font-family:"Open Sans";src:url(/static/fonts/opensans.woff) format("woff");font-weight:400 800;font-display:swap}
+  @font-face{font-family:"Cardo";src:url(/static/fonts/cardo-bold.woff) format("woff");font-weight:700;font-display:swap}
+  :root{
+    --ink:#0f1f2e; --soft:#4a5b6b; --dim:#5f6f7c; --paper:#f3f5f8; --surface:#fff; --line:#d3dae2; --line-strong:#8798a5;
+    --navy:#14365d; --red:#b3261e; --red-bg:#fcebe9; --blue:#1f4e8c; --blue-bg:#e6eef8; --amber:#7a5200; --amber-bg:#fff2d1; --wa:#14663f;
+    --serif:"Cardo","Frank Ruhl Libre","David",Georgia,serif; --sans:"Open Sans",system-ui,"Segoe UI","Arial Hebrew",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--paper);color:var(--ink);font:400 21px/1.55 system-ui,"Segoe UI","Arial Hebrew",Arial,sans-serif}
-  .wrap{max-width:640px;margin:0 auto;padding:0 18px 56px}
-
-  header{display:flex;align-items:center;gap:12px;padding:22px 0 14px}
-  header svg{flex:none}
-  header h1{font:800 38px/1 system-ui,Arial,sans-serif;margin:0;letter-spacing:-.01em}
-  header p{margin:2px 0 0;font-size:17px;color:var(--soft)}
-
-  .tabs{display:flex;border-bottom:3px solid var(--line);margin-bottom:22px}
-  .tabs button{flex:1;min-height:52px;font:500 19px system-ui,Arial,sans-serif;padding:12px 6px 10px;border:0;background:none;color:var(--soft);cursor:pointer;border-bottom:5px solid transparent;margin-bottom:-3px}
-  .tabs button[aria-selected="true"]{color:var(--brand);font-weight:800;border-bottom-color:var(--brand)}
-
-  label.q{display:block;font-weight:800;font-size:24px;margin-bottom:10px}
-  textarea{display:block;width:100%;min-height:150px;font:400 22px/1.5 system-ui,Arial,sans-serif;padding:14px 16px;color:var(--ink);background:var(--white);border:2px solid #8798a5;border-radius:18px 18px 18px 4px;resize:vertical}
-  textarea::placeholder{color:var(--dim)}
-  :focus-visible{outline:4px solid #5aa9bd;outline-offset:2px}
-  .go{display:block;width:100%;margin-top:14px;padding:18px;border:0;border-radius:14px;background:var(--brand);color:var(--brand-ink);font:800 26px system-ui,Arial,sans-serif;cursor:pointer}
-  .go:active{transform:translateY(1px)}
-
-  .try{margin-top:18px;font-size:17px;color:var(--soft)}
-  .try b{font-weight:500;display:block;margin-bottom:6px}
-  .try button{font:400 17px system-ui,Arial,sans-serif;margin:0 0 8px 8px;padding:12px 16px;min-height:48px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--ink);cursor:pointer}
-  .try button:hover{border-color:var(--brand)}
-
-  /* the result */
-  #out{margin-top:22px}
-  #out:empty{margin:0}
-  .try{margin-top:26px}
-  .band{border-radius:18px;padding:22px 20px;display:flex;gap:16px;align-items:center}
-  .band .mark{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:var(--white)}
-  .band h2{font:800 31px/1.2 system-ui,Arial,sans-serif;margin:0}
-  .dont_click .band{background:var(--red-bg);color:var(--red)}
-  .cant_verify .band{background:var(--amber-bg);color:var(--amber)}
-  .matches_official .band{background:var(--blue-bg);color:var(--blue)}
-
-  .dest{margin:22px 0 0}
-  .dest small{display:block;font-size:17px;color:var(--soft);margin-bottom:6px}
-  .host{direction:ltr;text-align:left;unicode-bidi:isolate;font:500 26px/1.3 ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere;padding:12px 14px;background:var(--white);border:2px solid var(--line);border-radius:10px}
-  .host .dim{color:var(--dim)}
-  .host b{font-weight:800}
-  .dont_click .host b{color:var(--red)} .matches_official .host b{color:var(--blue)} .cant_verify .host b{color:var(--amber)}
-
-  .why{margin:22px 0 0;padding:0;list-style:none}
-  .why li{padding:10px 0 10px 0;border-top:1px solid var(--line)}
-  .why li:last-child{border-bottom:1px solid var(--line)}
-  .do{font-weight:500;margin:18px 0 0}
-
-  .official{display:block;margin-top:18px;text-align:center;text-decoration:none;font:800 24px system-ui,Arial,sans-serif;padding:16px;border-radius:14px;color:var(--brand);background:var(--white);border:3px solid var(--brand)}
-  .quiet{display:inline-block;margin-top:18px;min-height:48px;font:400 18px system-ui,Arial,sans-serif;color:var(--soft);background:none;border:0;text-decoration:underline;cursor:pointer;padding:6px 0}
-  .fine{font-size:16px;color:var(--soft);margin-top:14px}
-
-  /* family */
-  .banner{background:var(--red-bg);color:var(--red);border-radius:14px;padding:14px 16px;margin-bottom:12px;font-weight:500}
-  .counts{display:flex;gap:10px;margin:6px 0 4px}
-  .counts div{flex:1;padding:12px 8px;border-radius:12px;text-align:center;font-size:16px;line-height:1.25}
-  .counts b{display:block;font:800 34px/1.1 system-ui,Arial,sans-serif}
-  .c-dont_click{background:var(--red-bg);color:var(--red)} .c-cant_verify{background:var(--amber-bg);color:var(--amber)} .c-matches_official{background:var(--blue-bg);color:var(--blue)}
-  .feed{list-style:none;margin:18px 0 0;padding:0}
-  .feed li{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;padding:12px 0;border-top:1px solid var(--line);font-size:19px}
-  .feed time{color:var(--soft);font-size:16px}
-  .feed .h{direction:ltr;text-align:right;color:var(--soft);font-size:16px}
-  .empty{color:var(--soft);padding:18px 0}
+  body{margin:0;background:var(--paper);color:var(--ink);font:400 20px/1.6 var(--sans)}
+  button{font:inherit;color:inherit}
+  :focus-visible{outline:4px solid #5b93d6;outline-offset:2px}
   [hidden]{display:none!important}
-  @media (prefers-reduced-motion:no-preference){ #out>div{animation:in .25s ease-out} @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1}} }
+
+  /* frame */
+  .top{background:var(--navy);color:#fff}
+  .top-in{max-width:1080px;margin:0 auto;padding:14px 20px 0;display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 28px}
+  .brand{display:flex;align-items:baseline;gap:12px;padding-bottom:12px}
+  .brand h1{font:700 40px/1 var(--serif);margin:0}
+  .brand span{font-size:16px;opacity:.85}
+  nav{display:flex;gap:4px;margin-inline-start:auto;width:100%}
+  nav button{flex:1;min-height:52px;border:0;background:transparent;color:#cfdcec;font:600 18px var(--sans);cursor:pointer;border-radius:12px 12px 0 0}
+  nav button[aria-selected="true"]{background:var(--paper);color:var(--navy)}
+  @media(min-width:760px){nav{width:auto}nav button{flex:none;padding:0 26px}}
+  main{max-width:1080px;margin:0 auto;padding:22px 20px 64px}
+
+  /* check screen layout */
+  .check{display:grid;gap:26px}
+  @media(min-width:900px){.check{grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-areas:"input result" "recent result";grid-template-rows:auto 1fr;align-items:start}.input-col{grid-area:input}.result-col{grid-area:result;position:sticky;top:16px}.recent-col{grid-area:recent}}
+  label.q{display:block;font:800 26px/1.25 var(--sans);margin-bottom:12px}
+  textarea{display:block;width:100%;min-height:168px;font:400 21px/1.55 var(--sans);padding:14px 16px;color:var(--ink);background:var(--surface);border:2px solid var(--line-strong);border-radius:14px;resize:vertical}
+  textarea::placeholder{color:var(--dim)}
+  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 22px;border-radius:14px;border:2px solid var(--navy);background:var(--surface);color:var(--navy);font:700 20px var(--sans);cursor:pointer;text-decoration:none;text-align:center}
+  .btn.primary{background:var(--navy);color:#fff;flex:1 1 220px;font-size:24px;min-height:62px}
+  .btn.wa{border-color:var(--wa);color:var(--wa)}
+  .btn.quiet{border-color:transparent;min-height:48px;font-weight:600;text-decoration:underline;color:var(--soft)}
+  .btn:active{transform:translateY(1px)}
+  .hint{font-size:16px;color:var(--soft);margin:10px 0 0}
+  .samples{margin-top:22px}
+  .samples b,.recent h2{font:600 16px var(--sans);color:var(--soft);display:block;margin-bottom:8px}
+  .chip{min-height:48px;padding:0 16px;margin:0 0 8px 8px;border-radius:999px;border:1.5px solid var(--line-strong);background:var(--surface);cursor:pointer;font-size:17px}
+  .chip:hover{border-color:var(--navy)}
+  .recent{margin-top:26px}
+  .recent ul{list-style:none;margin:0;padding:0}
+  .recent li{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:18px}
+  .dot{flex:none;width:14px;height:14px;border-radius:50%}
+  .dot.dont_click{background:var(--red)} .dot.cant_verify{background:#c98a00} .dot.matches_official{background:var(--blue)}
+  .recent time{margin-inline-start:auto;font-size:15px;color:var(--soft)}
+  .recent .h{direction:ltr;font:400 15px var(--mono);color:var(--soft)}
+
+  /* how it works (empty state) */
+  .how{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px}
+  .how h2{font:800 24px/1.25 var(--sans);margin:0 0 14px}
+  .how ol{margin:0;padding:0;list-style:none;counter-reset:s}
+  .how li{counter-increment:s;display:flex;gap:14px;padding:12px 0;border-top:1px dashed var(--line-strong)}
+  .how li::before{content:counter(s);flex:none;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font:700 18px var(--sans)}
+
+  /* the stamp card: the result */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 1px 0 var(--line)}
+  .card .strip{height:8px}
+  .dont_click .strip{background:var(--red)} .cant_verify .strip{background:#c98a00} .matches_official .strip{background:var(--blue)}
+  .head{display:flex;gap:18px;align-items:center;padding:22px 22px 18px}
+  .seal{flex:none;width:104px;height:104px;transform:rotate(-7deg)}
+  .dont_click .seal{color:var(--red)} .cant_verify .seal{color:var(--amber)} .matches_official .seal{color:var(--blue)}
+  .head h2{font:700 clamp(30px,6.2vw,40px)/1.12 var(--serif);margin:0}
+  .dont_click .head h2{color:var(--red)} .cant_verify .head h2{color:var(--amber)} .matches_official .head h2{color:var(--blue)}
+  .adv{padding:0 22px 18px;font-weight:600;font-size:21px;margin:0}
+  .sec{padding:16px 22px;border-top:2px dashed var(--line)}
+  .sec h3{font:600 16px var(--sans);color:var(--soft);margin:0 0 8px}
+  .host{direction:ltr;text-align:left;unicode-bidi:isolate;font:700 clamp(24px,5.4vw,32px)/1.25 var(--mono);overflow-wrap:anywhere}
+  .host.long{font-size:clamp(19px,4.3vw,26px)}
+  .host .dim{color:var(--dim);font-weight:400}
+  .dont_click .host b{color:var(--red);text-decoration:underline wavy var(--red);text-decoration-thickness:2px;text-underline-offset:7px}
+  .cant_verify .host b{color:var(--amber)} .matches_official .host b{color:var(--blue)}
+  .why{list-style:none;margin:0;padding:0}
+  .why li{display:flex;gap:10px;padding:7px 0}
+  .why li::before{content:"";flex:none;width:8px;height:8px;margin-top:12px;border-radius:50%;background:var(--dim)}
+  .steps{margin:0;padding:0;list-style:none;counter-reset:s}
+  .steps li{counter-increment:s;display:flex;gap:12px;padding:8px 0}
+  .steps li::before{content:counter(s);flex:none;width:30px;height:30px;margin-top:2px;border-radius:50%;border:2px solid var(--navy);color:var(--navy);display:grid;place-items:center;font:700 16px var(--sans)}
+  details.clicked{border:2px solid var(--line-strong);border-radius:12px;padding:0 14px}
+  details.clicked summary{min-height:52px;display:flex;align-items:center;font-weight:700;cursor:pointer}
+  details.clicked ul{margin:0 0 12px;padding-inline-start:22px}
+  .actions{display:flex;flex-direction:column;gap:10px;padding:18px 22px 6px}
+  .foot{padding:6px 22px 20px;font-size:15px;color:var(--soft)}
+
+  /* family + setup */
+  .page{max-width:720px;margin:0 auto}
+  .page h2{font:800 30px/1.2 var(--sans);margin:0 0 6px}
+  .lead{color:var(--soft);margin:0 0 18px}
+  .alert{border:2px solid var(--red);background:var(--red-bg);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+  .alert b{display:block;font-size:21px;color:var(--red)}
+  .alert .row{margin-top:10px}
+  .calm{border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:16px 18px;margin-bottom:12px;font-weight:600}
+  .stats{display:flex;gap:22px;flex-wrap:wrap;margin:18px 0 6px;font-size:18px;color:var(--soft)}
+  .stats b{font:800 26px var(--sans);color:var(--ink);margin-inline-end:6px}
+  .feed{list-style:none;margin:10px 0 0;padding:0}
+  .feed li{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line)}
+  .feed .dot{margin-top:9px}
+  .feed time{margin-inline-start:auto;font-size:15px;color:var(--soft);white-space:nowrap}
+  .feed .h{direction:ltr;text-align:right;font:400 15px var(--mono);color:var(--soft)}
+  .feed .done{color:var(--soft)}
+  .note{background:var(--blue-bg);color:var(--ink);border-radius:12px;padding:12px 16px;font-size:16px;margin:0 0 20px}
+  .form{display:grid;gap:18px}
+  .form label.f{display:grid;gap:6px;font-weight:600}
+  .form input[type=text],.form select{font:400 20px var(--sans);min-height:54px;padding:0 14px;border:2px solid var(--line-strong);border-radius:12px;background:var(--surface)}
+  .consent{border:2px solid var(--line);border-radius:14px;padding:6px 18px;background:var(--surface)}
+  .consent ul{margin:8px 0;padding-inline-start:22px}
+  .check-row{display:flex;gap:12px;align-items:flex-start;font-weight:600}
+  .check-row input{width:28px;height:28px;margin-top:4px;flex:none}
+  .invite{white-space:pre-wrap;background:var(--surface);border:2px dashed var(--line-strong);border-radius:14px;padding:16px;margin-top:14px}
+
+  @media (prefers-reduced-motion:no-preference){
+    .seal.stamp{animation:stamp .42s cubic-bezier(.2,.9,.3,1.2)}
+    @keyframes stamp{from{transform:rotate(-14deg) scale(1.5);opacity:0}60%{opacity:1}to{transform:rotate(-7deg) scale(1)}}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
+<div class="top"><div class="top-in">
+  <div class="brand"><h1>שומר</h1><span>בודקים הודעה לפני שלוחצים</span></div>
+  <nav role="tablist" aria-label="מסכים">
+    <button role="tab" id="tab-check" aria-selected="true">בדיקת הודעה</button>
+    <button role="tab" id="tab-fam" aria-selected="false">משפחה</button>
+    <button role="tab" id="tab-setup" aria-selected="false">הגדרה</button>
+  </nav>
+</div></div>
 
-    <div><h1>שומר</h1><p>בודקים אם הודעה אמיתית, לפני שלוחצים</p></div>
-  </header>
-
-  <div class="tabs" role="tablist">
-    <button role="tab" id="tab-user" aria-selected="true">בדיקת הודעה</button>
-    <button role="tab" id="tab-fam" aria-selected="false">לבני המשפחה</button>
-  </div>
-
-  <section id="p-user">
+<main>
+<section id="p-check" class="check">
+  <div class="input-col">
     <label class="q" for="msg">איזו הודעה קיבלתם?</label>
     <textarea id="msg" placeholder="הדביקו כאן את ההודעה"></textarea>
-    <p class="fine" style="margin:8px 0 0">איך מעתיקים? לוחצים ומחזיקים על ההודעה, בוחרים "העתק", ואז לוחצים כאן ובוחרים "הדבק".</p>
-    <button class="go" id="go">בדקו לי</button>
-    <div id="out" aria-live="polite"></div>
-    <div class="try" id="try"><b>רוצים לנסות? בחרו דוגמה:</b>
-      <button data-ex="0">דואר ישראל – דוגמה א</button>
-      <button data-ex="1">דואר ישראל – דוגמה ב</button>
-      <button data-ex="2">מנהרות הכרמל</button>
-      <button data-ex="3">הודעה עם קישור קצר</button>
+    <div class="row">
+      <button class="btn primary" id="go">בדקו לי</button>
+      <button class="btn" id="paste">הדבקה מהלוח</button>
     </div>
-  </section>
+    <p class="hint">איך מעתיקים? לוחצים ומחזיקים על ההודעה, בוחרים "העתק", ואז לוחצים כאן ובוחרים "הדבק". ההודעה נבדקת מיד.</p>
+    <div class="samples" id="samples"><b>רוצים לנסות? בחרו דוגמה:</b>
+      <button class="chip" data-ex="0">דואר ישראל – דוגמה א</button>
+      <button class="chip" data-ex="1">דואר ישראל – דוגמה ב</button>
+      <button class="chip" data-ex="2">מנהרות הכרמל</button>
+      <button class="chip" data-ex="3">הודעה בלי קישור</button>
+      <button class="chip" data-ex="4">הודעה מ"הנכד"</button>
+    </div>
+  </div>
+  <div class="result-col"><div id="out" aria-live="polite"></div></div>
+  <div class="recent-col"><div class="recent" id="recent" hidden><h2>נבדקו לאחרונה</h2><ul id="recent-list"></ul></div></div>
+</section>
 
-  <section id="p-fam" hidden>
-    <div id="alerts"></div>
-    <div class="counts" id="counts"></div>
-    <p class="fine">המסך הזה מיועד לבן או בת משפחה שנבחרו על ידי מי שמשתמשת באפליקציה. רואים כאן רק מה קרה, לא את תוכן ההודעות. הודעה שסומנה "אל תלחצו" שולחת התראה מיידית, והשאר מגיע בסיכום.</p>
-    <ul class="feed" id="feed"></ul>
-  </section>
-</div>
+<section id="p-fam" class="page" hidden></section>
+<section id="p-setup" class="page" hidden></section>
+</main>
 
 <script>
 const EX = [
   "דואר ישראל: החבילה שלך נעצרה בגלל כתובת שגויה. אנא אשר כתובת https://israelpost.paliet.top/il",
   "דואר ישראל: החבילה שלך הגיעה לסניף. מעקב: https://israelpost.co.il/track",
   "מנהרות הכרמל: חוב פתוח. לתשלום https://carmeltunnels.co.il.pay-now.top/bills",
-  "קיבלת חבילה https://bit.ly/3xYz"
+  "בנק הפועלים: חשבונך ייחסם היום. התקשרו עכשיו למספר 03-5551234",
+  "אבא זה אני, הטלפון נפל ואני במספר חדש. תעביר לי 2,000 ש\"ח דחוף"
 ];
 const ICON = {
-  dont_click:`<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#b3261e" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg>`,
-  cant_verify:`<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#7a5200" stroke-width="3" stroke-linecap="round"><path d="M9 9a3 3 0 1 1 4.5 2.6C12.5 12.2 12 13 12 14.5"/><circle cx="12" cy="19" r=".6" fill="#7a5200"/></svg>`,
-  matches_official:`<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#134a6b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>`
+  dont_click:`<path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18"/><path d="M5.6 5.6l12.8 12.8"/>`,
+  cant_verify:`<path d="M9 9a3 3 0 1 1 4.5 2.6C12.5 12.2 12 13 12 14.5"/><path d="M12 18.6v.1"/>`,
+  matches_official:`<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>`
 };
-const LABEL = {dont_click:"אל תלחצו", cant_verify:"לא הצלחנו לבדוק", matches_official:"תואם לאתר הרשמי"};
+const LABEL = {dont_click:"הודעה מסוכנת", cant_verify:"לא הצלחנו לבדוק", matches_official:"תואם לאתר הרשמי"};
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const post = (u, o) => fetch(u, {method:"POST", body: JSON.stringify(o || {})}).then(r => r.json());
+const get = u => fetch(u).then(r => r.json());
+const hm = ts => new Date(ts*1000).toLocaleTimeString("he-IL", {hour:"2-digit", minute:"2-digit"});
+let last = null, settings = {name:"", relation:"", consented:false};
 
-function hostHtml(host){           // dim the beginning, bold the part that really owns the address
-  const l = host.split(".");
-  const n = l.length >= 3 && ["co.il","org.il","gov.il","muni.il","ac.il"].includes(l.slice(-2).join(".")) ? 3 : 2;
+function seal(v){
+  return `<svg class="seal stamp" viewBox="0 0 120 120" fill="none" stroke="currentColor" aria-hidden="true">
+    <circle cx="60" cy="60" r="56" stroke-width="4"/><circle cx="60" cy="60" r="47" stroke-width="1.6" stroke-dasharray="2 5" stroke-linecap="round"/>
+    <g transform="translate(26 26) scale(3.17)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICON[v]}</g></svg>`;
+}
+function hostHtml(host){
+  const l = host.split("."), second = ["co.il","org.il","gov.il","muni.il","ac.il"];
+  const n = l.length >= 3 && second.includes(l.slice(-2).join(".")) ? 3 : 2;
   const real = l.slice(-n).join("."), rest = l.slice(0, -n).join(".");
   return (rest ? `<span class="dim">${esc(rest)}.</span><wbr>` : "") + `<b>${esc(real)}</b>`;
 }
 
-$("#msg").addEventListener("input", () => { $("#try").hidden = $("#msg").value.trim() !== ""; });
-document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#msg").value = EX[b.dataset.ex]; $("#try").hidden = true; $("#go").click(); });
-document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
-  document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
-  $("#p-user").hidden = b.id !== "tab-user"; $("#p-fam").hidden = b.id !== "tab-fam";
-  if (b.id === "tab-fam") loadFamily();
-});
+/* ---------- tabs ---------- */
+function show(tab){
+  for (const t of ["check","fam","setup"]){ $("#tab-"+t).setAttribute("aria-selected", t === tab); $("#p-"+t).hidden = t !== tab; }
+  if (tab === "fam") loadFamily(); if (tab === "setup") renderSetup(); if (tab === "check") loadRecent();
+}
+for (const t of ["check","fam","setup"]) $("#tab-"+t).onclick = () => show(t);
 
-$("#go").onclick = async () => {
-  const text = $("#msg").value.trim(); if (!text) { $("#msg").focus(); return; }
-  const r = await (await fetch("/api/check", {method:"POST", body: JSON.stringify({text})})).json();
-  const out = $("#out");
-  if (!r.applicable) {
-    out.innerHTML = `<div class="cant_verify"><div class="band"><div class="mark">${ICON.cant_verify}</div><h2>אין כאן מה לבדוק</h2></div><p class="do">בהודעה אין קישור ואין גוף מוכר. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה.</p></div>`; return;
+/* ---------- check ---------- */
+function howItWorks(){
+  $("#out").innerHTML = `<div class="how"><h2>איך שומר בודק</h2><ol>
+    <li><div><b>מדביקים הודעה.</b><br>כל הודעה שנראית לכם חשודה: SMS, מייל או וואטסאפ.</div></li>
+    <li><div><b>שומר משווה לאתר הרשמי.</b><br>הוא בודק אם הקישור שייך לגוף ששלח, ומחפש גם לחץ ובקשות חשודות.</div></li>
+    <li><div><b>מקבלים תשובה ברורה.</b><br>מה לעשות עכשיו, ומה לעשות אם כבר לחצתם.</div></li></ol></div>`;
+}
+async function run(){
+  const text = $("#msg").value.trim(); if (!text){ $("#msg").focus(); return; }
+  $("#samples").hidden = true;
+  const r = await post("/api/check", {text}); last = r; render(r); loadRecent();
+}
+function render(r){
+  const out = $("#out"), v = r.verdict;
+  if (!r.applicable){
+    out.innerHTML = `<div class="card cant_verify"><div class="strip"></div><div class="head">${seal("cant_verify")}<h2>${esc(r.headline_he)}</h2></div><p class="adv">${esc(r.advice_he)}</p>
+      <div class="actions"><button class="btn quiet" id="again">בודקים הודעה אחרת</button></div></div>`;
+    $("#again").onclick = reset; return;
   }
   const link = r.links[0];
-  const dest = link && link.host ? `<div class="dest"><small>הקישור בהודעה פותח את האתר:</small><div class="host">${hostHtml(link.host)}</div></div>` : "";
-  const why = r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("");
-  const official = r.official_url ? `<a class="official" href="${esc(r.official_url)}" target="_blank" rel="noopener">פותחים את האתר הרשמי</a>` : "";
-  const note = r.verdict === "dont_click" ? "" : `<p class="fine">שומר לא קובע שהודעה אמיתית או בטוחה. הוא בודק רק אם הכתובת שייכת לאתר הרשמי של השולח.</p>`;
-  out.innerHTML = `<div class="${r.verdict}">
-    <div class="band"><div class="mark">${ICON[r.verdict]}</div><h2>${esc(r.headline_he)}</h2></div>
-    <p class="do">${esc(r.advice_he)}</p>${official}${dest}<ul class="why">${why}</ul>${note}
-    <button class="quiet" id="again">בודקים הודעה אחרת</button></div>`;
-  out.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
-  $("#again").onclick = () => { $("#msg").value = ""; out.innerHTML = ""; $("#try").hidden = false; $("#msg").focus(); window.scrollTo({top: 0}); };
-};
-
-async function loadFamily() {
-  const g = await (await fetch("/api/guardian")).json();
-  $("#alerts").innerHTML = g.alerts.slice(0,3).map(a => `<div class="banner" role="alert">התראה: נשלחה הודעה שסומנה "אל תלחצו"${a.org ? " (" + esc(a.org) + ")" : ""}</div>`).join("");
-  $("#counts").innerHTML = ["dont_click","cant_verify","matches_official"].map(k => `<div class="c-${k}"><b>${g.counts[k]}</b>${LABEL[k]}</div>`).join("");
-  $("#feed").innerHTML = g.recent.length ? g.recent.map(e => `<li><time>${new Date(e.ts*1000).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"})}</time><div>${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}<div class="h">${esc(e.host || "")}</div></div></li>`).join("") : `<li class="empty">עוד לא נבדקו הודעות.</li>`;
+  const dest = link && link.host ? `<div class="sec"><h3>הקישור בהודעה פותח את האתר</h3><div class="host${link.host.length > 22 ? " long" : ""}">${hostHtml(link.host)}</div></div>` : "";
+  const why = r.reasons_he.length ? `<div class="sec"><h3>מה מצאנו</h3><ul class="why">${r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
+  const steps = r.steps_he.length ? `<div class="sec"><h3>מה עושים עכשיו</h3><ol class="steps">${r.steps_he.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>` : "";
+  const clicked = r.if_clicked_he.length ? `<div class="sec"><details class="clicked"><summary>כבר לחצתי או מסרתי פרטים. מה עושים?</summary><ul>${r.if_clicked_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
+  const official = r.official_url ? `<a class="btn primary" href="${esc(r.official_url)}" target="_blank" rel="noopener" style="flex:none">פותחים את האתר הרשמי</a>` : "";
+  const note = v === "dont_click" ? "" : ` שומר לא קובע שהודעה אמיתית או בטוחה. הוא בודק רק אם הכתובת שייכת לאתר הרשמי של השולח.`;
+  out.innerHTML = `<div class="card ${v}"><div class="strip"></div>
+    <div class="head">${seal(v)}<h2>${esc(r.headline_he)}</h2></div>
+    <p class="adv">${esc(r.advice_he)}</p>${dest}${why}${steps}${clicked}
+    <div class="actions">${official}
+      <button class="btn wa" id="share">שליחה לבן משפחה בוואטסאפ</button>
+      <button class="btn" id="save">שמירה כתמונה</button>
+      <button class="btn quiet" id="again">בודקים הודעה אחרת</button></div>
+    <p class="foot">נבדק בשעה <bdi>${hm(Date.now()/1000)}</bdi>.${note}</p></div>`;
+  $("#share").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(r.share_text_he), "_blank", "noopener");
+  $("#save").onclick = () => saveImage(r);
+  $("#again").onclick = reset;
+  if (!matchMedia("(min-width: 900px)").matches) out.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
 }
+function reset(){ $("#msg").value = ""; $("#samples").hidden = false; howItWorks(); last = null; window.scrollTo({top:0}); $("#msg").focus(); }
+async function loadRecent(){
+  const g = await get("/api/guardian"); settings = g.settings;
+  $("#recent").hidden = !g.recent.length;
+  $("#recent-list").innerHTML = g.recent.slice(0,5).map(e => `<li><span class="dot ${e.verdict}"></span><div>${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}<div class="h">${esc(e.host || "")}</div></div><time>${hm(e.ts)}</time></li>`).join("");
+}
+
+$("#go").onclick = run;
+$("#msg").addEventListener("paste", () => setTimeout(run, 80));
+$("#msg").addEventListener("input", () => { $("#samples").hidden = $("#msg").value.trim() !== ""; });
+$("#paste").onclick = async () => {
+  try { $("#msg").value = await navigator.clipboard.readText(); run(); }
+  catch { $("#msg").focus(); $(".hint").textContent = "לא הצלחנו לקרוא את הלוח. לחצו בתוך התיבה ובחרו \"הדבק\"."; }
+};
+document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#msg").value = EX[b.dataset.ex]; run(); });
+
+/* ---------- save as picture ---------- */
+async function saveImage(r){
+  await document.fonts.load("700 40px Cardo"); await document.fonts.load("400 24px 'Open Sans'");
+  const W = 1080, c = document.createElement("canvas"), x = c.getContext("2d");
+  const col = {dont_click:"#b3261e", cant_verify:"#7a5200", matches_official:"#1f4e8c"}[r.verdict];
+  const lines = [];
+  c.width = W; c.height = 1500; x.direction = "rtl"; x.textAlign = "right";
+  const wrap = (t, font, maxW) => { x.font = font; const out = []; let cur = ""; for (const w of t.split(" ")) { const tr = cur ? cur + " " + w : w; if (x.measureText(tr).width > maxW && cur){ out.push(cur); cur = w; } else cur = tr; } if (cur) out.push(cur); return out; };
+  x.fillStyle = "#fff"; x.fillRect(0, 0, W, c.height); x.fillStyle = col; x.fillRect(0, 0, W, 18);
+  // seal
+  x.save(); x.translate(180, 230); x.rotate(-0.12); x.strokeStyle = col; x.lineWidth = 8; x.beginPath(); x.arc(0, 0, 110, 0, 7); x.stroke();
+  x.lineWidth = 3; x.setLineDash([4, 12]); x.beginPath(); x.arc(0, 0, 92, 0, 7); x.stroke(); x.setLineDash([]);
+  x.scale(6, 6); x.translate(-12, -12); x.lineWidth = 1.7; x.lineCap = "round";
+  const paths = {dont_click:["M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18","M5.6 5.6l12.8 12.8"], cant_verify:["M9 9a3 3 0 1 1 4.5 2.6C12.5 12.2 12 13 12 14.5","M12 18.6v.1"], matches_official:["M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1","M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"]}[r.verdict];
+  paths.forEach(p => x.stroke(new Path2D(p))); x.restore();
+  let y = 190; x.fillStyle = col;
+  for (const l of wrap(r.headline_he, "700 68px Cardo", 700)) { x.font = "700 68px Cardo"; x.fillText(l, 1020, y); y += 82; }
+  y = Math.max(y, 400) + 30; x.fillStyle = "#0f1f2e";
+  for (const l of wrap(r.advice_he, "600 34px 'Open Sans'", 940)) { x.font = "600 34px 'Open Sans'"; x.fillText(l, 1020, y); y += 52; }
+  const host = r.links[0] && r.links[0].host;
+  if (host){ y += 30; x.fillStyle = "#4a5b6b"; x.font = "600 26px 'Open Sans'"; x.fillText("הקישור בהודעה פותח את האתר", 1020, y); y += 70;
+    x.direction = "ltr"; x.textAlign = "left"; x.fillStyle = col; x.font = "700 44px monospace"; x.fillText(host.length > 34 ? host.slice(0, 33) + "…" : host, 60, y); x.direction = "rtl"; x.textAlign = "right"; y += 40; }
+  y += 30; x.fillStyle = "#0f1f2e";
+  r.steps_he.forEach((s, i) => { for (const l of wrap(s, "400 32px 'Open Sans'", 880)) { x.font = "400 32px 'Open Sans'"; x.fillText(l, 1020, y); y += 48; } y += 10; });
+  x.fillStyle = "#14365d"; x.fillRect(0, c.height - 120, W, 120); x.fillStyle = "#fff"; x.font = "700 46px Cardo"; x.fillText("שומר", 1020, c.height - 52);
+  x.font = "400 24px 'Open Sans'"; x.textAlign = "left"; x.direction = "ltr"; x.fillText(new Date().toLocaleString("he-IL"), 60, c.height - 52);
+  c.toBlob(async b => {
+    const f = new File([b], "shomer-result.png", {type: "image/png"});
+    if (navigator.canShare && navigator.canShare({files:[f]})) { try { await navigator.share({files:[f]}); return; } catch {} }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "shomer-result.png"; a.click();
+  });
+}
+
+/* ---------- family ---------- */
+async function loadFamily(){
+  const g = await get("/api/guardian"); settings = g.settings;
+  const who = settings.name || "המשפחה";
+  const el = $("#p-fam");
+  const alerts = g.alerts.map(a => `<div class="alert" role="alert"><b>${settings.name ? "הודעה מסוכנת הגיעה אל " + esc(settings.name) : "הגיעה הודעה מסוכנת"}</b>${esc(a.org || "גוף לא מזוהה")} · ${esc(a.host || "בלי קישור")} · ${hm(a.ts)}
+    <div class="row"><button class="btn" data-handled="${a.id}">סימון כטופל</button></div></div>`).join("");
+  const calm = !g.alerts.length ? `<div class="calm">אין כרגע התראות פתוחות. כשמשהו חשוד יגיע, זה יופיע כאן מיד.</div>` : "";
+  const total = g.counts.dont_click + g.counts.cant_verify + g.counts.matches_official;
+  const feed = g.recent.length ? g.recent.map(e => `<li><span class="dot ${e.verdict}"></span><div class="${e.handled ? "done" : ""}">${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}${e.handled ? " · טופל" : ""}<div class="h">${esc(e.host || "")}</div></div><time>${hm(e.ts)}</time></li>`).join("") : `<li style="color:var(--soft)">עוד לא נבדקו הודעות.</li>`;
+  el.innerHTML = `<h2>${esc(who)} – מה קורה</h2><p class="lead">מי שהוגדר כשומר המשפחתי רואה כאן רק מה קרה, ואף פעם לא את תוכן ההודעות.</p>
+    ${settings.consented ? "" : `<p class="note">עוד לא הוגדרה הסכמה. עברו ללשונית "הגדרה" כדי להפעיל את השיתוף עם המשפחה.</p>`}
+    ${alerts}${calm}
+    <div class="stats"><span><b>${total}</b>הודעות נבדקו</span><span><b>${g.counts.dont_click}</b>סומנו כמסוכנות</span></div>
+    <ul class="feed">${feed}</ul>`;
+  el.querySelectorAll("[data-handled]").forEach(b => b.onclick = async () => { await post("/api/handled", {event_id: +b.dataset.handled}); loadFamily(); });
+}
+
+/* ---------- setup ---------- */
+function renderSetup(){
+  const el = $("#p-setup");
+  el.innerHTML = `<h2>הגדרה חד־פעמית</h2><p class="lead">בן או בת משפחה מגדירים את שומר פעם אחת, יחד עם מי שמוגן. אחר כך הכול קורה לבד.</p>
+    <p class="note">בגרסת ההדגמה ההגדרות נשמרות רק בשרת המקומי שרץ על המחשב שלכם.</p>
+    <div class="form">
+      <label class="f">איך קוראים למי שמוגן?<input type="text" id="s-name" value="${esc(settings.name)}" placeholder="למשל: סבתא רחל"></label>
+      <label class="f">מה הקשר?<select id="s-rel">${["סבתא","סבא","אמא","אבא","אחר"].map(o => `<option ${o === settings.relation ? "selected" : ""}>${o}</option>`).join("")}</select></label>
+      <div class="consent"><p style="margin:12px 0 0;font-weight:700">מה שומר עושה, ומה הוא לא עושה</p><ul>
+        <li>קורא הודעות SMS שנכנסות, רק כדי לבדוק אם יש בהן קישור או בקשה חשודה.</li>
+        <li>הבדיקה נעשית בטלפון עצמו. תוכן ההודעות לא נשמר ולא נשלח.</li>
+        <li>לבן המשפחה נשלחים רק: מה התוצאה, שם הגוף וכתובת האתר.</li>
+        <li>אפשר להפסיק בכל רגע בהגדרות הטלפון.</li></ul></div>
+      <label class="check-row"><input type="checkbox" id="s-ok" ${settings.consented ? "checked" : ""}><span>המוגן/ת קרא/ה והסכים/ה לכל האמור לעיל</span></label>
+      <button class="btn primary" id="s-save" style="flex:none">שמירת הגדרה</button>
+    </div><div id="s-done"></div>`;
+  $("#s-save").onclick = async () => {
+    if (!$("#s-ok").checked){ $("#s-done").innerHTML = `<p class="note" style="background:var(--red-bg)">כדי להמשיך צריך הסכמה של מי שמוגן.</p>`; return; }
+    settings = await post("/api/settings", {name: $("#s-name").value.trim(), relation: $("#s-rel").value, consented: true});
+    const invite = `הגדרתי עבורך את שומר. הוא בודק הודעות לפני שלוחצים עליהן, ומעדכן אותי רק כשמשהו חשוד, בלי לקרוא את ההודעות שלך.`;
+    $("#s-done").innerHTML = `<p class="note">נשמר. עכשיו אפשר לשלוח הודעת הסבר.</p><div class="invite">${esc(invite)}</div>
+      <div class="row"><button class="btn wa" id="s-wa">שליחה בוואטסאפ</button></div>`;
+    $("#s-wa").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(invite), "_blank", "noopener");
+  };
+}
+
+howItWorks(); loadRecent();
 </script>
 </body>
 </html>

@@ -66,6 +66,11 @@ class Result:
     links: list
     official_url: str | None
     applicable: bool
+    signals_he: list = field(default_factory=list)
+    steps_he: list = field(default_factory=list)
+    if_clicked_he: list = field(default_factory=list)
+    share_text_he: str = ""
+    kind: str = "link"  # "link" or "content" (no link to check, judged on what the message asks)
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -138,6 +143,7 @@ class Engine:
         self.shorteners = set(raw["shorteners"])
         self.bad_tlds = set(raw["suspicious_tlds"])
         self.neutral = set(raw.get("neutral_domains", []))
+        self.signals = [(g, re.compile(g["pattern"], re.IGNORECASE)) for g in raw.get("signals", [])]
         self._alias_res = [(o, [_alias_pattern(a) for a in o.aliases]) for o in self.orgs]
 
     # ---- extraction -------------------------------------------------------
@@ -230,12 +236,23 @@ class Engine:
         return LinkReport(url, host, Verdict.CANT_VERIFY, reasons)
 
     # ---- message level ----------------------------------------------------
+    def content_signals(self, text: str) -> list:
+        """Signals about what the message asks for (outside links)."""
+        body = _URL_RE.sub(" ", text).lower()
+        return [g for g, rx in self.signals if rx.search(body)]
+
     def check(self, text: str) -> Result:
         urls = self.extract_urls(text)
         claimed = self.claimed_orgs(text)
         reports = [self.analyze_link(u, claimed) for u in urls]
-        applicable = bool(urls or claimed)
+        sigs = self.content_signals(text)
+        sig_ids = {g["id"] for g in sigs}
+        pressure = {g["id"] for g in sigs if g["kind"] == "pressure"}
+        phone = bool(_PHONE_RE.search(text))
+        score = sum(g["weight"] for g in sigs) + (1 if phone and claimed else 0)
+        applicable = bool(urls or claimed or score >= 3)
         official_url = claimed[0].official_url if claimed else None
+        names = ", ".join(o.name_he for o in claimed)
 
         if any(r.verdict is Verdict.DONT_CLICK for r in reports):
             verdict = Verdict.DONT_CLICK
@@ -244,28 +261,78 @@ class Engine:
         else:
             verdict = Verdict.CANT_VERIFY
 
-        if verdict is Verdict.MATCHES_OFFICIAL and _PHONE_RE.search(text):
-            verdict = Verdict.CANT_VERIFY
-            phone_note = "ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק"
-        else:
-            phone_note = None
-        reasons = [phone_note] if phone_note else []
+        reasons: list = []
+        downgraded = False
+        # A matching link is not enough when the message also pressures or asks for secrets or a call.
+        if verdict is Verdict.MATCHES_OFFICIAL:
+            if phone:
+                verdict = Verdict.CANT_VERIFY
+                downgraded = True
+                reasons.append("ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
+            if "credentials" in sig_ids or len(pressure) >= 2:
+                verdict = Verdict.CANT_VERIFY
+                downgraded = True
+                reasons.append("הכתובת תואמת, אבל ההודעה מלחיצה או מבקשת פרטים. גופים רשמיים לא עושים את זה בהודעה")
+        # An unverifiable link plus a pushy message is treated as a scam.
+        if verdict is Verdict.CANT_VERIFY and urls and score >= 3 and not downgraded:
+            verdict = Verdict.DONT_CLICK
+        # No link at all: judge by what the message asks for.
+        if not urls:
+            if score >= 3:
+                verdict = Verdict.DONT_CLICK
+            elif applicable or claimed:
+                verdict = Verdict.CANT_VERIFY
+        kind = "link" if urls else "content"
+
         for r in reports:
             for why in r.reasons:
                 if why not in reasons:
                     reasons.append(why)
+        for g in sigs:
+            if g["he"] not in reasons and g["id"] != "payment":
+                reasons.append(g["he"])
+        if "payment" in sig_ids and verdict is not Verdict.MATCHES_OFFICIAL:
+            reasons.append(next(g["he"] for g in sigs if g["id"] == "payment"))
+        if phone and claimed and not urls:
+            reasons.append("ההודעה מבקשת להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
         if not urls and claimed:
-            reasons.append("ההודעה מתיימרת להגיע מ" + ", ".join(o.name_he for o in claimed) + " אבל אין בה קישור שאפשר לבדוק")
-        if not urls and not claimed:
-            reasons.append("אין בהודעה קישור או גוף מוכר לבדוק")
+            reasons.append("ההודעה מתיימרת להגיע מ" + names + " אבל אין בה קישור שאפשר לבדוק")
+        if not applicable:
+            reasons.append("אין בהודעה קישור, גוף מוכר או בקשה חשודה")
 
-        if verdict is Verdict.DONT_CLICK:
+        route = f"פתחו בעצמכם את {claimed[0].app or 'האתר הרשמי'} של {claimed[0].name_he}" if claimed else "פתחו בעצמכם את האפליקציה או האתר הרשמי"
+        if verdict is Verdict.DONT_CLICK and urls:
             headline = "אל תלחצו על הקישור"
             advice = "אל תמסרו פרטים ואל תשלמו דרך ההודעה. אם זה נוגע לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי."
+            steps = ["אל תלחצו על הקישור ואל תענו להודעה", "אל תמסרו פרטים, סיסמאות או קודים", route, "ספרו לבן משפחה"]
+        elif verdict is Verdict.DONT_CLICK and "family" in sig_ids:
+            headline = "יכול להיות שזה לא מי שאתם חושבים"
+            advice = "התקשרו אליו במספר שאתם מכירים, לפני שאתם מעבירים כסף."
+            steps = ["אל תעבירו כסף ואל תשלחו קודים", "התקשרו לאדם במספר שכבר שמור אצלכם ושמעו את הקול שלו", "ספרו לבן משפחה"]
+        elif verdict is Verdict.DONT_CLICK:
+            headline = "אל תענו ואל תשלמו"
+            advice = "אל תמסרו פרטים ואל תתקשרו למספר שבהודעה. אם זה נוגע לכם, פנו בעצמכם לערוץ הרשמי."
+            steps = ["אל תענו ואל תתקשרו למספר שבהודעה", "אל תמסרו פרטים, סיסמאות או קודים", route, "ספרו לבן משפחה"]
         elif verdict is Verdict.MATCHES_OFFICIAL:
             headline = "הקישור תואם לאתר הרשמי"
             advice = "גם כך, הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
+            steps = [route + ", ולא דרך ההודעה"]
         else:
-            headline = "לא הצלחנו לבדוק. אל תלחצו ושאלו מישהו מהמשפחה"
+            headline = ("לא הצלחנו לבדוק. אל תלחצו ושאלו מישהו מהמשפחה" if urls
+                        else "לא הצלחנו לבדוק. אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה")
             advice = "אם ההודעה נוגעת לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי, או התקשרו למוקד הרשמי."
-        return Result(verdict, headline, advice, reasons, [o.id for o in claimed], reports, official_url, applicable)
+            steps = ["אל תלחצו ואל תענו", "שאלו מישהו מהמשפחה", route]
+        if not applicable:
+            headline = "אין כאן מה לבדוק"
+            advice = "בהודעה אין קישור, גוף מוכר או בקשה חשודה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
+            steps = []
+        if_clicked = [] if verdict is Verdict.MATCHES_OFFICIAL or not applicable else [
+            "אל תכניסו שום פרט נוסף",
+            "אם הזנתם פרטי כרטיס אשראי, התקשרו מיד לחברת האשראי וחסמו את הכרטיס",
+            "אם הזנתם סיסמה, החליפו אותה עכשיו, וגם בכל מקום שבו השתמשתם באותה סיסמה",
+            "ספרו למשפחה, ודווחו למוקד הסייבר הלאומי בטלפון 119",
+        ]
+        host = reports[0].host if reports else ""
+        share = f"בדקתי הודעה עם שומר. התוצאה: {headline}." + (f" הקישור פותח את האתר {host}." if host else "") + " אפשר להסתכל על זה יחד?"
+        return Result(verdict, headline, advice, reasons, [o.id for o in claimed], reports, official_url, applicable,
+                      [g["he"] for g in sigs], steps, if_clicked, share, kind)

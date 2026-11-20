@@ -24,8 +24,9 @@ def make_db(path: str = ":memory:") -> sqlite3.Connection:
     db = sqlite3.connect(path, check_same_thread=False)
     db.execute(
         "CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, verdict TEXT, "
-        "org TEXT, host TEXT, tapped INTEGER DEFAULT 0)"
+        "org TEXT, host TEXT, tapped INTEGER DEFAULT 0, handled INTEGER DEFAULT 0)"
     )
+    db.execute("CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT)")
     return db
 
 
@@ -40,18 +41,25 @@ def record(result) -> int:
     return cur.lastrowid
 
 
+def get_settings() -> dict:
+    d = dict(DB.execute("SELECT k, v FROM settings").fetchall())
+    return {"name": d.get("name", ""), "relation": d.get("relation", ""), "consented": d.get("consented") == "1"}
+
+
 def guardian_summary() -> dict:
-    rows = DB.execute("SELECT id, ts, verdict, org, host, tapped FROM events ORDER BY id DESC LIMIT 50").fetchall()
+    rows = DB.execute("SELECT id, ts, verdict, org, host, tapped, handled FROM events ORDER BY id DESC LIMIT 50").fetchall()
     events = [
-        dict(id=r[0], ts=r[1], verdict=r[2], org=ENGINE.by_id[r[3]].name_he if r[3] in ENGINE.by_id else "", host=r[4], tapped=bool(r[5]))
+        dict(id=r[0], ts=r[1], verdict=r[2], org=ENGINE.by_id[r[3]].name_he if r[3] in ENGINE.by_id else "", host=r[4],
+             tapped=bool(r[5]), handled=bool(r[6]))
         for r in rows
     ]
     counts = {"dont_click": 0, "cant_verify": 0, "matches_official": 0}
     for e in events:
         counts[e["verdict"]] += 1
-    # Immediate alert for every high-confidence "don't click" (Android cannot see taps in other apps).
-    alerts = [e for e in events if e["verdict"] == "dont_click" or e["tapped"]]
-    return {"counts": counts, "alerts": alerts, "recent": events[:10]}
+    # Immediate alert for every high-confidence "don't click" that nobody has handled yet
+    # (Android cannot see taps in other apps).
+    alerts = [e for e in events if (e["verdict"] == "dont_click" or e["tapped"]) and not e["handled"]]
+    return {"counts": counts, "alerts": alerts, "recent": events[:12], "settings": get_settings()}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -80,6 +88,20 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+        elif self.path.startswith("/static/fonts/"):
+            f = (STATIC / "fonts" / Path(self.path).name)
+            if f.suffix == ".woff" and f.is_file():
+                body = f.read_bytes()
+                self.send_response(200)
+                self.send_header("Content-Type", "font/woff")
+                self.send_header("Cache-Control", "public, max-age=86400")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            else:
+                self._json({"error": "not found"}, 404)
+        elif self.path == "/api/settings":
+            self._json(get_settings())
         elif self.path == "/api/guardian":
             self._json(guardian_summary())
         else:
@@ -105,6 +127,18 @@ class Handler(BaseHTTPRequestHandler):
             )
             DB.commit()
             self._json({"event_id": cur.lastrowid})
+        elif self.path == "/api/handled":
+            DB.execute("UPDATE events SET handled=1 WHERE id=?", (int(data.get("event_id", 0)),))
+            DB.commit()
+            self._json({"ok": True})
+        elif self.path == "/api/settings":
+            for k in ("name", "relation"):
+                if k in data:
+                    DB.execute("INSERT OR REPLACE INTO settings VALUES (?,?)", (k, str(data[k])[:40]))
+            if "consented" in data:
+                DB.execute("INSERT OR REPLACE INTO settings VALUES ('consented', ?)", ("1" if data["consented"] else "0",))
+            DB.commit()
+            self._json(get_settings())
         elif self.path == "/api/tapped":
             DB.execute("UPDATE events SET tapped=1 WHERE id=?", (int(data.get("event_id", 0)),))
             DB.commit()
