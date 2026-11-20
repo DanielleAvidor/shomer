@@ -7,8 +7,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- usesCleartextTraffic: only so the family can point the app at a plain-HTTP demo server on the local network. Remove for a real HTTPS server. -->
     <application
         android:allowBackup="false"
+        android:usesCleartextTraffic="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">

@@ -63,7 +63,7 @@ def test_hebrew_prefix_and_word_boundaries():
 def test_never_says_safe_word():
     for c in CORPUS:
         r = E.check(c["text"])
-        blob = r.headline_he + r.advice_he + " ".join(r.reasons_he)
+        blob = (r.headline_he + r.advice_he + " ".join(r.reasons_he)).replace("זה לא אומר שההודעה בטוחה", "")
         assert "בטוח" not in blob and "ללא סיכון" not in blob
 
 

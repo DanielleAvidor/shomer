@@ -55,6 +55,7 @@
   textarea:focus{border-color:var(--pine);box-shadow:0 0 0 4px rgba(29,75,65,.16)}
   textarea::placeholder{color:var(--dim)}
   .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
+  .row>#go{flex:1 1 100%}.row>#paste{flex:1 1 100%}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:0 20px;border-radius:14px;border:1.5px solid var(--line-strong);background:var(--sheet);color:var(--ink);font:700 17px/1.2 var(--sans);cursor:pointer;text-decoration:none;text-align:center;white-space:nowrap}
   .btn:hover{border-color:var(--pine);background:#fff}
   .btn.primary{background:var(--pine);border-color:var(--pine);color:#fff;font-size:21px;min-height:62px;padding:0 30px;box-shadow:0 3px 0 var(--pine-d)}
@@ -73,7 +74,7 @@
   .recent li>div,.feed li>div{min-width:0;flex:1}
   .dot{flex:none;width:14px;height:14px;border-radius:50%}
   .dot.dont_click{background:var(--red)} .dot.cant_verify{background:#C28A12} .dot.matches_official{background:var(--indigo)}
-  .recent time,.feed time{margin-inline-start:auto;font-size:15px;color:var(--soft);white-space:nowrap}
+  .recent time,.feed time{margin-inline-start:auto;font-size:16px;color:var(--soft);white-space:nowrap}
   .h{direction:ltr;unicode-bidi:isolate;text-align:right;font:400 15px var(--mono);color:var(--soft);overflow-wrap:anywhere}
   .recent .h{text-align:start}
   .recent li>.n{margin-inline-start:6px;font-size:14px;background:var(--wash);border-radius:99px;padding:0 9px;color:var(--soft)}
@@ -92,9 +93,9 @@
   .card.matches_official .stamp-wrap{border-radius:999px}
   #out{scroll-margin-top:16px}
   .card{background:var(--sheet);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
-  .dont_click{--c:var(--red);--cb:var(--red-bg)} .cant_verify{--c:var(--bronze);--cb:var(--bronze-bg)} .matches_official{--c:var(--indigo);--cb:var(--indigo-bg)}
+  .neutral{--c:var(--pine);--cb:#E3EDE6} .dont_click{--c:var(--red);--cb:var(--red-bg)} .cant_verify{--c:var(--bronze);--cb:var(--bronze-bg)} .matches_official{--c:var(--indigo);--cb:var(--indigo-bg)}
   .head{background:var(--cb);padding:28px 22px 26px;border-bottom:1px solid color-mix(in srgb,var(--c) 25%,transparent)}
-  .stamp-wrap{display:grid;justify-items:center;gap:10px;text-align:center;color:var(--c);padding:22px 18px 20px;margin:0 4px;border:4px solid var(--c);border-radius:18px;box-shadow:inset 0 0 0 6px var(--cb),inset 0 0 0 8px var(--c);transform:rotate(-2deg);mix-blend-mode:multiply;filter:url(#rough)}
+  .stamp-wrap{display:grid;justify-items:center;gap:10px;text-align:center;color:var(--c);padding:22px 18px 20px;margin:0 4px;border:4px solid var(--c);border-radius:18px;box-shadow:inset 0 0 0 6px var(--cb),inset 0 0 0 8px var(--c);transform:rotate(-2deg);mix-blend-mode:multiply}
   .stamp-wrap svg{width:54px;height:54px}
   .stamp-wrap h2{font:800 clamp(27px,7.6vw,36px)/1.15 var(--serif);margin:0;color:var(--c);text-wrap:balance;letter-spacing:-.01em}
   .adv{padding:20px 24px 4px;font-weight:700;font-size:21px;line-height:1.5;margin:0}
@@ -113,8 +114,8 @@
   .steps li{counter-increment:s;display:flex;gap:14px;padding:8px 0}
   .steps li::before{content:counter(s);flex:none;width:32px;height:32px;margin-top:1px;border-radius:50%;background:var(--pine);color:#fff;display:grid;place-items:center;font:800 17px var(--serif)}
   details.clicked{border:1.5px solid var(--line-strong);border-radius:14px;padding:0 16px;background:#fff}
-  details.clicked summary::after{content:"▾";margin-inline-start:auto;font-size:20px;transition:transform .2s}
-  details.clicked[open] summary::after{transform:rotate(180deg)}
+  details.clicked summary::after{content:"";margin-inline-start:auto;width:9px;height:9px;border:solid var(--soft);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);transition:transform .2s;flex:none}
+  details.clicked[open] summary::after{transform:rotate(225deg)}
   details.clicked summary{min-height:56px;display:flex;align-items:center;font-weight:700;cursor:pointer;line-height:1.4;padding:6px 0}
   details.clicked[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
   details.clicked ul{margin:0 0 14px;padding-inline-start:22px}
@@ -124,7 +125,7 @@
   .actions .btn{font-size:17px;padding:0 10px;min-height:52px}
   .actions .btn.primary{font-size:21px;min-height:60px}
   .actions .btn.quiet{grid-column:1/-1}
-  .foot{padding:6px 24px 22px;font-size:15px;color:var(--soft);margin:0}
+  .foot{padding:6px 24px 22px;font-size:16px;color:var(--soft);margin:0}
   @media(max-width:520px){.actions{grid-template-columns:minmax(0,1fr)}}
 
   /* family + setup */
@@ -185,7 +186,7 @@
     <textarea id="msg" placeholder="הדביקו כאן את ההודעה"></textarea>
     <div class="row">
       <button class="btn primary" id="go">בדקו לי</button>
-      <button class="btn" id="paste">הדבקה מהלוח</button>
+      <button class="btn" id="paste">הדביקו מה שהעתקתי</button>
     </div>
     <p class="hint">איך מעתיקים? לוחצים ומחזיקים על ההודעה, בוחרים "העתק", ואז לוחצים כאן ובוחרים "הדבק". ההודעה נבדקת מיד.</p>
     <div class="samples" id="samples"><b>רוצים לנסות? בחרו דוגמה:</b>
@@ -259,18 +260,19 @@ async function run(){
 function render(r){
   const out = $("#out"), v = r.verdict;
   if (!r.applicable){
-    out.innerHTML = `<div class="card cant_verify"><div class="head">${seal("cant_verify", r.headline_he)}</div><p class="adv">${esc(r.advice_he)}</p>
+    out.innerHTML = `<div class="card neutral"><div class="head">${seal("cant_verify", r.headline_he)}</div><p class="adv">${esc(r.advice_he)}</p>
       <div class="actions"><button class="btn quiet" id="again">בודקים הודעה אחרת</button></div></div>`;
     $("#again").onclick = reset; return;
   }
   $("#go").classList.remove("primary");
   const link = r.links[0];
   const dest = link && link.host ? `<div class="sec"><h3>הקישור בהודעה פותח את האתר</h3><div class="host${link.host.length > 22 ? " long" : ""}">${hostHtml(link.host)}</div></div>` : "";
-  const why = r.reasons_he.length ? `<div class="sec"><h3>מה מצאנו</h3><ul class="why">${r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
+  const whyOpen = matchMedia("(min-width: 900px)").matches ? " open" : "";
+  const why = r.reasons_he.length ? `<div class="sec"><details class="clicked"${whyOpen}><summary>למה שומר חושב ככה?</summary><ul class="why">${r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
   const steps = r.steps_he.length ? `<div class="sec"><h3>מה עושים עכשיו</h3><ol class="steps">${r.steps_he.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>` : "";
   const clicked = r.if_clicked_he.length ? `<div class="sec"><details class="clicked"><summary>כבר לחצתי או מסרתי פרטים. מה עושים?</summary><ul>${r.if_clicked_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
   const official = r.official_url ? `<a class="btn primary official" href="${esc(r.official_url)}" target="_blank" rel="noopener">פותחים את האתר הרשמי</a>` : "";
-  const note = v === "dont_click" ? "" : ` שומר לא קובע שהודעה אמיתית או בטוחה. הוא בודק רק אם הכתובת שייכת לאתר הרשמי של השולח.`;
+  const note = "";
   out.innerHTML = `<div class="card ${v}">
     <div class="head">${seal(v, r.headline_he, r.kind)}</div>
     <p class="adv">${esc(r.advice_he)}</p>${dest}${why}${steps}${clicked}
@@ -347,12 +349,12 @@ async function loadFamily(){
   const el = $("#p-fam");
   const groups = []; for (const a of g.alerts){ const q = groups[groups.length-1]; if (q && q.host === a.host && q.org === a.org){ q.ids.push(a.id); q.n++; } else groups.push({...a, ids:[a.id], n:1}); }
   const shown = groups.slice(0,3), more = groups.slice(3).reduce((t,x) => t + x.n, 0);
-  const alerts = shown.map(a => `<div class="alert" role="alert"><b>${settings.name ? esc(settings.name) + ": הגיעה הודעה מסוכנת" : "הגיעה הודעה מסוכנת"}</b>${esc(a.org || "גוף לא מזוהה")}${a.n > 1 ? ` (${a.n} פעמים)` : ""}<div class="h"><bdi>${esc(a.host || "בלי קישור")}</bdi></div><time><bdi>${hm(a.ts)}</bdi></time>
+  const alerts = shown.map(a => `<div class="alert" role="alert"><b>${settings.name ? esc(settings.name) + ": הגיעה הודעה שכדאי לבדוק יחד" : "הגיעה הודעה מסוכנת"}</b>${esc(a.org || "גוף לא מזוהה")}${a.n > 1 ? ` (${a.n} פעמים)` : ""}<div class="h"><bdi>${esc(a.host || "בלי קישור")}</bdi></div><time><bdi>${hm(a.ts)}</bdi></time>
     <div class="row"><button class="btn" data-handled="${a.ids.join(",")}">טיפלתי בזה</button></div></div>`).join("") + (more ? `<p class="lead">ועוד ${more} התראות פתוחות.</p>` : "");
   const calm = !g.alerts.length ? `<div class="calm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg><span>אין כרגע התראות פתוחות. כשמשהו חשוד יגיע, זה יופיע כאן מיד.</span></div>` : "";
   const total = g.counts.dont_click + g.counts.cant_verify + g.counts.matches_official;
   const feed = g.recent.length ? dedupe(g.recent).slice(0,8).map(e => `<li><span class="dot ${e.verdict}"></span><div class="${e.handled ? "done" : ""}">${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}${e.handled ? " · טופל" : ""}<div class="h">${esc(e.host || "")}</div></div>${e.n > 1 ? `<span class="n">×${e.n}</span>` : ""}<time>${hm(e.ts)}</time></li>`).join("") : `<li style="color:var(--soft)">עוד לא נבדקו הודעות.</li>`;
-  el.innerHTML = `<h2>${esc(who)} – מה קורה</h2><p class="lead">מי שהוגדר כשומר המשפחתי רואה כאן רק מה קרה, ואף פעם לא את תוכן ההודעות.</p>
+  el.innerHTML = `<h2>${esc(who)} – מה קורה</h2><p class="lead">בן המשפחה שהוגדר רואה כאן רק את מה שבחרתם לשתף, ואף פעם לא את תוכן ההודעות.</p>
     ${settings.consented ? "" : `<p class="note">עוד לא הוגדרה הסכמה. עברו ללשונית "הגדרה" כדי להפעיל את השיתוף עם המשפחה.</p>`}
     ${settings.consented ? alerts + calm : ""}
     ${settings.consented ? `<div class="stats"><span><b>${total}</b>הודעות נבדקו</span><span><b>${g.counts.dont_click}</b>סומנו כמסוכנות</span></div>
@@ -364,13 +366,13 @@ async function loadFamily(){
 function renderSetup(){
   const el = $("#p-setup");
   el.innerHTML = `<h2>הגדרה חד־פעמית</h2><p class="lead">בן או בת משפחה מגדירים את שומר פעם אחת, יחד עם מי שמוגן. אחר כך הכול קורה לבד.</p>
-    <p class="note">זו גרסת הדגמה. ההודעות שבודקים כאן נבדקות בשרת ההדגמה שרץ על המחשב שלכם, ולא נשמרות. באפליקציית האנדרואיד, שעוד לא הושלמה, הבדיקה תיעשה בטלפון עצמו.</p>
+    <p class="note">זו גרסת ניסיון. ההודעה נבדקת במחשב הזה ולא נשמרת. בגרסה לטלפון, שעוד לא הושלמה, הבדיקה תיעשה בטלפון עצמו.</p>
     <div class="form">
       <label class="f">איך קוראים למי שמוגן?<input type="text" id="s-name" value="${esc(settings.name)}" placeholder="למשל: סבתא רחל"></label>
       <label class="f">מה הקשר?<select id="s-rel">${["סבתא","סבא","אמא","אבא","אחר"].map(o => `<option ${o === settings.relation ? "selected" : ""}>${o}</option>`).join("")}</select></label>
       <div class="consent"><p>מה שומר עושה, ומה הוא לא עושה</p><ul>
         <li>בודק הודעות שמגיעות לטלפון, רק כדי לראות אם יש בהן קישור או בקשה חשודה.</li>
-        <li>הבדיקה נעשית בטלפון עצמו. תוכן ההודעות לא נשמר ולא נשלח.</li>
+        <li>תוכן ההודעות לא נשמר ולא נשלח לאף אחד.</li>
         <li>לבן המשפחה מוצגים רק: מה התוצאה, שם הארגון וכתובת האתר. כשמשתפים בוואטסאפ נשלחים אותם פרטים.</li>
         <li>עד שמסמנים הסכמה, שום דבר לא נרשם.</li>
         <li>אפשר להפסיק בכל רגע בהגדרות הטלפון.</li></ul></div>

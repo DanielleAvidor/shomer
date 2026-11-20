@@ -13,7 +13,8 @@ class SmsReceiver : BroadcastReceiver() {
         val result = Checker.engine(context).check(body)
         if (!result.applicable) return
         Notifier.show(context, result)
-        GuardianClient.report(context, result) // metadata only: verdict, organization id, link host. Never the text.
+        val pending = goAsync() // keep the process alive until the background report finishes
+        GuardianClient.report(context, result) { pending.finish() } // metadata only: verdict, organization id, link host. Never the text.
     }
 }
 

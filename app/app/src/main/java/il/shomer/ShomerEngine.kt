@@ -1,6 +1,7 @@
 package il.shomer
 
 import org.json.JSONObject
+import java.util.regex.Pattern
 
 /**
  * Kotlin port of shomer/engine.py. Keep the two in sync: both are tested against the same
@@ -49,7 +50,7 @@ class ShomerEngine(directoryJson: String) {
         signals = root.optJSONArray("signals")?.let { a ->
             List(a.length()) { i ->
                 val g = a.getJSONObject(i)
-                Signal(g.getString("id"), g.getString("kind"), g.getInt("weight"), Regex(g.getString("pattern"), RegexOption.IGNORE_CASE), g.getString("he"))
+                Signal(g.getString("id"), g.getString("kind"), g.getInt("weight"), unicodeRegex(g.getString("pattern")), g.getString("he"))
             }
         } ?: emptyList()
         neutral = root.optJSONArray("neutral_domains")?.let { strings(it).toSet() } ?: emptySet()
@@ -110,7 +111,7 @@ class ShomerEngine(directoryJson: String) {
         if (match != null && !userinfo) {
             val (official, matched) = match
             val prefixes = official.restrictedPaths[matched]
-            if (prefixes != null && prefixes.none { parsePath(url).startsWith(it) })
+            if (!prefixes.isNullOrEmpty() && prefixes.none { parsePath(url).startsWith(it) })
                 return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("$matched הוא אתר ממשלתי כללי, ולא הצלחנו לוודא שהדף הזה שייך ל${official.nameHe}"), official.id)
             if (claimedIds.isEmpty())
                 return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("הכתובת שייכת ל${official.nameHe}, אבל ההודעה לא אומרת מי שלח אותה"), official.id)
@@ -191,30 +192,33 @@ class ShomerEngine(directoryJson: String) {
             verdict == Verdict.DONT_CLICK ->
                 "אל תענו ואל תשלמו" to "אל תמסרו פרטים ואל תענו להודעה. אם זה נוגע לכם, פנו בעצמכם דרך האתר, האפליקציה או הטלפון הרשמיים."
             verdict == Verdict.MATCHES_OFFICIAL ->
-                "הקישור תואם לאתר הרשמי" to "גם כך, הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
+                "הכתובת תואמת לאתר הרשמי" to "זה לא אומר שההודעה בטוחה. הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
             else -> (if (urls.isNotEmpty()) "לא הצלחנו לבדוק. אל תלחצו ושאלו מישהו מהמשפחה"
                      else "לא הצלחנו לבדוק. אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה") to
                 "אם ההודעה נוגעת לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי, או התקשרו למוקד הרשמי."
         }
-        if (!applicable) { headline = "אין כאן מה לבדוק"; advice = "בהודעה אין קישור, גוף מוכר או בקשה חשודה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה." }
+        if (!applicable) { headline = "לא מצאנו כאן משהו חשוד"; advice = "לא מצאנו כאן קישור או בקשה חשודה. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה." }
         return CheckResult(verdict, headline, advice, reasons, claimed.map { it.id }, reports, claimed.firstOrNull()?.officialUrl, applicable)
     }
 
     companion object {
-        private val URL_RE = Regex(
-            """(?U)(?:https?://|www\.)[^\s<>"'־״]+|(?<![\w@.-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>"']*)?(?![\w.-])""",
-            RegexOption.IGNORE_CASE,
+        /** Same semantics as Python's re on str: case-insensitive, and \w \b \d \s are Unicode-aware (matters for Hebrew). */
+        fun unicodeRegex(p: String, ignoreCase: Boolean = true): Regex =
+            Pattern.compile(p, (if (ignoreCase) Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE else 0) or Pattern.UNICODE_CHARACTER_CLASS).toRegex()
+
+        private val URL_RE = unicodeRegex(
+            """(?:https?://|www\.)[^\s<>"'־״]+|(?<![\w@.-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>"']*)?(?![\w.-])""",
         )
-        private val PHONE_RE = Regex("""(?<![\d*])0(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)""")
+        private val PHONE_RE = unicodeRegex("""(?<![\d*])0(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)""", ignoreCase = false)
         private val IP_RE = Regex("""^\d{1,3}(\.\d{1,3}){3}$""")
         private val TRAILING = charArrayOf('.', ',', ';', ':', '!', '?', ')', ']', '}', '״', '"', '\'')
         private val SECOND_LEVEL = setOf("co.il", "org.il", "gov.il", "muni.il", "ac.il", "net.il", "k12.il")
 
         fun parsePath(url: String): String {
             val u = url.replace(Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "")
-            val i = u.indexOfFirst { it == '/' }
-            if (i < 0) return "/"
-            return u.substring(i).substringBefore('?').substringBefore('#')
+            val end = u.indexOfFirst { it == '/' || it == '?' || it == '#' }
+            if (end < 0 || u[end] != '/') return "/"
+            return u.substring(end).substringBefore('?').substringBefore('#')
         }
 
         /** A brand token counts only if it starts a dot/hyphen-separated part of the host. */

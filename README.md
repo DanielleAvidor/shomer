@@ -75,3 +75,10 @@ I ran five review agents against the repo (definitions in `.claude/agents/`): a 
 2. Build and run the Android app; answer the permission questions above.
 3. Collect 10–20 real messages from my family (consented, redacted), and interview older adults and their children.
 4. Measure against the PRD targets, and write down what changed because of what I learned.
+
+
+## Building the Android app (first time)
+The Kotlin source in `app/` has been statically reviewed but **never compiled or run**. To try it:
+1. Install Android Studio, then File > Open and choose the `app` folder (the one with `settings.gradle.kts`).
+2. Wait for the Gradle sync and accept the SDK download.
+3. Right-click `ShomerEngineTest` and Run. It checks the Kotlin engine against the same `corpus.jsonl` as the Python tests. A failure prints the message id.
