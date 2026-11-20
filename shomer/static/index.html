@@ -4,38 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>שומר – בודקים הודעה לפני שלוחצים</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink:#0e2233; --soft:#4a5d6e; --paper:#f3f6f8; --white:#fff; --line:#cfd9e0;
+    --ink:#0e2233; --soft:#4a5d6e; --dim:#5f6f7c; --blue:#134a6b; --blue-bg:#e4eef5; --paper:#f3f6f8; --white:#fff; --line:#cfd9e0;
     --brand:#0f4c5c; --brand-ink:#fff;
     --red:#b3261e; --red-bg:#fbe9e7; --amber:#7a5200; --amber-bg:#fff1cf; --green:#17653a; --green-bg:#e3f3e9;
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--paper);color:var(--ink);font:400 21px/1.55 Heebo,"Assistant","Segoe UI",Arial,sans-serif}
+  body{margin:0;background:var(--paper);color:var(--ink);font:400 21px/1.55 system-ui,"Segoe UI","Arial Hebrew",Arial,sans-serif}
   .wrap{max-width:640px;margin:0 auto;padding:0 18px 56px}
 
   header{display:flex;align-items:center;gap:12px;padding:22px 0 14px}
   header svg{flex:none}
-  header h1{font:800 34px/1 Heebo,Arial,sans-serif;margin:0;letter-spacing:-.01em}
+  header h1{font:800 38px/1 system-ui,Arial,sans-serif;margin:0;letter-spacing:-.01em}
   header p{margin:2px 0 0;font-size:17px;color:var(--soft)}
 
   .tabs{display:flex;border-bottom:3px solid var(--line);margin-bottom:22px}
-  .tabs button{flex:1;font:500 19px Heebo,Arial,sans-serif;padding:12px 6px 10px;border:0;background:none;color:var(--soft);cursor:pointer;border-bottom:5px solid transparent;margin-bottom:-3px}
+  .tabs button{flex:1;min-height:52px;font:500 19px system-ui,Arial,sans-serif;padding:12px 6px 10px;border:0;background:none;color:var(--soft);cursor:pointer;border-bottom:5px solid transparent;margin-bottom:-3px}
   .tabs button[aria-selected="true"]{color:var(--brand);font-weight:800;border-bottom-color:var(--brand)}
 
   label.q{display:block;font-weight:800;font-size:24px;margin-bottom:10px}
-  textarea{display:block;width:100%;min-height:150px;font:400 22px/1.5 Heebo,Arial,sans-serif;padding:14px 16px;color:var(--ink);background:var(--white);border:2px solid var(--line);border-radius:18px 18px 18px 4px;resize:vertical}
-  textarea::placeholder{color:#7b8c99}
+  textarea{display:block;width:100%;min-height:150px;font:400 22px/1.5 system-ui,Arial,sans-serif;padding:14px 16px;color:var(--ink);background:var(--white);border:2px solid #8798a5;border-radius:18px 18px 18px 4px;resize:vertical}
+  textarea::placeholder{color:var(--dim)}
   :focus-visible{outline:4px solid #5aa9bd;outline-offset:2px}
-  .go{display:block;width:100%;margin-top:14px;padding:18px;border:0;border-radius:14px;background:var(--brand);color:var(--brand-ink);font:800 26px Heebo,Arial,sans-serif;cursor:pointer}
+  .go{display:block;width:100%;margin-top:14px;padding:18px;border:0;border-radius:14px;background:var(--brand);color:var(--brand-ink);font:800 26px system-ui,Arial,sans-serif;cursor:pointer}
   .go:active{transform:translateY(1px)}
 
   .try{margin-top:18px;font-size:17px;color:var(--soft)}
   .try b{font-weight:500;display:block;margin-bottom:6px}
-  .try button{font:400 17px Heebo,Arial,sans-serif;margin:0 0 8px 8px;padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--ink);cursor:pointer}
+  .try button{font:400 17px system-ui,Arial,sans-serif;margin:0 0 8px 8px;padding:12px 16px;min-height:48px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--ink);cursor:pointer}
   .try button:hover{border-color:var(--brand)}
 
   /* the result */
@@ -44,33 +42,33 @@
   .try{margin-top:26px}
   .band{border-radius:18px;padding:22px 20px;display:flex;gap:16px;align-items:center}
   .band .mark{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:var(--white)}
-  .band h2{font:800 31px/1.2 Heebo,Arial,sans-serif;margin:0}
+  .band h2{font:800 31px/1.2 system-ui,Arial,sans-serif;margin:0}
   .dont_click .band{background:var(--red-bg);color:var(--red)}
   .cant_verify .band{background:var(--amber-bg);color:var(--amber)}
-  .matches_official .band{background:var(--green-bg);color:var(--green)}
+  .matches_official .band{background:var(--blue-bg);color:var(--blue)}
 
   .dest{margin:22px 0 0}
   .dest small{display:block;font-size:17px;color:var(--soft);margin-bottom:6px}
-  .host{direction:ltr;text-align:left;unicode-bidi:isolate;font:500 24px/1.3 ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere;padding:12px 14px;background:var(--white);border:2px solid var(--line);border-radius:10px}
-  .host .dim{color:#8a98a4}
+  .host{direction:ltr;text-align:left;unicode-bidi:isolate;font:500 26px/1.3 ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere;padding:12px 14px;background:var(--white);border:2px solid var(--line);border-radius:10px}
+  .host .dim{color:var(--dim)}
   .host b{font-weight:800}
-  .dont_click .host b{color:var(--red)} .matches_official .host b{color:var(--green)} .cant_verify .host b{color:var(--amber)}
+  .dont_click .host b{color:var(--red)} .matches_official .host b{color:var(--blue)} .cant_verify .host b{color:var(--amber)}
 
   .why{margin:22px 0 0;padding:0;list-style:none}
   .why li{padding:10px 0 10px 0;border-top:1px solid var(--line)}
   .why li:last-child{border-bottom:1px solid var(--line)}
   .do{font-weight:500;margin:18px 0 0}
 
-  .official{display:block;margin-top:18px;text-align:center;text-decoration:none;font:800 24px Heebo,Arial,sans-serif;padding:16px;border-radius:14px;color:var(--brand);background:var(--white);border:3px solid var(--brand)}
-  .quiet{display:inline-block;margin-top:18px;font:400 16px Heebo,Arial,sans-serif;color:var(--soft);background:none;border:0;text-decoration:underline;cursor:pointer;padding:6px 0}
+  .official{display:block;margin-top:18px;text-align:center;text-decoration:none;font:800 24px system-ui,Arial,sans-serif;padding:16px;border-radius:14px;color:var(--brand);background:var(--white);border:3px solid var(--brand)}
+  .quiet{display:inline-block;margin-top:18px;min-height:48px;font:400 18px system-ui,Arial,sans-serif;color:var(--soft);background:none;border:0;text-decoration:underline;cursor:pointer;padding:6px 0}
   .fine{font-size:16px;color:var(--soft);margin-top:14px}
 
   /* family */
   .banner{background:var(--red-bg);color:var(--red);border-radius:14px;padding:14px 16px;margin-bottom:12px;font-weight:500}
   .counts{display:flex;gap:10px;margin:6px 0 4px}
   .counts div{flex:1;padding:12px 8px;border-radius:12px;text-align:center;font-size:16px;line-height:1.25}
-  .counts b{display:block;font:800 34px/1.1 Heebo,Arial,sans-serif}
-  .c-dont_click{background:var(--red-bg);color:var(--red)} .c-cant_verify{background:var(--amber-bg);color:var(--amber)} .c-matches_official{background:var(--green-bg);color:var(--green)}
+  .counts b{display:block;font:800 34px/1.1 system-ui,Arial,sans-serif}
+  .c-dont_click{background:var(--red-bg);color:var(--red)} .c-cant_verify{background:var(--amber-bg);color:var(--amber)} .c-matches_official{background:var(--blue-bg);color:var(--blue)}
   .feed{list-style:none;margin:18px 0 0;padding:0}
   .feed li{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;padding:12px 0;border-top:1px solid var(--line);font-size:19px}
   .feed time{color:var(--soft);font-size:16px}
@@ -83,32 +81,33 @@
 <body>
 <div class="wrap">
   <header>
-    <svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3 41 9v13c0 11-7 19-17 23C14 41 7 33 7 22V9z" fill="#0f4c5c"/><path d="m15.5 24 6 6 11-12" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
     <div><h1>שומר</h1><p>בודקים אם הודעה אמיתית, לפני שלוחצים</p></div>
   </header>
 
   <div class="tabs" role="tablist">
     <button role="tab" id="tab-user" aria-selected="true">בדיקת הודעה</button>
-    <button role="tab" id="tab-fam" aria-selected="false">מה קרה אצל המשפחה</button>
+    <button role="tab" id="tab-fam" aria-selected="false">לבני המשפחה</button>
   </div>
 
   <section id="p-user">
     <label class="q" for="msg">איזו הודעה קיבלתם?</label>
     <textarea id="msg" placeholder="הדביקו כאן את ההודעה"></textarea>
+    <p class="fine" style="margin:8px 0 0">איך מעתיקים? לוחצים ומחזיקים על ההודעה, בוחרים "העתק", ואז לוחצים כאן ובוחרים "הדבק".</p>
     <button class="go" id="go">בדקו לי</button>
     <div id="out" aria-live="polite"></div>
-    <div class="try"><b>רוצים לנסות? לחצו על דוגמה:</b>
-      <button data-ex="0">חבילה מדואר ישראל, מזויפת</button>
-      <button data-ex="1">חבילה מדואר ישראל, אמיתית</button>
-      <button data-ex="2">חוב במנהרות הכרמל, מזויף</button>
-      <button data-ex="3">קישור מקוצר</button>
+    <div class="try" id="try"><b>רוצים לנסות? בחרו דוגמה:</b>
+      <button data-ex="0">דואר ישראל – דוגמה א</button>
+      <button data-ex="1">דואר ישראל – דוגמה ב</button>
+      <button data-ex="2">מנהרות הכרמל</button>
+      <button data-ex="3">הודעה עם קישור קצר</button>
     </div>
   </section>
 
   <section id="p-fam" hidden>
     <div id="alerts"></div>
     <div class="counts" id="counts"></div>
-    <p class="fine">רואים כאן רק מה קרה, לא את תוכן ההודעות. הודעה שסומנה "אל תלחצו" שולחת התראה מיידית. השאר מגיע בסיכום.</p>
+    <p class="fine">המסך הזה מיועד לבן או בת משפחה שנבחרו על ידי מי שמשתמשת באפליקציה. רואים כאן רק מה קרה, לא את תוכן ההודעות. הודעה שסומנה "אל תלחצו" שולחת התראה מיידית, והשאר מגיע בסיכום.</p>
     <ul class="feed" id="feed"></ul>
   </section>
 </div>
@@ -123,9 +122,9 @@ const EX = [
 const ICON = {
   dont_click:`<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#b3261e" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg>`,
   cant_verify:`<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#7a5200" stroke-width="3" stroke-linecap="round"><path d="M9 9a3 3 0 1 1 4.5 2.6C12.5 12.2 12 13 12 14.5"/><circle cx="12" cy="19" r=".6" fill="#7a5200"/></svg>`,
-  matches_official:`<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#17653a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`
+  matches_official:`<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#134a6b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>`
 };
-const LABEL = {dont_click:"אל תלחצו", cant_verify:"לא ניתן לאמת", matches_official:"תואם לאתר הרשמי"};
+const LABEL = {dont_click:"אל תלחצו", cant_verify:"לא הצלחנו לבדוק", matches_official:"תואם לאתר הרשמי"};
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -136,7 +135,8 @@ function hostHtml(host){           // dim the beginning, bold the part that real
   return (rest ? `<span class="dim">${esc(rest)}.</span><wbr>` : "") + `<b>${esc(real)}</b>`;
 }
 
-document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#msg").value = EX[b.dataset.ex]; $("#go").click(); });
+$("#msg").addEventListener("input", () => { $("#try").hidden = $("#msg").value.trim() !== ""; });
+document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#msg").value = EX[b.dataset.ex]; $("#try").hidden = true; $("#go").click(); });
 document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
   $("#p-user").hidden = b.id !== "tab-user"; $("#p-fam").hidden = b.id !== "tab-fam";
@@ -151,16 +151,16 @@ $("#go").onclick = async () => {
     out.innerHTML = `<div class="cant_verify"><div class="band"><div class="mark">${ICON.cant_verify}</div><h2>אין כאן מה לבדוק</h2></div><p class="do">בהודעה אין קישור ואין גוף מוכר. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה.</p></div>`; return;
   }
   const link = r.links[0];
-  const dest = link && link.host ? `<div class="dest"><small>הקישור הזה באמת מוביל אל:</small><div class="host">${hostHtml(link.host)}</div></div>` : "";
+  const dest = link && link.host ? `<div class="dest"><small>הקישור בהודעה פותח את האתר:</small><div class="host">${hostHtml(link.host)}</div></div>` : "";
   const why = r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("");
-  const official = r.official_url ? `<a class="official" href="${esc(r.official_url)}" target="_blank" rel="noopener">פותחים את האתר הרשמי בעצמנו</a>` : "";
-  const sim = r.verdict !== "matches_official" && r.event_id ? `<button class="quiet" id="tapsim">הדגמה: לחצתי על הקישור בכל זאת</button>` : "";
+  const official = r.official_url ? `<a class="official" href="${esc(r.official_url)}" target="_blank" rel="noopener">פותחים את האתר הרשמי</a>` : "";
+  const note = r.verdict === "dont_click" ? "" : `<p class="fine">שומר לא קובע שהודעה אמיתית או בטוחה. הוא בודק רק אם הכתובת שייכת לאתר הרשמי של השולח.</p>`;
   out.innerHTML = `<div class="${r.verdict}">
     <div class="band"><div class="mark">${ICON[r.verdict]}</div><h2>${esc(r.headline_he)}</h2></div>
-    ${dest}<ul class="why">${why}</ul><p class="do">${esc(r.advice_he)}</p>${official}${sim}
-    <p class="fine">שומר לא קובע שקישור בטוח. הוא בודק רק אם הקישור שייך לאתר הרשמי של השולח.</p></div>`;
-  const t = $("#tapsim");
-  if (t) t.onclick = async () => { await fetch("/api/tapped", {method:"POST", body: JSON.stringify({event_id: r.event_id})}); t.textContent = "נשלחה התראה למשפחה"; t.disabled = true; };
+    <p class="do">${esc(r.advice_he)}</p>${official}${dest}<ul class="why">${why}</ul>${note}
+    <button class="quiet" id="again">בודקים הודעה אחרת</button></div>`;
+  out.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+  $("#again").onclick = () => { $("#msg").value = ""; out.innerHTML = ""; $("#try").hidden = false; $("#msg").focus(); window.scrollTo({top: 0}); };
 };
 
 async function loadFamily() {

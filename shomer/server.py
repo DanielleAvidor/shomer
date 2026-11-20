@@ -49,8 +49,8 @@ def guardian_summary() -> dict:
     counts = {"dont_click": 0, "cant_verify": 0, "matches_official": 0}
     for e in events:
         counts[e["verdict"]] += 1
-    # Immediate alerts: only when the user tapped a link that was flagged risky.
-    alerts = [e for e in events if e["tapped"] and e["verdict"] != "matches_official"]
+    # Immediate alert for every high-confidence "don't click" (Android cannot see taps in other apps).
+    alerts = [e for e in events if e["verdict"] == "dont_click" or e["tapped"]]
     return {"counts": counts, "alerts": alerts, "recent": events[:10]}
 
 
