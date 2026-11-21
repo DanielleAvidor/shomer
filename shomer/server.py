@@ -9,6 +9,7 @@ Run:  python -m shomer.server   (then open http://localhost:8000)
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -94,14 +95,41 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _body(self) -> dict:
-        n = int(self.headers.get("Content-Length") or 0)
-        if n > 20_000:
-            return {}
+    MAX_BODY = 60_000  # bytes; a message longer than this is refused, never silently cut
+
+    def _body(self):
+        """Returns the parsed JSON object, or None if the request is refused (an error response was already sent)."""
+        # A page on another site can send a "simple" cross-origin POST (text/plain) without a preflight. Requiring a JSON
+        # content type forces a preflight, which this server never grants, so other sites cannot change settings or alerts.
+        if not (self.headers.get("Content-Type") or "").lower().startswith("application/json"):
+            self._json({"error": "content type must be application/json"}, 415)
+            return None
         try:
-            return json.loads(self.rfile.read(n) or b"{}")
-        except json.JSONDecodeError:
-            return {}
+            n = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            n = -1
+        if n < 0:
+            self._json({"error": "bad length"}, 400)
+            return None
+        if n > self.MAX_BODY:
+            self._json({"error": "too_long"}, 413)
+            return None
+        try:
+            data = json.loads(self.rfile.read(n) or b"{}")
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            self._json({"error": "bad json"}, 400)
+            return None
+        if not isinstance(data, dict):
+            self._json({"error": "bad json"}, 400)
+            return None
+        return data
+
+    @staticmethod
+    def _int(v):
+        try:
+            return int(v)
+        except (TypeError, ValueError):
+            return None
 
     def do_GET(self):
         if self.path in ("/", "/index.html"):
@@ -131,9 +159,20 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": "not found"}, 404)
 
     def do_POST(self):
+        try:
+            self._post()
+        except Exception:  # never print a traceback with file paths, never leave the client hanging
+            try:
+                self._json({"error": "server error"}, 500)
+            except Exception:
+                pass
+
+    def _post(self):
         data = self._body()
+        if data is None:
+            return
         if self.path == "/api/check":
-            text = str(data.get("text", ""))[:5000]
+            text = str(data.get("text", ""))
             result = ENGINE.check(text)
             result = second_opinion(text, result)
             out = result.to_dict()
@@ -144,16 +183,26 @@ class Handler(BaseHTTPRequestHandler):
             verdict = data.get("verdict")
             if verdict not in ("dont_click", "cant_verify", "matches_official"):
                 return self._json({"error": "bad verdict"}, 400)
+            # The same rule as the web check: nothing is recorded until the protected person agreed on screen.
+            if not get_settings()["consented"]:
+                return self._json({"event_id": None, "recorded": False})
+            org = str(data.get("org", ""))
+            org = org if org in ENGINE.by_id else ""
+            host = str(data.get("host", ""))[:120].lower()
+            host = host if re.fullmatch(r"[a-z0-9.\-]*", host) else ""
             # Android cannot observe taps inside other apps, so a high-confidence 'dont_click' alerts immediately.
             cur = DB.execute(
                 "INSERT INTO events (ts, verdict, org, host, tapped, certain) VALUES (?,?,?,?,?,?)",
-                (time.time(), verdict, str(data.get("org", ""))[:40], str(data.get("host", ""))[:120],
+                (time.time(), verdict, org, host,
                  int(verdict == "dont_click"), int(bool(data.get("certain", verdict == "dont_click")))),
             )
             DB.commit()
             self._json({"event_id": cur.lastrowid})
         elif self.path == "/api/handled":
-            DB.execute("UPDATE events SET handled=1 WHERE id=?", (int(data.get("event_id", 0)),))
+            eid = self._int(data.get("event_id"))
+            if eid is None:
+                return self._json({"error": "bad event_id"}, 400)
+            DB.execute("UPDATE events SET handled=1 WHERE id=?", (eid,))
             DB.commit()
             self._json({"ok": True})
         elif self.path == "/api/settings":
@@ -167,7 +216,10 @@ class Handler(BaseHTTPRequestHandler):
             DB.commit()
             self._json(get_settings())
         elif self.path == "/api/tapped":
-            DB.execute("UPDATE events SET tapped=1 WHERE id=?", (int(data.get("event_id", 0)),))
+            eid = self._int(data.get("event_id"))
+            if eid is None:
+                return self._json({"error": "bad event_id"}, 400)
+            DB.execute("UPDATE events SET tapped=1 WHERE id=?", (eid,))
             DB.commit()
             self._json({"ok": True})
         else:

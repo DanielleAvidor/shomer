@@ -18,13 +18,29 @@ DATA = Path(__file__).parent / "data" / "directory.json"
 _SECOND_LEVEL = {"co.il", "org.il", "gov.il", "muni.il", "ac.il", "net.il", "k12.il"}
 _URL_RE = re.compile(
     r"(?:https?://|www\.)[^\s<>\"'־״]+"
-    r"|(?<![\w@.-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>\"']*)?(?![\w.-])",
+    # The lookarounds are ASCII only: a Hebrew prefix letter or a Hebrew word glued to an address ("לevil.test", "evil.testשלמו")
+    # must not hide it.
+    r"|(?<![a-z0-9@._-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>\"']*)?(?![a-z0-9._-])",
     re.IGNORECASE,
 )
 _IP_RE = re.compile(r"^\d{1,3}(?:\.\d{1,3}){3}$")
 _TRAILING = ".,;:!?)]}״\"'"
 # Israeli phone numbers (mobile 05x, landline 02-09, 07x). Star numbers such as *5424 are not matched.
-_PHONE_RE = re.compile(r"(?<![\d*])0(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)")
+_PHONE_RE = re.compile(
+    r"(?<![\d*])0(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)"                       # 050-1234567
+    r"|(?<![\d*])(?:\+|00)?972[-\s]?\(?0?\)?[-\s]?(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)"  # +972 52 123 4567
+    r"|(?<![\w*])\*\d{3,5}(?![\d*])"                                                   # *5424
+    r"|(?<!\d)1[-\s]?(?:700|800|801|900)[-\s]?\d{3}[-\s]?\d{3}(?!\d)"                 # 1-700-500-500
+)
+_INVISIBLE = re.compile("[\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]")
+_FILE_EXT = {"pdf", "js", "jpg", "jpeg", "png", "gif", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "mp3", "mp4", "py", "java", "json", "xml", "css", "svg", "heic"}
+
+
+def prepare(text: str) -> str:
+    """Undo tricks that hide an address from a reader or a regex: invisible direction marks, 'hxxps' and '[.]' defanging."""
+    text = _INVISIBLE.sub("", text)
+    text = re.sub(r"hxxp", "http", text, flags=re.I)
+    return re.sub(r"\[\.\]|\(\.\)|\{\.\}", ".", text)
 
 
 class Verdict(str, Enum):
@@ -108,14 +124,14 @@ def registrable(host: str) -> str:
 def parse_host(url: str) -> tuple[str, bool]:
     """Return (lowercase host, has_userinfo). The host is what the browser would really visit."""
     u = url if re.match(r"^[a-z][a-z0-9+.-]*://", url, re.I) else "http://" + url
-    parts = urlsplit(u)
+    parts = urlsplit(u.replace("\\", "/"))  # a browser treats a backslash like a slash, so "evil.test\\.israelpost.co.il" goes to evil.test
     host = (parts.hostname or "").rstrip(".").lower()
     return host, "@" in parts.netloc
 
 
 def parse_path(url: str) -> str:
     u = url if re.match(r"^[a-z][a-z0-9+.-]*://", url, re.I) else "http://" + url
-    return urlsplit(u).path or "/"
+    return urlsplit(u.replace("\\", "/")).path or "/"
 
 
 def _token_hit(host: str, tokens: list) -> bool:
@@ -161,6 +177,7 @@ class Engine:
         self.shorteners = set(raw["shorteners"])
         self.bad_tlds = set(raw["suspicious_tlds"])
         self.neutral = set(raw.get("neutral_domains", []))
+        self.common = set(raw.get("common_domains", []))
         self.signals = [(g, re.compile(g["pattern"], re.IGNORECASE)) for g in raw.get("signals", [])]
         self._alias_res = [(o, [_alias_pattern(a) for a in o.aliases]) for o in self.orgs]
 
@@ -169,6 +186,8 @@ class Engine:
         urls = []
         for m in _URL_RE.finditer(text):
             u = m.group(0).rstrip(_TRAILING)
+            if u and not re.match(r"(?:https?://|www\.)", u, re.I) and re.split(r"[/?#]", u)[0].rsplit(".", 1)[-1].lower() in _FILE_EXT:
+                continue  # "report.pdf" is a file name, not an address
             if u and u not in urls:
                 urls.append(u)
         return urls
@@ -235,7 +254,7 @@ class Engine:
             prefixes = official.restricted_paths.get(matched)
             if prefixes and not any(parse_path(url).startswith(p) for p in prefixes):
                 return LinkReport(url, host, Verdict.CANT_VERIFY,
-                                  [f"{matched} הוא אתר ממשלתי כללי, ולא הצלחנו לוודא שהדף הזה שייך ל{official.name_he}"], official.id)
+                                  [f"הכתובת היא של אתר ממשלתי כללי ({matched}), ולא הצלחנו לוודא שהדף הזה שייך לגוף ששלח את ההודעה"])
             if not claimed_ids and link_only and official.verified:
                 return LinkReport(url, host, Verdict.MATCHES_OFFICIAL,
                                   [f"זו הכתובת הרשמית של {official.name_he}. זה לא אומר שההודעה שהגיעה עם הקישור אמיתית"], official.id)
@@ -252,6 +271,8 @@ class Engine:
                               [f"הכתובת תואמת לאתר הרשמי של {official.name_he}"], official.id)
         if host in self.shorteners or registrable(host) in self.shorteners:
             return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור קצר, ואי אפשר לראות לאן הוא באמת מוביל"])
+        if registrable(host) in self.common and not userinfo and not self._lookalike_of(host):
+            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור לאתר מוכר, לא לאתר של הגוף שהוזכר בהודעה, ולכן לא בדקנו אותו"])
         look = self._lookalike_of(host)
         punycode = any(l.startswith("xn--") for l in host.split(".")) or not host.isascii()
         if punycode:
@@ -278,6 +299,7 @@ class Engine:
         return [g for g, rx in self.signals if rx.search(body)]
 
     def check(self, text: str) -> Result:
+        text = prepare(text)
         urls = self.extract_urls(text)
         claimed = self.claimed_orgs(text)
         leftover = _URL_RE.sub(" ", text).strip(" \n\t.,:;-")
@@ -289,6 +311,8 @@ class Engine:
         phone = bool(_PHONE_RE.search(text))
         bad_tld = any(r.host.rsplit('.', 1)[-1] in self.bad_tlds for r in reports if r.host)
         score = sum(g["weight"] for g in sigs) + (1 if phone and claimed else 0)
+        if "family" in sig_ids and not ({"family_intro", "urgency", "threat"} & sig_ids):
+            score -= 1  # "can you send 50 shekels for the coffee" needs more than the request itself
         applicable = bool(urls or claimed or score >= 3)
         official_url = claimed[0].official_url if claimed else None
         names = ", ".join(o.name_he for o in claimed)
@@ -308,7 +332,7 @@ class Engine:
                 verdict = Verdict.CANT_VERIFY
                 downgraded = True
                 reasons.append("ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
-            if "credentials" in sig_ids or len(pressure) >= 2:
+            if "credentials" in sig_ids or "install" in sig_ids or len(pressure) >= 2:
                 verdict = Verdict.CANT_VERIFY
                 downgraded = True
                 reasons.append("הכתובת תואמת, אבל ההודעה מלחיצה או מבקשת פרטים. גופים רשמיים לא עושים את זה בהודעה")
@@ -353,7 +377,7 @@ class Engine:
             advice = "אל תמסרו פרטים ואל תענו להודעה. אם זה נוגע לכם, פנו בעצמכם דרך האתר, האפליקציה או הטלפון הרשמיים."
             steps = ["אל תענו ואל תחזרו למי ששלח", "אל תמסרו פרטים, סיסמאות או קודים", route, "ספרו לבן משפחה"]
         elif verdict is Verdict.MATCHES_OFFICIAL:
-            headline = "הכתובת תואמת לאתר הרשמי"
+            headline = "הכתובת היא של האתר הרשמי, אבל זה לא אישור להודעה"
             advice = "זה לא אומר שההודעה בטוחה. הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
             steps = [route + ", ולא דרך ההודעה"]
         else:
@@ -366,12 +390,21 @@ class Engine:
             headline = "לא מצאנו סימן חשד, אבל זה לא אישור"
             advice = "לא מצאנו כאן קישור או בקשה חשודה. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
             steps = []
+            reasons = [r for r in reasons if not r.startswith("אין בהודעה")]
             letters = re.findall(r"[^\W\d_]", text)
             foreign = re.findall(r"[\u0400-\u04FF\u0600-\u06FF]", text)
             if len(letters) >= 12 and len(foreign) / len(letters) >= 0.3:
                 unsupported = True
                 headline = "שומר בודק רק הודעות בעברית ובאנגלית"
-                advice = "לא יכולנו לבדוק את ההודעה הזאת, וזה לא אומר שהיא בטוחה. אם היא מבקשת כסף, סיסמה או קוד, אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה."
+                advice = "לא בדקנו את ההודעה הזאת, וזה לא אומר שהיא בטוחה. אם היא מבקשת כסף, סיסמה, קוד או שתתקשרו למישהו, אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה."
+                reasons.append("ההודעה כתובה בשפה ששומר עוד לא קורא")
+        if (not urls and claimed and applicable and not (sig_ids & {"credentials", "family", "payment", "install", "prize", "threat"})
+                and re.search(r"(?:קוד|סיסמ)[^.\n]{0,25}\d{4,8}|\d{4,8}[^.\n]{0,20}(?:קוד|סיסמ)", text)
+                and re.search(r"אל (?:ת)?(?:מסור|שתף|שלח|גל|ספר|תגיד)|לעולם|לא (?:מבקש|נבקש)", text)):
+            headline = "זו הודעה עם קוד. אל תמסרו את הקוד לאף אחד"
+            advice = "אם לא ביקשתם את הקוד, אל תעשו כלום. אם משהו מדאיג אתכם, התקשרו לבנק במספר הרשמי."
+            steps = ["אל תמסרו את הקוד לאף אחד, גם לא למי שמציג את עצמו כנציג של הבנק"]
+            reasons = ["זו נראית הודעת קוד רגילה, וההודעה עצמה מזהירה לא למסור אותו"]
         if_clicked = [] if verdict is Verdict.MATCHES_OFFICIAL or not applicable or not urls else [
             "אל תכניסו שום פרט נוסף",
             "אם הזנתם פרטי כרטיס אשראי, התקשרו מיד לחברת האשראי וחסמו את הכרטיס",

@@ -18,7 +18,7 @@ def base():
 
 
 def post(base, path, obj):
-    req = urllib.request.Request(base + path, data=json.dumps(obj).encode(), method="POST")
+    req = urllib.request.Request(base + path, data=json.dumps(obj).encode(), method="POST", headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req) as r:
             return r.status, json.loads(r.read())
@@ -91,3 +91,52 @@ def test_family_alert_only_for_certain_scams(base):
     with urllib.request.urlopen(base + "/api/guardian") as resp:
         hosts = [a["host"] for a in json.loads(resp.read())["alerts"]]
     assert "israelpost.paliet.top" in hosts and "soft-case-only.example.xyz" not in hosts
+
+
+def raw_post(base, path, body: bytes, content_type=None):
+    headers = {"Content-Type": content_type} if content_type else {}
+    req = urllib.request.Request(base + path, data=body, method="POST", headers=headers)
+    try:
+        with urllib.request.urlopen(req) as r:
+            return r.status, json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        return e.code, json.loads(e.read())
+
+
+def test_a_cross_site_simple_post_is_refused(base):
+    status, _ = raw_post(base, "/api/settings", json.dumps({"consented": True, "external_ai": True}).encode(), "text/plain")
+    assert status == 415
+    status, _ = raw_post(base, "/api/settings", b'{"consented": true}', None)
+    assert status == 415
+
+
+def test_report_is_not_recorded_without_consent(base):
+    post(base, "/api/settings", {"consented": False})
+    before = server.DB.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+    status, out = post(base, "/api/report", {"verdict": "dont_click", "org": "israel_post", "host": "no-consent.top"})
+    assert status == 200 and out["event_id"] is None
+    assert server.DB.execute("SELECT COUNT(*) FROM events").fetchone()[0] == before
+    post(base, "/api/settings", {"consented": True})
+
+
+def test_report_fields_are_validated(base):
+    post(base, "/api/settings", {"consented": True})
+    _, out = post(base, "/api/report", {"verdict": "dont_click", "org": "not-a-real-org", "host": "050-1234567 call me"})
+    row = server.DB.execute("SELECT org, host FROM events WHERE id=?", (out["event_id"],)).fetchone()
+    assert row == ("", "")
+
+
+def test_a_too_long_message_is_refused_not_silently_cut(base):
+    status, out = post(base, "/api/check", {"text": "א" * 70_000})
+    assert status == 413 and out["error"] == "too_long"
+
+
+def test_a_long_message_is_checked_to_its_end(base):
+    status, out = post(base, "/api/check", {"text": "שלום " * 1500 + "דואר ישראל שלמו https://israelpost-fee.top/pay"})
+    assert status == 200 and out["verdict"] == "dont_click"
+
+
+def test_malformed_requests_get_a_clean_error(base):
+    assert raw_post(base, "/api/handled", b'{"event_id": "abc"}', "application/json")[0] == 400
+    assert raw_post(base, "/api/check", b"not json", "application/json")[0] == 400
+    assert raw_post(base, "/api/check", b"[1,2]", "application/json")[0] == 400

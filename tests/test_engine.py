@@ -171,12 +171,19 @@ def test_context_question_for_known_org_and_certainty_flag():
     assert not soft.certain
 
 
-def test_russian_and_arabic_are_reported_as_unsupported_not_as_clean():
+def test_russian_and_arabic_scams_are_caught_even_without_a_link():
     for t in ["Ваш банковский счёт будет заблокирован. Срочно позвоните и сообщите пароль",
               "حسابك البنكي سيتم حظره اليوم، اتصل الآن وأعطنا كلمة المرور"]:
+        assert E.check(t).verdict is Verdict.DONT_CLICK
+
+
+def test_harmless_russian_and_arabic_are_reported_as_unsupported_not_as_clean():
+    for t in ["Купила хлеб, заходи вечером, будем пить чай с вареньем",
+              "مرحبا يا حبيبتي، اشتريت الخبز وسأمر عليك مساء اليوم لنشرب الشاي"]:
         r = E.check(t)
         assert not r.applicable and r.unsupported_language
         assert "בעברית ובאנגלית" in r.headline_he
+        assert not any("אין בהודעה" in x for x in r.reasons_he)
 
 
 def test_ordinary_hebrew_and_english_are_not_flagged_unsupported():
@@ -194,3 +201,56 @@ def test_link_cut_short_by_a_notification_preview_is_not_guessed_at():
     r = E.check("תבדקו: https://israelpost.co…")
     assert r.links[0].verdict is Verdict.CANT_VERIFY
     assert not r.certain
+
+
+@pytest.mark.parametrize("phone", ["*5424", "+972 52 123 4567", "972-52-1234567", "1-700-500-500", "052-1234567"])
+def test_official_link_plus_any_phone_format_is_never_a_match(phone):
+    r = E.check(f"דואר ישראל: להשלמת המשלוח התקשרו {phone} https://israelpost.co.il/track")
+    assert r.verdict is not Verdict.MATCHES_OFFICIAL
+
+
+@pytest.mark.parametrize("text", [
+    "דואר ישראל https://evil.test\\.israelpost.co.il/x",
+    "דואר ישראל israelpost.co.il\u200f.evil.test/pay",
+    "דואר ישראל hxxps://evil[.]test/pay",
+    "דואר ישראל שלמו ב-evil.test/pay",
+])
+def test_address_hiding_tricks_are_seen_through(text):
+    r = E.check(text)
+    assert r.verdict is Verdict.DONT_CLICK, (text, r.verdict, [l.host for l in r.links])
+
+
+def test_file_names_are_not_links():
+    assert E.extract_urls("שלחתי לך את report.pdf ואת Node.js ו-photo.jpg") == []
+
+
+def test_a_news_or_maps_link_next_to_an_organisation_name_is_not_an_alarm():
+    for t in ["כביש 6 פקוק היום https://waze.com/ul?ll=32,34", "בנק לאומי מעלה ריבית https://www.ynet.co.il/news/article/abc"]:
+        assert E.check(t).verdict is Verdict.CANT_VERIFY
+
+
+def test_plain_money_request_between_friends_is_not_flagged_but_hi_mom_is():
+    assert not E.check('אפשר להעביר ביט 50 ש"ח על הקפה?').applicable
+    r = E.check("היי אמא, זה המספר החדש שלי, הטלפון נפל ונשבר. אפשר להעביר לי דחוף 2,500 שקל? אחזיר מחר")
+    assert r.verdict is Verdict.DONT_CLICK and r.certain
+
+
+def test_a_genuine_one_time_code_notice_is_informational_not_an_alarm():
+    r = E.check("בנק לאומי: קוד האימות שלך הוא 482913. אל תמסור אותו לאף אחד, גם לא לנציג הבנק.")
+    assert "אל תמסרו את הקוד" in r.headline_he
+    assert r.verdict is Verdict.CANT_VERIFY and not any(l for l in r.links)
+
+
+def test_official_link_with_an_install_request_is_not_a_match():
+    assert E.check("דואר ישראל https://israelpost.co.il/track התקינו אפליקציה מהקובץ הזה").verdict is not Verdict.MATCHES_OFFICIAL
+
+
+def test_general_government_link_is_not_tied_to_the_police():
+    r = E.check("רשות המסים: החזר מס מחכה לכם https://www.gov.il/he/service/income_tax_refund")
+    assert r.verdict in (Verdict.CANT_VERIFY, Verdict.DONT_CLICK)
+    assert r.context_question_he == "" or "משטרה" not in r.context_question_he
+
+
+def test_a_long_message_is_checked_to_the_end():
+    r = E.check("שלום " * 1500 + " דואר ישראל שלמו https://israelpost-fee.top/pay")
+    assert r.verdict is Verdict.DONT_CLICK

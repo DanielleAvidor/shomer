@@ -35,7 +35,7 @@
   .brand svg{width:38px;height:38px;color:var(--pine);flex:none}
   .brand h1{font:800 36px/1 var(--serif);margin:0;color:var(--ink)}
   .brand span{font-size:16px;color:var(--soft);border-inline-start:1.5px solid var(--line-strong);padding-inline-start:12px;line-height:1.3}
-  nav{display:flex;gap:2px;margin-inline-start:auto;width:100%}
+  nav{display:flex;flex-wrap:wrap;gap:2px;margin-inline-start:auto;width:100%}
   nav button{flex:1;white-space:nowrap;min-height:52px;border:0;background:transparent;color:var(--soft);font:600 17px var(--sans);cursor:pointer;border-bottom:4px solid transparent;margin-bottom:-1px;padding:0 6px}
   nav button:hover{color:var(--ink)}
   nav button[aria-selected="true"]{color:var(--pine-d);border-bottom-color:var(--pine);font-weight:800}
@@ -81,7 +81,12 @@
 
   /* home / how it works */
   .toast{position:fixed;inset-inline:16px;bottom:16px;max-width:520px;margin-inline:auto;background:var(--ink);color:#fff;padding:14px 18px;border-radius:14px;font-weight:700;z-index:20}
-  .actions .btn{white-space:normal}
+  .btn{white-space:normal;overflow-wrap:anywhere}
+  .host,.cmp dd{overflow-wrap:anywhere}
+  @media(max-width:420px){nav button{font-size:16px;padding:0 4px}.top-in{padding-inline:12px}}
+  .skip{position:absolute;inset-inline-start:12px;top:-60px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;z-index:30;font-weight:700}
+  .skip:focus{top:8px}
+  .actions.top{padding-top:6px}
   [data-ctx][aria-pressed="true"]{background:var(--pine);color:#fff;border-color:var(--pine)}
   .how-ill{display:none}
   @media(min-width:900px){.how-ill{display:block}.how-ill svg{width:min(100%,300px);height:auto;margin:0 auto 6px;display:block}}
@@ -178,9 +183,10 @@
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.6"/></filter></svg>
+<a class="skip" href="#msg">דלגו לתיבת ההודעה</a>
 <div class="top"><div class="top-in">
   <div class="brand"><svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5"/><circle cx="50" cy="50" r="37" stroke="currentColor" stroke-width="2" stroke-dasharray="1.2 4.6" stroke-linecap="round"/><path d="M191 0 82 1291H243L304 554Q371 570 432.0 598.5Q493 627 533 674Q580 731 603.5 813.0Q627 895 636 988L664 1291H821L793 989Q780 855 750.0 759.5Q720 664 659 593Q603 525 521.5 485.0Q440 445 323 425Q321 425 319.0 424.5Q317 424 316 424L340 136H619Q757 136 875.0 210.5Q993 285 1070 420Q1146 557 1163 730L1216 1291H1374L1320 728Q1309 613 1276.0 512.5Q1243 412 1190 325Q1136 237 1065.0 170.0Q994 103 896 61Q832 28 759.5 14.0Q687 0 609 0Z" transform="translate(25.25 72.95) scale(.034 -.034)" fill="currentColor" stroke="currentColor" stroke-width="70" stroke-linejoin="round"/></svg><h1>שומר</h1><span>בודקים הודעה<br>לפני שלוחצים</span></div>
-  <nav role="tablist" aria-label="מסכים">
+  <nav role="tablist" aria-label="מסכים" id="tabs">
     <button role="tab" id="tab-check" aria-selected="true">בדיקת הודעה</button>
     <button role="tab" id="tab-fam" aria-selected="false">משפחה</button>
     <button role="tab" id="tab-setup" aria-selected="false">הגדרה</button>
@@ -188,7 +194,7 @@
 </div></div>
 
 <main>
-<section id="p-check" class="check">
+<section id="p-check" class="check" role="tabpanel" aria-labelledby="tab-check">
   <div class="input-col">
     <label class="q" for="msg">איזו הודעה קיבלתם?</label>
     <textarea id="msg" placeholder="הדביקו כאן את ההודעה"></textarea>
@@ -197,6 +203,7 @@
       <button class="btn" id="paste">הדביקו מה שהעתקתי</button>
     </div>
     <p class="hint">איך מעתיקים? לוחצים ומחזיקים על ההודעה, בוחרים "העתק", ואז לוחצים כאן ובוחרים "הדבק". ההודעה נבדקת מיד.</p>
+    <p class="hint">בדמו הזה ההודעה נבדקת בשרת שרץ על המחשב שלכם, והטקסט שלה לא נשמר.</p>
     <div class="samples" id="samples"><b>רוצים לנסות? בחרו דוגמה:</b>
       <button class="chip" data-ex="0">דואר ישראל – דוגמה א</button>
       <button class="chip" data-ex="1">דואר ישראל – דוגמה ב</button>
@@ -205,7 +212,7 @@
       <button class="chip" data-ex="4">הודעה מ"הנכד"</button>
     </div>
   </div>
-  <div class="result-col"><div id="out" aria-live="polite"></div></div>
+  <div class="result-col"><div id="out"></div></div>
 <div id="toast" class="toast" role="alert" hidden></div>
 <template id="tpl-ill"><svg viewBox="0 0 440 400" fill="none" role="img" aria-label="טלפון עם הודעה שבה קישור, ועדשה מגדלת שמסמנת אותו בסימן עצירה">
   <ellipse cx="205" cy="372" rx="130" ry="14" fill="#16302A" opacity=".08"/>
@@ -236,8 +243,8 @@
   <div class="recent-col"><div class="recent" id="recent" hidden><h2>נבדקו לאחרונה</h2><ul id="recent-list"></ul></div></div>
 </section>
 
-<section id="p-fam" class="page" hidden></section>
-<section id="p-setup" class="page" hidden></section>
+<section id="p-fam" class="page" role="tabpanel" aria-labelledby="tab-fam" hidden></section>
+<section id="p-setup" class="page" role="tabpanel" aria-labelledby="tab-setup" hidden></section>
 </main>
 
 <script>
@@ -262,9 +269,10 @@ const call = async (u, opts) => {
   try { const r = await fetch(u, {...opts, signal: c.signal}); if (!r.ok) throw new Error("http " + r.status); return await r.json(); }
   finally { clearTimeout(t); }
 };
-const post = (u, o) => call(u, {method:"POST", body: JSON.stringify(o || {})});
+const post = (u, o) => call(u, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(o || {})});
 const get = u => call(u);
 const NET = `<p class="note" role="alert">לא הצלחנו להתחבר. בדקו את החיבור ונסו שוב עוד רגע.</p>`;
+$("#toast").onclick = () => { $("#toast").hidden = true; };
 function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 6000); }
 window.addEventListener("unhandledrejection", e => { e.preventDefault(); toast("משהו השתבש בחיבור. נסו שוב עוד רגע."); });
 const hm = ts => new Date(ts*1000).toLocaleTimeString("he-IL", {hour:"2-digit", minute:"2-digit"});
@@ -283,17 +291,24 @@ function hostHtml(host){
 
 /* ---------- tabs ---------- */
 function show(tab){
-  for (const t of ["check","fam","setup"]){ $("#tab-"+t).setAttribute("aria-selected", t === tab); $("#p-"+t).hidden = t !== tab; }
+  for (const t of ["check","fam","setup"]){ const b = $("#tab-"+t); b.setAttribute("aria-selected", t === tab); b.tabIndex = t === tab ? 0 : -1; b.setAttribute("aria-controls", "p-"+t); $("#p-"+t).hidden = t !== tab; }
   if (tab === "fam") loadFamily(); if (tab === "setup") renderSetup(); if (tab === "check") loadRecent();
 }
 for (const t of ["check","fam","setup"]) $("#tab-"+t).onclick = () => show(t);
+$("#tabs").addEventListener("keydown", e => {
+  const order = ["check","fam","setup"], cur = order.findIndex(t => $("#tab-"+t).getAttribute("aria-selected") === "true");
+  const step = {ArrowRight: -1, ArrowLeft: 1}[e.key]; let to = null;
+  if (step) to = (cur + step + order.length) % order.length; else if (e.key === "Home") to = 0; else if (e.key === "End") to = order.length - 1;
+  if (to === null) return; e.preventDefault(); show(order[to]); $("#tab-"+order[to]).focus();
+});
+show("check");
 
 /* ---------- check ---------- */
 function howItWorks(){
   $("#out").innerHTML = `<div class="how"><div class="how-ill">${$("#tpl-ill").innerHTML}</div><h2>איך שומר בודק</h2><ol>
-    <li><div><b>מדביקים הודעה.</b><span>כל הודעה שנראית לכם חשודה: SMS, מייל או וואטסאפ.</span></div></li>
+    <li><div><b>מדביקים הודעה.</b><span>כל הודעה שנראית לכם חשודה: הודעה בטלפון, מייל או וואטסאפ.</span></div></li>
     <li><div><b>שומר משווה לאתר הרשמי.</b><span>הוא בודק אם הקישור שייך לגוף ששלח, ומחפש גם לחץ ובקשות חשודות.</span></div></li>
-    <li><div><b>מקבלים תשובה ברורה.</b><span>מה לעשות עכשיו, ומה לעשות אם כבר לחצתם.</span></div></li></ol><p class="never">התשובה היא <b>אל תלחצו</b>, <b>הכתובת תואמת לאתר הרשמי</b> או <b>לא הצלחנו לבדוק</b>. שומר אף פעם לא אומר ש"הכול בטוח".</p></div>`;
+    <li><div><b>מקבלים תשובה ברורה.</b><span>מה לעשות עכשיו, ומה לעשות אם כבר לחצתם.</span></div></li></ol><p class="never">התשובה היא <b>אל תלחצו</b>, <b>הכתובת היא של האתר הרשמי, אבל זה לא אישור להודעה</b> או <b>לא הצלחנו לבדוק</b>. שומר אף פעם לא אומר ש"הכול בטוח".</p></div>`;
 }
 function reveal(){
   if (!matchMedia("(min-width: 900px)").matches) $("#out").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
@@ -327,9 +342,11 @@ function render(r){
   const note = "";
   out.innerHTML = `<div class="card ${v}">
     <div class="head">${seal(v, r.headline_he, r.kind)}</div>
-    <p class="adv">${esc(r.advice_he)}</p>${dest}${cmp}${ctxq}${why}${steps}${clicked}
-    <div class="actions">${official}
-      <button class="btn ${r.official_url ? "wa" : "primary"}" id="share">שליחה לבן משפחה בוואטסאפ</button>
+    <p class="adv">${esc(r.advice_he)}</p>
+    <div class="actions top">${official}
+      <button class="btn ${r.official_url ? "wa" : "primary"}" id="share">שליחה לבן משפחה בוואטסאפ</button></div>
+    ${dest}${steps}${clicked}${cmp}${ctxq}${why}
+    <div class="actions">
       <button class="btn" id="save">שמירת התוצאה כתמונה</button>
       <button class="btn quiet" id="again">בודקים הודעה אחרת</button></div>
     <p class="foot">נבדק בשעה <bdi>${hm(Date.now()/1000)}</bdi>.${note}</p></div>`;
@@ -343,6 +360,7 @@ function render(r){
       : "גם אם ציפיתם לזה, היכנסו דרך האתר או האפליקציה הרשמיים ולא דרך ההודעה.";
     out.querySelectorAll("[data-ctx]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
   });
+  const hd = out.querySelector("h2"); if (hd){ hd.tabIndex = -1; hd.focus({preventScroll:true}); }
   reveal();
 }
 function reset(){ $("#go").classList.add("primary"); $("#msg").value = ""; $("#samples").hidden = false; howItWorks(); last = null; window.scrollTo({top:0}); $("#msg").focus(); }

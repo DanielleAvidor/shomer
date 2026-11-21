@@ -23,7 +23,7 @@ object GuardianClient {
         Thread {
             try {
                 val c = URL(root.trimEnd('/') + "/api/report").openConnection() as HttpURLConnection
-                c.requestMethod = "POST"; c.doOutput = true; c.connectTimeout = 3000; c.readTimeout = 3000
+                c.requestMethod = "POST"; c.doOutput = true; c.setRequestProperty("Content-Type", "application/json"); c.connectTimeout = 3000; c.readTimeout = 3000
                 c.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
                 c.responseCode.let { };  c.disconnect()
             } catch (e: Exception) { /* best effort: never crash the receiver */ }
