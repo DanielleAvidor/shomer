@@ -87,3 +87,6 @@ The Kotlin source in `app/` has been statically reviewed but **never compiled or
 `survey/index.html` is a short Hebrew survey (about 3 minutes, 13 questions) for older adults and their relatives: what suspicious messages they get, what they did, and whether they would paste a message into an app or let a relative see alerts. It stores and sends nothing by itself. At the end it builds a text summary that the respondent can send on WhatsApp. It can be opened as a file or hosted on GitHub Pages. Real answers belong in `docs/research/` (anonymised) and should be summarised in the PRD.
 
 To collect answers from people who are not on WhatsApp with you, `survey/create-google-form.gs` is a Google Apps Script that creates the same survey as a Google Form with a linked response sheet (instructions in the file header).
+
+## Future: AI second opinion
+`shomer/advisor.py` is an extension point for an optional AI advisor. It is deliberately limited: it can only make a verdict more cautious, it runs only if the user turns it on, and failures fall back to the rule engine. No real advisor is included yet. See section 13 of `docs/PRD.md`.

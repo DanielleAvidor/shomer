@@ -14,6 +14,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from .advisor import Advisor, NullAdvisor, apply_advice
 from .engine import Engine
 
 STATIC = Path(__file__).parent / "static"
@@ -43,7 +44,27 @@ def record(result) -> int:
 
 def get_settings() -> dict:
     d = dict(DB.execute("SELECT k, v FROM settings").fetchall())
-    return {"name": d.get("name", ""), "relation": d.get("relation", ""), "consented": d.get("consented") == "1"}
+    return {"name": d.get("name", ""), "relation": d.get("relation", ""), "consented": d.get("consented") == "1",
+            "external_ai": d.get("external_ai") == "1"}
+
+
+ADVISOR: Advisor = NullAdvisor()
+
+
+def set_advisor(advisor: Advisor) -> None:
+    """Plug in an optional second opinion (see advisor.py). The default does nothing."""
+    global ADVISOR
+    ADVISOR = advisor
+
+
+def second_opinion(text: str, result):
+    """Ask the advisor only if the protected person allowed it. Any failure falls back to the rule engine."""
+    if isinstance(ADVISOR, NullAdvisor) or not get_settings()["external_ai"]:
+        return result
+    try:
+        return apply_advice(result, ADVISOR.advise(text, result))
+    except Exception:
+        return result
 
 
 def guardian_summary() -> dict:
@@ -112,6 +133,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/check":
             text = str(data.get("text", ""))[:5000]
             result = ENGINE.check(text)
+            result = second_opinion(text, result)
             out = result.to_dict()
             out["event_id"] = record(result) if (result.applicable and get_settings()["consented"]) else None
             self._json(out)
@@ -135,6 +157,8 @@ class Handler(BaseHTTPRequestHandler):
             for k in ("name", "relation"):
                 if k in data:
                     DB.execute("INSERT OR REPLACE INTO settings VALUES (?,?)", (k, str(data[k])[:40]))
+            if "external_ai" in data:
+                DB.execute("INSERT OR REPLACE INTO settings VALUES ('external_ai', ?)", ("1" if data["external_ai"] else "0",))
             if "consented" in data:
                 DB.execute("INSERT OR REPLACE INTO settings VALUES ('consented', ?)", ("1" if data["consented"] else "0",))
             DB.commit()

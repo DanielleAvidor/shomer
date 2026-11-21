@@ -225,3 +225,16 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 | Real-message evaluation, interviews, user comprehension test | **Not started**; requires the builder's family |
 
 Open technical questions for the Android build: does a sideloaded app keep `RECEIVE_SMS` without Play restrictions; behavior of Android's "restricted settings" for sideloaded apps; Gmail API access for a non-published app.
+
+
+## 13. Roadmap: optional AI second opinion (groundwork built, feature not built)
+
+The rule engine stays the safety floor. A later version can add an "advisor", for example a language model, that reads the message and the engine's result and can add a plain-language explanation and a context question ("were you expecting a package?"). It can also catch scams worded in ways the rules do not know.
+
+Decisions already made and built into the code (`shomer/advisor.py`):
+- **Escalate-only.** An advisor can make a result more cautious, never less. It cannot turn "don't click" or "can't verify" into "matches official". This is covered by tests.
+- **Opt-in.** The message text would leave the machine, so the server calls an advisor only when the protected person has turned on `external_ai` in settings.
+- **Safe on failure.** If the advisor is missing, slow or fails, the rule engine's answer is returned unchanged.
+- **Nothing says "safe".** The existing rule still applies to any advisor text.
+
+Not built: any real advisor. Testing one needs an API key and network access, and accuracy would need its own evaluation against real messages.

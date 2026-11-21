@@ -71,6 +71,8 @@ class Result:
     if_clicked_he: list = field(default_factory=list)
     share_text_he: str = ""
     kind: str = "link"  # "link" or "content" (no link to check, judged on what the message asks)
+    escalated_by_advisor: bool = False
+    context_question_he: str = ""
 
     def to_dict(self) -> dict:
         d = asdict(self)

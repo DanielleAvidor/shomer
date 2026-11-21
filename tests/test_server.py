@@ -69,7 +69,7 @@ def test_handled_event_leaves_the_alert_list(base):
 
 def test_settings_roundtrip_and_font_served(base):
     _, s = post(base, "/api/settings", {"name": "סבתא", "relation": "סבתא", "consented": True})
-    assert s == {"name": "סבתא", "relation": "סבתא", "consented": True}
+    assert s == {"name": "סבתא", "relation": "סבתא", "consented": True, "external_ai": False}
     with urllib.request.urlopen(base + "/static/fonts/opensans.woff") as r:
         assert r.status == 200 and r.headers["Content-Type"] == "font/woff"
     with pytest.raises(urllib.error.HTTPError):
