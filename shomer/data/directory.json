@@ -8,7 +8,10 @@
         "דואר ישראל",
         "israel post",
         "israelpost",
-        "postil"
+        "postil",
+        "israeli post",
+        "israel postal service",
+        "postal service"
       ],
       "brand_tokens": [
         "israelpost",
@@ -56,7 +59,12 @@
         "משטרת ישראל",
         "דוח תנועה",
         "קנס תנועה",
-        "מרכז פניות נהגים"
+        "מרכז פניות נהגים",
+        "israel police",
+        "israeli police",
+        "traffic ticket",
+        "traffic fine",
+        "speeding ticket"
       ],
       "brand_tokens": [
         "govil",
@@ -104,7 +112,12 @@
         "כביש 6",
         "דרך ארץ",
         "kvish 6",
-        "kvish6"
+        "kvish6",
+        "highway 6",
+        "route 6",
+        "trans-israel",
+        "toll road",
+        "toll invoice"
       ],
       "brand_tokens": [
         "kvish6",
@@ -171,7 +184,9 @@
         "אפליקציית ביט",
         "אפליקצית ביט",
         "בנק ביט",
-        "bit payment"
+        "bit payment",
+        "bit app",
+        "bit wallet"
       ],
       "brand_tokens": [
         "bitpay"
@@ -190,7 +205,9 @@
       "name_he": "ביטוח לאומי",
       "aliases": [
         "ביטוח לאומי",
-        "btl"
+        "btl",
+        "national insurance",
+        "israel national insurance"
       ],
       "brand_tokens": [
         "bituachleumi",
@@ -211,7 +228,8 @@
       "aliases": [
         "בנק דיסקונט",
         "מבנק דיסקונט",
-        "discount bank"
+        "discount bank",
+        "bank discount"
       ],
       "brand_tokens": [
         "discountbank"
@@ -231,7 +249,9 @@
       "aliases": [
         "בנק מזרחי",
         "מזרחי טפחות",
-        "mizrahi"
+        "mizrahi",
+        "mizrahi tefahot",
+        "mizrahi bank"
       ],
       "brand_tokens": [
         "mizrahi"
@@ -270,7 +290,10 @@
       "aliases": [
         "רשות המסים",
         "רשות המיסים",
-        "מס הכנסה"
+        "מס הכנסה",
+        "israel tax authority",
+        "tax authority",
+        "israeli tax"
       ],
       "brand_tokens": [
         "taxes"
@@ -289,7 +312,10 @@
       "name_he": "חברת החשמל",
       "aliases": [
         "חברת החשמל",
-        "iec"
+        "iec",
+        "israel electric",
+        "israel electric corporation",
+        "electric company"
       ],
       "brand_tokens": [
         "iec"
@@ -308,7 +334,9 @@
       "name_he": "מכבי שירותי בריאות",
       "aliases": [
         "מכבי שירותי בריאות",
-        "maccabi"
+        "maccabi",
+        "maccabi healthcare",
+        "maccabi health"
       ],
       "brand_tokens": [
         "maccabi"
@@ -327,7 +355,9 @@
       "name_he": "כללית",
       "aliases": [
         "שירותי בריאות כללית",
-        "clalit"
+        "clalit",
+        "clalit health",
+        "clalit health services"
       ],
       "brand_tokens": [
         "clalit"
@@ -383,42 +413,42 @@
       "id": "urgency",
       "kind": "pressure",
       "weight": 1,
-      "pattern": "דחוף|בהקדם|מיידית|מידית|תוך (?:\\d+|שעה|שעתיים|יום|יומיים|שלושה|שבוע) ?(?:שעות|שעה|ימים|יום|דקות)?|עד (?:סוף היום|חצות|מחר)|לפני סוף היום|פג תוקף|היום האחרון|הזדמנות אחרונה|\\burgent(?:ly)?\\b|immediately|within \\d+ ?(?:hours?|days?)|act now|final notice",
+      "pattern": "דחוף|בהקדם|מיידית|מידית|תוך (?:\\d+|שעה|שעתיים|יום|יומיים|שלושה|שבוע) ?(?:שעות|שעה|ימים|יום|דקות)?|עד (?:סוף היום|חצות|מחר)|לפני סוף היום|פג תוקף|היום האחרון|הזדמנות אחרונה|\\burgent(?:ly)?\\b|immediately|within \\d+ ?(?:hours?|days?)|act now|final notice|right away|as soon as possible|\\basap\\b|today only|last chance|expires? (?:today|soon|tonight)|(?:by|before) (?:midnight|end of (?:the )?day)|time[- ]sensitive|(?:claim|pay|respond|reply|verify|confirm|act) (?:it )?now|without delay|(?:hours?|minutes?) left",
       "he": "ההודעה מלחיצה אתכם לפעול מהר"
     },
     {
       "id": "threat",
       "kind": "pressure",
       "weight": 2,
-      "pattern": "ייחסם|תיחסם|נחסם|יחסם|יוסגר|תיסגר|עיקול|הליכים משפטיים|תבוטל|יבוטל|הושעה|קנס נוסף|ריבית פיגורים|נפתח (?:נגדך )?תיק|פתחנו נגדך|תיק פלילי|צו (?:מעצר|עיקול|חיפוש)|מעצר|ניתוק (?:חשמל|מים|גז|קו)|תנותק|הוקפא|הקפאת חשבון|חסימת (?:חשבון|כרטיס)|(?:חשבון|כרטיס)[^.\\n]{0,15}(?:נחסם|ייחסם|יחסם|יינעל)|(?:account|card|package)[^.\\n]{0,25}(?:suspended|blocked|locked|returned|on hold)|legal action|arrest",
+      "pattern": "ייחסם|תיחסם|נחסם|יחסם|יוסגר|תיסגר|עיקול|הליכים משפטיים|תבוטל|יבוטל|הושעה|קנס נוסף|ריבית פיגורים|נפתח (?:נגדך )?תיק|פתחנו נגדך|תיק פלילי|צו (?:מעצר|עיקול|חיפוש)|מעצר|ניתוק (?:חשמל|מים|גז|קו)|תנותק|הוקפא|הקפאת חשבון|חסימת (?:חשבון|כרטיס)|(?:חשבון|כרטיס)[^.\\n]{0,15}(?:נחסם|ייחסם|יחסם|יינעל)|(?:account|card|package)[^.\\n]{0,25}(?:suspended|blocked|locked|returned|on hold)|legal action|arrest|(?:will be|has been|have been|is being|was) (?:suspended|blocked|locked|closed|frozen|cancell?ed|terminated|disconnected|deactivated|returned|seized)|(?:suspicious|unusual|unauthori[sz]ed) (?:activity|login|sign-?in|transaction)|(?:court|lawsuit|warrant|legal) (?:order|notice|case|proceedings|action)|(?:overdue|outstanding|unpaid) (?:invoice|payment|balance|toll|fine|ticket)|(?:late fees?|penalt(?:y|ies)|additional fines?)|(?:parcel|package|delivery)[^.\\n]{0,25}(?:held|on hold|failed|could not be delivered|undeliverable)",
       "he": "ההודעה מאיימת על חסימה, קנס או עיקול"
     },
     {
       "id": "credentials",
       "kind": "pressure",
       "weight": 3,
-      "pattern": "(?<!אל ת)(?:הזינו|הזן|הזיני|עדכנו|עדכני|אשרו|אשר|אמתו|מסרו|שלחו|שלחי|ספקו|הקלידו)[^.\\n]{0,25}(?:פרטי|מספר) ?(?:כרטיס|אשראי|חשבון|הכרטיס)|(?<!אל ת)(?:הזינו|הזן|הזיני|עדכנו|עדכני|אשרו|אשר|אמתו|מסרו|שלחו|שלחי|ספקו|הקלידו)[^.\\n]{0,20}(?:סיסמ|קוד אימות|קוד חד|תעודת זהות|cvv)|עדכון פרטי (?:אשראי|כרטיס|חשבון)|(?<!אל ת)(?:הזינו|אמתו|עדכנו|אשרו) פרטים|(?<!אל )(?<!אל ת)(?:ל?הכנס|ל?הכניסו|ל?הקליד|ל?מסור|ל?העביר|הכניסו|הכנסי|העבר|העבירו|מסור|הקלד|הקלידו|תקליד|תזין|שלח)(?: לנו| לי)?[^.\\n]{0,25}(?:קוד(?: אימות| חד[- ]?פעמי| סודי| זמני)?|סיסמ[אה]|פרטי (?:כרטיס|אשראי|חשבון)|מספר (?:כרטיס|חשבון)|תעודת זהות)|verify your (?:account|identity|card)|enter your (?:password|pin|card|otp|code)|(?:send|share|give) (?:me )?(?:the |your )?(?:code|otp|password)|(?:צלמ|צלם|שלח|שלחו|שלחי)[^.\\n]{0,25}(?:תמונה|צילום)[^.\\n]{0,25}(?:כרטיס|אשראי|תעודת זהות)|(?:צלמ|צלם)[^.\\n]{0,20}(?:כרטיס|אשראי)",
+      "pattern": "(?<!אל ת)(?:הזינו|הזן|הזיני|עדכנו|עדכני|אשרו|אשר|אמתו|מסרו|שלחו|שלחי|ספקו|הקלידו)[^.\\n]{0,25}(?:פרטי|מספר) ?(?:כרטיס|אשראי|חשבון|הכרטיס)|(?<!אל ת)(?:הזינו|הזן|הזיני|עדכנו|עדכני|אשרו|אשר|אמתו|מסרו|שלחו|שלחי|ספקו|הקלידו)[^.\\n]{0,20}(?:סיסמ|קוד אימות|קוד חד|תעודת זהות|cvv)|עדכון פרטי (?:אשראי|כרטיס|חשבון)|(?<!אל ת)(?:הזינו|אמתו|עדכנו|אשרו) פרטים|(?<!אל )(?<!אל ת)(?:ל?הכנס|ל?הכניסו|ל?הקליד|ל?מסור|ל?העביר|הכניסו|הכנסי|העבר|העבירו|מסור|הקלד|הקלידו|תקליד|תזין|שלח)(?: לנו| לי)?[^.\\n]{0,25}(?:קוד(?: אימות| חד[- ]?פעמי| סודי| זמני)?|סיסמ[אה]|פרטי (?:כרטיס|אשראי|חשבון)|מספר (?:כרטיס|חשבון)|תעודת זהות)|verify your (?:account|identity|card)|enter your (?:password|pin|card|otp|code)|(?:send|share|give) (?:me )?(?:the |your )?(?:code|otp|password)|(?:צלמ|צלם|שלח|שלחו|שלחי)[^.\\n]{0,25}(?:תמונה|צילום)[^.\\n]{0,25}(?:כרטיס|אשראי|תעודת זהות)|(?:צלמ|צלם)[^.\\n]{0,20}(?:כרטיס|אשראי)|confirm your (?:password|pin|card|identity|details|account)|update your (?:payment|card|billing|account|bank) (?:details|information|info)|(?:log ?in|sign ?in) to (?:verify|confirm|unlock|restore|avoid|keep)|(?:read|tell|forward|reply with|text|give) (?:me |us )?(?:back )?(?:the |your )?(?:code|otp|password|pin)|(?:card|account|id) number|\\bcvv\\b|\\bpin code\\b|social security|id (?:card|photo)|photo of your (?:card|id)",
       "he": "ההודעה מבקשת פרטים אישיים, כרטיס אשראי או קודים. גופים רשמיים לא מבקשים את זה בהודעה"
     },
     {
       "id": "prize",
       "kind": "pressure",
       "weight": 2,
-      "pattern": "זכית|זכיתם|זכיה|זכייה|הוגרלת|החזר (?:כספי|מס|ארנונה)|הגרלה|מתנה|שובר|you(?:'ve| have)? won|claim your (?:prize|reward|gift)|gift card|free gift",
+      "pattern": "זכית|זכיתם|זכיה|זכייה|הוגרלת|החזר (?:כספי|מס|ארנונה)|הגרלה|מתנה|שובר|you(?:'ve| have)? won|claim your (?:prize|reward|gift)|gift card|free gift|congratulations[^.\\n]{0,40}(?:won|win|selected|prize|reward|chosen)|you(?:'ve| have)? been (?:selected|chosen)|lottery|prize draw|(?:tax )?refund (?:of|is|available|pending)|(?:eligible|entitled) (?:for|to) (?:a |your )?(?:refund|reward|prize|compensation)",
       "he": "ההודעה מבטיחה כסף או פרס, וזה סימן נפוץ להונאה"
     },
     {
       "id": "payment",
       "kind": "money",
       "weight": 1,
-      "pattern": "שלמו|לשלם|תשלום|בביט|בפייבוקס|paybox|העברה בנקאית|(?:pay|payment of)[^.\\n]{0,30}(?:fee|fine|customs|delivery)|customs fee|delivery fee|unpaid",
+      "pattern": "שלמו|לשלם|תשלום|בביט|בפייבוקס|paybox|העברה בנקאית|(?:pay|payment of)[^.\\n]{0,30}(?:fee|fine|customs|delivery)|customs fee|delivery fee|unpaid|send (?:me )?money|wire (?:me|the|us)|bank transfer|transfer (?:the )?(?:money|funds|payment)|pay(?:ment)? (?:now|today|immediately|the (?:fee|fine|invoice|balance|toll))|western union|crypto|bitcoin|usdt|\\bbit\\b app|pay ?box|small (?:fee|charge)|\\d[\\d.,]* ?(?:nis|ils|shekels?|₪) (?:fee|fine|charge|payment)",
       "he": "ההודעה מבקשת תשלום"
     },
     {
       "id": "family",
       "kind": "impersonation",
       "weight": 3,
-      "pattern": "(?:תעביר|תעבירי|תעבירו|תשלח|תשלחי|שלח|שלחי)\\s+לי[^.\\n?]{0,25}(?:כסף|כספים|ש\\\"ח|שקל|₪|\\d{3,}|ביט|פייבוקס|paybox|העברה)|(?:אפשר|תוכל|תוכלי|את יכולה|אתה יכול) (?:ל)?(?:העביר|שלוח)[^.\\n?]{0,25}(?:כסף|ש\\\"ח|₪|ביט|פייבוקס)|צריך[^.\\n]{0,20}\\d[\\d,]*\\s?(?:שקל|ש\\\"ח|₪)|(?:צריך|צריכה|תצטרך)[^.\\n]{0,25}(?:כסף|בביט|בפייבוקס)",
+      "pattern": "(?:תעביר|תעבירי|תעבירו|תשלח|תשלחי|שלח|שלחי)\\s+לי[^.\\n?]{0,25}(?:כסף|כספים|ש\\\"ח|שקל|₪|\\d{3,}|ביט|פייבוקס|paybox|העברה)|(?:אפשר|תוכל|תוכלי|את יכולה|אתה יכול) (?:ל)?(?:העביר|שלוח)[^.\\n?]{0,25}(?:כסף|ש\\\"ח|₪|ביט|פייבוקס)|צריך[^.\\n]{0,20}\\d[\\d,]*\\s?(?:שקל|ש\\\"ח|₪)|(?:צריך|צריכה|תצטרך)[^.\\n]{0,25}(?:כסף|בביט|בפייבוקס)|(?:can|could|would|will) you (?:please )?(?:send|transfer|wire|lend|give)(?: me)?[^.\\n?]{0,25}(?:money|nis|ils|shekels?|₪|\\$|\\d{3,})|(?:send|transfer|wire) me[^.\\n?]{0,25}(?:money|nis|ils|shekels?|₪|\\$|\\d{3,}|bit|paybox)|i (?:need|require)[^.\\n]{0,20}(?:money|\\d[\\d,]*\\s?(?:nis|ils|shekels?|₪|\\$))|(?:please )?(?:don'?t|do not) tell (?:dad|mom|mum|anyone|grandma|grandpa|your (?:father|mother|parents))|(?:i(?:'m| am) )?in trouble[^.\\n]{0,20}(?:money|help|urgent)",
       "he": "ההודעה מתחזה למישהו מהמשפחה ומבקשת כסף. כדאי להתקשר אליו במספר שאתם מכירים"
     },
     {
@@ -426,14 +456,14 @@
       "kind": "impersonation",
       "weight": 1,
       "he": "ההודעה פותחת כמו הודעה ממישהו מהמשפחה עם מספר חדש",
-      "pattern": "(?:אמא|אמי|אבא|סבתא|סבא)[ ,!.]*(?:זה אני|זה הנכד|החלפתי מספר|החליפו לי מספר|מספר חדש|שברתי|איבדתי|הטלפון (?:שלי )?(?:נפל|נשבר|התקלקל|אבד))|זה (?:סבתא|סבא|נכד|הנכד|הבן|הבת|הילד|הילדה)[^.\\n?]{0,40}(?:מספר|טלפון)|החלפתי מספר|מספר חדש שלי|(?:שלום )?(?:סבתא|סבא|אמא|אבא)[,!. ]+(?:זה|זאת) [א-ת]{2,8}\\b|בית חולים|תאונה"
+      "pattern": "(?:אמא|אמי|אבא|סבתא|סבא)[ ,!.]*(?:זה אני|זה הנכד|החלפתי מספר|החליפו לי מספר|מספר חדש|שברתי|איבדתי|הטלפון (?:שלי )?(?:נפל|נשבר|התקלקל|אבד))|זה (?:סבתא|סבא|נכד|הנכד|הבן|הבת|הילד|הילדה)[^.\\n?]{0,40}(?:מספר|טלפון)|החלפתי מספר|מספר חדש שלי|(?:שלום )?(?:סבתא|סבא|אמא|אבא)[,!. ]+(?:זה|זאת) [א-ת]{2,8}\\b|בית חולים|תאונה|(?:mom|mum|mother|dad|grandma|grandpa|nana|granny|grandmother|grandfather)[ ,!.]*(?:it'?s me|this is (?:your|me)|i (?:lost|broke|changed|got a new)|my (?:phone|number)|new number)|(?:this is|it'?s) (?:your )?(?:grandson|granddaughter|grandchild|son|daughter)|i (?:lost|broke|dropped) my phone|(?:changed|new|temporary) (?:phone )?number|\\bhospital\\b|\\baccident\\b|\\bmy old number\\b"
     },
     {
       "id": "staff",
       "kind": "pressure",
       "weight": 2,
       "he": "ההודעה מציגה נציג של בנק או רשות ומבקשת פעולה מיידית",
-      "pattern": "(?:כאן|מדובר|מדברים|אני|מתקשר|מתקשרת|נציג|נציגה)\\s*(?:מ|ב)?(?:ה)?(?:בנק|מחלק(?:ת|ה) (?:ה)?(?:הונאות|אבטחה)|משטרה|משטרת ישראל|רשות המסים|מס הכנסה|פייפאל|paypal|ביטוח לאומי|חברת החשמל)|(?:from|calling from|this is) (?:your )?(?:bank|the police|paypal|tax authority)"
+      "pattern": "(?:כאן|מדובר|מדברים|אני|מתקשר|מתקשרת|נציג|נציגה)\\s*(?:מ|ב)?(?:ה)?(?:בנק|מחלק(?:ת|ה) (?:ה)?(?:הונאות|אבטחה)|משטרה|משטרת ישראל|רשות המסים|מס הכנסה|פייפאל|paypal|ביטוח לאומי|חברת החשמל)|(?:from|calling from|this is) (?:your )?(?:bank|the police|paypal|tax authority)|(?:this is|calling from|i(?:'m| am) from|we are from|on behalf of)[^.\\n]{0,12}(?:bank|the police|police|tax authority|national insurance|electric company|paypal|post office|israel post)|(?:bank|fraud|security|collections?) (?:department|team|officer|division)"
     }
   ]
 }

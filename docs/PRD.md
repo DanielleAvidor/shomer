@@ -270,3 +270,16 @@ Notes: `docs/research/questionnaire-02-mother.md`, `docs/research/self-report-03
 
 ### Still open
 Whether the app should check automatically on Android (needs the Android build), an iPhone share extension, deeper links into each organisation's personal area (needs verified official pages), and testing with people outside the family.
+
+## 15. Languages
+
+**Decision.** The interface and explanations are in Hebrew, because the people we spoke to read Hebrew. The *input* is not limited to Hebrew: a message may arrive in English, and the product is expected to work on it.
+
+**What is language-independent (works for any message).** Extracting the link, finding the real host, comparing it to the official domain, lookalikes, punycode, IP addresses, link shorteners, risky domain endings.
+
+**What was added for English.** English wording for each signal (urgency, threats, requests for codes or card details, prizes, payment demands, a family member asking for money, a bank or authority representative) and English names of the organizations in the directory ("Israel Post", "Highway 6", "National Insurance" and so on). Eleven English cases were added to the evaluation set, including five ordinary messages that must *not* trigger anything.
+
+**Honest limits.**
+- The English patterns and the English test cases were written by the same person, so they show the logic works, not how well it works on real English scam messages.
+- Russian and Arabic, widely used among older adults in Israel, are not covered. That is the next language step, and it needs native speakers to write the patterns and review them.
+- The result screen is still Hebrew. An English-speaking user would get a correct verdict with Hebrew explanations.

@@ -34,3 +34,14 @@
 {"id": "s22", "kind": "scam", "text": "דואר ישראל: עדכנו פרטי אשראי תוך 24 שעות אחרת החבילה תוחזר https://israelpost.co.il/pay", "expected": "cant_verify", "note": "official domain but the message pressures and asks for card details: never reassure"}
 {"id": "l13", "kind": "legit", "text": "בנק הפועלים: לעולם אל תמסרו קוד אימות לאף אחד, גם לא לנציג בנק.", "expected": "cant_verify", "note": "warning text must not count as a request for secrets"}
 {"id": "l14", "kind": "legit", "text": "קיבלתי מתנה מדהימה מסבתא, תודה על היום!", "expected": "not_applicable", "note": "a weak word like 'gift' alone must not trigger anything"}
+{"id": "e01", "kind": "scam", "text": "Israel Post: your parcel is on hold. Pay the 4.90 NIS fee now: https://israelpost-fee.top/pay", "expected": "dont_click", "note": "English message, lookalike of an official domain"}
+{"id": "e02", "kind": "scam", "text": "URGENT: your bank account will be suspended today. Verify your card details and password immediately.", "expected": "dont_click", "note": "English, no link: threat + credentials + urgency"}
+{"id": "e03", "kind": "scam", "text": "Hi mum, this is my new number. I lost my phone. Can you send me 2000 NIS urgently? Don't tell dad", "expected": "dont_click", "note": "English family impersonation asking for money"}
+{"id": "e04", "kind": "scam", "text": "Congratulations! You won a gift card. Claim it now", "expected": "dont_click", "note": "English prize bait without a link"}
+{"id": "e05", "kind": "scam", "text": "This is Bank Leumi security department. Suspicious activity on your account, call us now and give me the code you received", "expected": "dont_click", "note": "English bank-staff impersonation asking for the code"}
+{"id": "e06", "kind": "scam", "text": "Your toll invoice is overdue, pay now https://bit.ly/3xYz", "expected": "cant_verify", "note": "English, shortener hides the destination"}
+{"id": "e07", "kind": "legit", "text": "Hi, see you at dinner tonight at 8", "expected": "not_applicable", "note": "ordinary English message"}
+{"id": "e08", "kind": "legit", "text": "Your order has been shipped and will arrive on Tuesday. Thanks for shopping!", "expected": "not_applicable", "note": "ordinary English shipping notice without a link"}
+{"id": "e09", "kind": "legit", "text": "Happy birthday! Congratulations, hope you have a great day. Call me when you can", "expected": "not_applicable", "note": "'congratulations' alone must not trigger"}
+{"id": "e10", "kind": "legit", "text": "Mom, I'll be at the hospital cafeteria at 5 to visit grandpa", "expected": "not_applicable", "note": "'hospital' alone is a weak word"}
+{"id": "e11", "kind": "legit", "text": "Israel Post: track your parcel https://israelpost.co.il/track", "expected": "matches_official", "note": "English message, official address; match shown but never 'safe'"}
