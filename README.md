@@ -90,3 +90,6 @@ To collect answers from people who are not on WhatsApp with you, `survey/create-
 
 ## Future: AI second opinion
 `shomer/advisor.py` is an extension point for an optional AI advisor. It is deliberately limited: it can only make a verdict more cautious, it runs only if the user turns it on, and failures fall back to the rule engine. No real advisor is included yet. See section 13 of `docs/PRD.md`.
+
+## Checking a link on its own
+You can paste just a link. The result shows the address the link really opens, who owns it, and the official address of the organisation it claims or imitates, side by side. A link that is the verified official address of a known organisation is reported as the official address, with the reminder that this does not mean the message that carried it is genuine.

@@ -54,6 +54,9 @@ class LinkReport:
     verdict: Verdict
     reasons: list = field(default_factory=list)
     matched_org: str | None = None
+    real_domain: str = ""  # the part of the address that decides who owns it
+    official_domain: str = ""  # the official address of the organisation the link claims or imitates
+    org_name: str = ""  # that organisation's name
 
 
 @dataclass
@@ -198,7 +201,17 @@ class Engine:
                     return o
         return None
 
-    def analyze_link(self, url: str, claimed: list) -> LinkReport:
+    def analyze_link(self, url: str, claimed: list, link_only: bool = False) -> LinkReport:
+        rep = self._analyze_link(url, claimed, link_only)
+        if rep.host:
+            rep.real_domain = registrable(rep.host)
+        org = self.by_id.get(rep.matched_org) if rep.matched_org else (claimed[0] if claimed else None)
+        if org is not None:
+            rep.org_name = org.name_he
+            rep.official_domain = org.domains[0] if org.domains else ""
+        return rep
+
+    def _analyze_link(self, url: str, claimed: list, link_only: bool = False) -> LinkReport:
         host, userinfo = parse_host(url)
         claimed_ids = {o.id for o in claimed}
         reasons: list = []
@@ -216,6 +229,9 @@ class Engine:
             if prefixes and not any(parse_path(url).startswith(p) for p in prefixes):
                 return LinkReport(url, host, Verdict.CANT_VERIFY,
                                   [f"{matched} הוא אתר ממשלתי כללי, ולא הצלחנו לוודא שהדף הזה שייך ל{official.name_he}"], official.id)
+            if not claimed_ids and link_only and official.verified:
+                return LinkReport(url, host, Verdict.MATCHES_OFFICIAL,
+                                  [f"זו הכתובת הרשמית של {official.name_he}. זה לא אומר שההודעה שהגיעה עם הקישור אמיתית"], official.id)
             if not claimed_ids:
                 return LinkReport(url, host, Verdict.CANT_VERIFY,
                                   [f"הכתובת שייכת ל{official.name_he}, אבל ההודעה לא אומרת מי שלח אותה"], official.id)
@@ -257,7 +273,9 @@ class Engine:
     def check(self, text: str) -> Result:
         urls = self.extract_urls(text)
         claimed = self.claimed_orgs(text)
-        reports = [self.analyze_link(u, claimed) for u in urls]
+        leftover = _URL_RE.sub(" ", text).strip(" \n\t.,:;-")
+        link_only = bool(urls) and len(leftover) <= 3
+        reports = [self.analyze_link(u, claimed, link_only) for u in urls]
         sigs = self.content_signals(text)
         sig_ids = {g["id"] for g in sigs}
         pressure = {g["id"] for g in sigs if g["kind"] == "pressure"}

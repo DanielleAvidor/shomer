@@ -146,3 +146,19 @@ def test_round2_scams_are_blocked(text):
 ])
 def test_round2_legit_family_messages_not_blocked(text):
     assert Engine().check(text).verdict.value != "dont_click"
+
+
+def test_link_only_official_address_is_recognised_but_message_not_vouched_for():
+    r = Engine().check("israelpost.co.il/track")
+    assert r.verdict is Verdict.MATCHES_OFFICIAL
+    assert any("לא אומר שההודעה" in x for x in r.reasons_he)
+    assert r.links[0].real_domain == "israelpost.co.il"
+
+
+def test_link_only_unverified_org_is_not_a_match():
+    assert Engine().check("https://www.kvish6.co.il/pay").verdict is not Verdict.MATCHES_OFFICIAL
+
+
+def test_breakdown_shows_real_vs_official_domain():
+    l = Engine().check("https://israelpost.paliet.top/il").links[0]
+    assert (l.real_domain, l.official_domain, l.org_name) == ("paliet.top", "israelpost.co.il", "דואר ישראל")
