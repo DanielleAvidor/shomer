@@ -45,7 +45,7 @@ Standard library only; Python 3.10+. In the page, use the example buttons, then 
 | `shomer/data/directory.json` | Trusted Directory (with sources and `verified` flags) |
 | `shomer/server.py`, `shomer/static/index.html` | Local demo server and Hebrew UI |
 | `eval/` | Test corpus and evaluation script |
-| `app/` | Android app (Kotlin): SMS receiver, share target, notification, family reporting |
+| `app/` | Android app (Kotlin): background agent (SMS receiver + notification listener for WhatsApp and others), share target, alerts, family reporting |
 
 ## What is and isn't proven
 
@@ -87,6 +87,16 @@ The Kotlin source in `app/` has been statically reviewed but **never compiled or
 `survey/index.html` is a short Hebrew survey (about 3 minutes, 13 questions) for older adults and their relatives: what suspicious messages they get, what they did, and whether they would paste a message into an app or let a relative see alerts. It stores and sends nothing by itself. At the end it builds a text summary that the respondent can send on WhatsApp. It can be opened as a file or hosted on GitHub Pages. Pilot conversations so far (three people, one family, limits stated): `docs/research/`. Real answers belong in `docs/research/` (anonymised) and should be summarised in the PRD.
 
 To collect answers from people who are not on WhatsApp with you, `survey/create-google-form.gs` is a Google Apps Script that creates the same survey as a Google Form with a linked response sheet (instructions in the file header).
+
+## The background agent (Android)
+
+Pasting a message is the first step, not the product. The app also runs in the background and checks incoming messages by itself, then speaks up only when there is a reason:
+
+- **SMS**: through a broadcast receiver (runtime consent).
+- **WhatsApp, Telegram, Gmail, Messenger**: through a notification listener, which the user grants in system settings. It reads only notifications from a short list of apps, ignores its own, and checks them on the phone. Message text is not stored or sent; a short-lived hash in memory prevents announcing the same message twice.
+- **When it alerts**: for SMS, on "don't click", and on "can't verify" only if the message names a known organization and has a link or pushes. For chat apps the bar is higher (people share links and mention banks all the time): only a high-confidence "don't click" that also pushes or links to a lookalike of a known organization. Never on "matches official", never on a message with nothing to check. This trades some misses in chats for trust.
+- **Limits**: not compiled or run on a device yet. A notification preview can be cut short, so a long message may be checked in part. The notification permission covers all notifications, which is why the consent text says so plainly. A Play Store release would need a different route; this is built for a family install. On Android 13 and later, a sideloaded app may need "Allow restricted settings" (in the app's info page) before notification access can be switched on. **iPhone cannot do this at all**: iOS does not let an app read SMS or WhatsApp. Only a paste/share route (and, with a Mac and a developer account, an SMS filter extension) is possible there.
+- **Not built**: an AI agent that signs into the person's accounts to confirm a message. It was rejected on security grounds (see the PRD).
 
 ## Future: AI second opinion
 `shomer/advisor.py` is an extension point for an optional AI advisor. It is deliberately limited: it can only make a verdict more cautious, it runs only if the user turns it on, and failures fall back to the rule engine. No real advisor is included yet. See section 13 of `docs/PRD.md`.

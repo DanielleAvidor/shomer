@@ -188,3 +188,9 @@ def test_ordinary_hebrew_and_english_are_not_flagged_unsupported():
 
 def test_nothing_found_headline_itself_carries_the_caveat():
     assert "לא אישור" in E.check("נתראה בערב").headline_he
+
+
+def test_link_cut_short_by_a_notification_preview_is_not_guessed_at():
+    r = E.check("תבדקו: https://israelpost.co…")
+    assert r.links[0].verdict is Verdict.CANT_VERIFY
+    assert not r.certain

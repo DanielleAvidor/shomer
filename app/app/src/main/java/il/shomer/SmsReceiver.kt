@@ -5,16 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
 
-/** Checks each incoming SMS on the device. Shows a notification only if the message has a link or names a known organization. */
+/** Checks each incoming SMS on the device and speaks only when AgentCheck says there is something to say. */
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
         val body = Telephony.Sms.Intents.getMessagesFromIntent(intent).joinToString("") { it.messageBody ?: "" }
-        val result = Checker.engine(context).check(body)
-        if (!result.applicable) return
-        Notifier.show(context, result)
-        val pending = goAsync() // keep the process alive until the background report finishes
-        GuardianClient.report(context, result) { pending.finish() } // metadata only: verdict, organization id, link host. Never the text.
+        val pending = goAsync() // keep the process alive until the optional family report finishes
+        AgentCheck.handle(context, body, strict = false) { pending.finish() }
     }
 }
 

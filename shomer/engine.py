@@ -215,6 +215,10 @@ class Engine:
         return rep
 
     def _analyze_link(self, url: str, claimed: list, link_only: bool = False) -> LinkReport:
+        if url.endswith("\u2026"):
+            # A notification preview cut the link short: we never saw the real address, so say so instead of guessing.
+            h, _ = parse_host(url.rstrip("\u2026"))
+            return LinkReport(url, h, Verdict.CANT_VERIFY, ["הקישור נחתך בתצוגה המקדימה ולא ראינו אותו עד הסוף. פתחו את ההודעה המלאה כדי לבדוק"])
         host, userinfo = parse_host(url)
         claimed_ids = {o.id for o in claimed}
         reasons: list = []

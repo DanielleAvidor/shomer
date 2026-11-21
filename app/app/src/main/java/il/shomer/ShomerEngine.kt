@@ -15,6 +15,7 @@ data class Org(
     val id: String, val nameHe: String, val aliases: List<String>, val brandTokens: List<String>,
     val domains: List<String>, val officialUrl: String, val verified: Boolean,
     val restrictedPaths: Map<String, List<String>> = emptyMap(),
+    val contextHe: String = "",
 )
 
 data class LinkReport(val url: String, val host: String, val verdict: Verdict, val reasons: List<String>, val orgId: String? = null)
@@ -22,6 +23,13 @@ data class LinkReport(val url: String, val host: String, val verdict: Verdict, v
 data class CheckResult(
     val verdict: Verdict, val headline: String, val advice: String, val reasons: List<String>,
     val claimedOrgs: List<String>, val links: List<LinkReport>, val officialUrl: String?, val applicable: Boolean,
+    /** High confidence that this is a scam. Only such results may alert a family member. */
+    val certain: Boolean = false,
+    /** The message is mostly in a script the checker does not read (for example Russian or Arabic). */
+    val unsupportedLanguage: Boolean = false,
+    val contextQuestion: String = "",
+    /** Ids of the content signals that matched (urgency, threat, credentials, ...). */
+    val signalIds: List<String> = emptyList(),
 )
 
 /** A content signal: what the message asks for (pressure, threats, secrets, prizes, money, family impersonation). */
@@ -43,7 +51,8 @@ class ShomerEngine(directoryJson: String) {
             Org(o.getString("id"), o.getString("name_he"), strings(o.getJSONArray("aliases")),
                 strings(o.getJSONArray("brand_tokens")), strings(o.getJSONArray("domains")),
                 o.getString("official_url"), o.getBoolean("verified"),
-                o.optJSONObject("restricted_paths")?.let { rp -> rp.keys().asSequence().associateWith { k -> strings(rp.getJSONArray(k)) } } ?: emptyMap())
+                o.optJSONObject("restricted_paths")?.let { rp -> rp.keys().asSequence().associateWith { k -> strings(rp.getJSONArray(k)) } } ?: emptyMap(),
+                o.optString("context_he", ""))
         }
         shorteners = strings(root.getJSONArray("shorteners")).toSet()
         badTlds = strings(root.getJSONArray("suspicious_tlds")).toSet()
@@ -98,7 +107,9 @@ class ShomerEngine(directoryJson: String) {
         return null
     }
 
-    fun analyzeLink(url: String, claimed: List<Org>): LinkReport {
+    fun analyzeLink(url: String, claimed: List<Org>, linkOnly: Boolean = false): LinkReport {
+        if (url.endsWith("\u2026")) // a notification preview cut the link short: we never saw the real address
+            return LinkReport(url, parseHost(url.trimEnd('\u2026')).first, Verdict.CANT_VERIFY, listOf("הקישור נחתך בתצוגה המקדימה ולא ראינו אותו עד הסוף. פתחו את ההודעה המלאה כדי לבדוק"))
         val (host, userinfo) = parseHost(url)
         val claimedIds = claimed.map { it.id }.toSet()
         val reasons = mutableListOf<String>()
@@ -113,6 +124,8 @@ class ShomerEngine(directoryJson: String) {
             val prefixes = official.restrictedPaths[matched]
             if (!prefixes.isNullOrEmpty() && prefixes.none { parsePath(url).startsWith(it) })
                 return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("$matched הוא אתר ממשלתי כללי, ולא הצלחנו לוודא שהדף הזה שייך ל${official.nameHe}"), official.id)
+            if (claimedIds.isEmpty() && linkOnly && official.verified)
+                return LinkReport(url, host, Verdict.MATCHES_OFFICIAL, listOf("זו הכתובת הרשמית של ${official.nameHe}. זה לא אומר שההודעה שהגיעה עם הקישור אמיתית"), official.id)
             if (claimedIds.isEmpty())
                 return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("הכתובת שייכת ל${official.nameHe}, אבל ההודעה לא אומרת מי שלח אותה"), official.id)
             if (official.id !in claimedIds)
@@ -143,7 +156,9 @@ class ShomerEngine(directoryJson: String) {
     fun check(text: String): CheckResult {
         val urls = extractUrls(text)
         val claimed = claimedOrgs(text)
-        val reports = urls.map { analyzeLink(it, claimed) }
+        val leftover = URL_RE.replace(text, " ").trim(' ', '\n', '\t', '.', ',', ':', ';', '-')
+        val linkOnly = urls.isNotEmpty() && leftover.length <= 3
+        val reports = urls.map { analyzeLink(it, claimed, linkOnly) }
         val body = URL_RE.replace(normalize(text), " ").lowercase()
         val badTld = reports.any { it.host.isNotEmpty() && it.host.substringAfterLast('.') in badTlds }
         val sigs = signals.filter { it.rx.containsMatchIn(body) }
@@ -197,14 +212,31 @@ class ShomerEngine(directoryJson: String) {
                      else "לא הצלחנו לבדוק. אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה") to
                 "אם ההודעה נוגעת לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי, או התקשרו למוקד הרשמי."
         }
-        if (!applicable) { headline = "לא מצאנו סימן חשד, אבל זה לא אישור"; advice = "לא מצאנו כאן קישור או בקשה חשודה. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה." }
-        return CheckResult(verdict, headline, advice, reasons, claimed.map { it.id }, reports, claimed.firstOrNull()?.officialUrl, applicable)
+        var unsupported = false
+        if (!applicable) {
+            headline = "לא מצאנו סימן חשד, אבל זה לא אישור"
+            advice = "לא מצאנו כאן קישור או בקשה חשודה. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
+            val letters = text.count { Character.isLetter(it) }
+            val foreign = text.count { it in '\u0400'..'\u04FF' || it in '\u0600'..'\u06FF' }
+            if (letters >= 12 && foreign.toDouble() / letters >= 0.3) {
+                unsupported = true
+                headline = "שומר בודק רק הודעות בעברית ובאנגלית"
+                advice = "לא יכולנו לבדוק את ההודעה הזאת, וזה לא אומר שהיא בטוחה. אם היא מבקשת כסף, סיסמה או קוד, אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה."
+            }
+        }
+        val certain = verdict == Verdict.DONT_CLICK && (reports.any { it.verdict == Verdict.DONT_CLICK } || score >= 4)
+        val orgForQuestion = claimed.firstOrNull() ?: reports.firstNotNullOfOrNull { r -> orgs.firstOrNull { it.id == r.orgId } }
+        return CheckResult(verdict, headline, advice, reasons, claimed.map { it.id }, reports, claimed.firstOrNull()?.officialUrl, applicable,
+            certain, unsupported, orgForQuestion?.contextHe.orEmpty(), ids.toList())
     }
 
     companion object {
         /** Same semantics as Python's re on str: case-insensitive, and \w \b \d \s are Unicode-aware (matters for Hebrew). */
         fun unicodeRegex(p: String, ignoreCase: Boolean = true): Regex =
-            Pattern.compile(p, (if (ignoreCase) Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE else 0) or Pattern.UNICODE_CHARACTER_CLASS).toRegex()
+            Pattern.compile(p, (if (ignoreCase) Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE else 0) or UNICODE_CLASSES).toRegex()
+
+        /** Pattern.UNICODE_CHARACTER_CLASS is not available in every Android regex implementation (ICU-backed, already Unicode-aware), so look it up at run time and fall back to 0. */
+        private val UNICODE_CLASSES: Int = try { Pattern::class.java.getField("UNICODE_CHARACTER_CLASS").getInt(null) } catch (e: Exception) { 0 }
 
         private val URL_RE = unicodeRegex(
             """(?:https?://|www\.)[^\s<>"'־״]+|(?<![\w@.-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>"']*)?(?![\w.-])""",

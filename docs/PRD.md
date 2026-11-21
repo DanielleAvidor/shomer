@@ -289,3 +289,19 @@ Whether the app should check automatically on Android (needs the Android build),
 A tester agent (role-play, not real users) ran the web demo at three screen sizes and reported 4 major and about 15 smaller findings. Fixed: Russian and Arabic text was shown as "nothing suspicious" and now says the language is not supported; on small phones the result could be off-screen for harmless messages and empty input; with several links only the first host was shown, now the dangerous one; when the server was down the screen stayed silent, now it says so and the button shows it is working; the main button text was clipped at 360px; the selected yes/no button was barely visible; input border contrast raised from 2.8:1 to 4.0:1; Ctrl+Enter submits. The "nothing suspicious" headline now carries the caveat itself.
 
 **Still open.** On a dangerous result the main action button is near the bottom of a long page (about 2,400px on a small phone); moving it up is a layout decision to test with real users. Tabs have no arrow-key support. The saved image has empty space. Pasting always runs the check at once. Not tested: real clipboard, WhatsApp, screen readers, Safari/Firefox, the Android app.
+
+## 17. The background agent
+
+**Why.** In the interviews the person did not want a tool she has to remember to open: "the interface should replace help from family; agents that alert, so she feels safe." Pasting a message remains useful, but it only works after she is already suspicious. The agent closes that gap.
+
+**What it is.** A deterministic background service, not an AI model: the same on-device engine, run on every incoming message from the watched channels. This keeps it private (nothing leaves the phone), predictable (same input, same answer), and free to run.
+
+**Channels.** SMS (receiver) and, through notification access, WhatsApp, Telegram, Gmail and Messenger. Not possible on iPhone.
+
+**Alert policy (a product decision, not a technical one).** The cost of a false alarm is that people stop trusting the app, so the agent is quiet by default: for SMS it alerts on "don't click", and on "can't verify" only when a known organization is named and the message has a link or pushes; in chat apps only on a high-confidence "don't click" that also pushes or imitates a known organization, because people share links and mention banks there all the time (a deliberate trade of some misses for trust). It never alerts on "matches official" and never reassures. Family alerts stay opt-in and high-confidence only.
+
+**Risks and open questions.**
+- The permission is broad (all notifications) even though only a few apps are read. The consent text must say so, and the app must show plainly whether it is on.
+- Not tested on a device. Notification previews may truncate long messages.
+- Distribution: the Play Store limits both SMS and notification access, so this is a family install for now.
+- Success measure to define with real users: alerts per week per person, share of alerts judged useful, and whether she stops forwarding messages to family.

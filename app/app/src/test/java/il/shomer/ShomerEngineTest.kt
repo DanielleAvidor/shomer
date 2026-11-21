@@ -3,6 +3,7 @@ package il.shomer
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** Runs the same shared corpus as the Python tests, so the two engines cannot silently drift apart. */
@@ -28,5 +29,31 @@ class ShomerEngineTest {
     @Test
     fun atSignTrickUsesRealHost() {
         assertEquals("evil.com", ShomerEngine.parseHost("https://israelpost.co.il@evil.com/x").first)
+    }
+
+    @Test
+    fun unsupportedLanguageIsNotReportedAsClean() {
+        val r = engine.check("Ваш банковский счёт будет заблокирован. Срочно позвоните и сообщите пароль")
+        assertFalse(r.applicable)
+        assertTrue(r.unsupportedLanguage)
+    }
+
+    @Test
+    fun linkCutShortByAPreviewIsNotGuessedAt() {
+        val r = engine.check("תבדקו: https://israelpost.co\u2026")
+        assertEquals(Verdict.CANT_VERIFY, r.links[0].verdict)
+        assertFalse(r.certain)
+    }
+
+    @Test
+    fun agentStaysQuietOnOrdinaryChatMessages() {
+        for (t in listOf("הלכתי לדואר ישראל היום", "ראית את זה? https://www.ynet.co.il/news/article/abc בנק לאומי מעלה ריבית", "מה קורה? https://youtu.be/abc"))
+            assertFalse(t, AgentCheck.shouldAlert(engine.check(t), strict = true))
+    }
+
+    @Test
+    fun agentSpeaksOnAPushyImpersonationInAChat() {
+        val r = engine.check("דואר ישראל: עדכנו פרטי אשראי תוך 24 שעות https://israelpost-fee.top/pay")
+        assertTrue(AgentCheck.shouldAlert(r, strict = true))
     }
 }

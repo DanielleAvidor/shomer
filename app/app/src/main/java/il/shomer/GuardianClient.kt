@@ -18,14 +18,15 @@ object GuardianClient {
             .put("verdict", r.verdict.key)
             .put("org", r.claimedOrgs.firstOrNull() ?: "")
             .put("host", r.links.firstOrNull()?.host ?: "")
+            .put("certain", r.certain)
             .toString()
         Thread {
             try {
                 val c = URL(root.trimEnd('/') + "/api/report").openConnection() as HttpURLConnection
-                c.requestMethod = "POST"; c.doOutput = true; c.connectTimeout = 5000; c.readTimeout = 5000
+                c.requestMethod = "POST"; c.doOutput = true; c.connectTimeout = 3000; c.readTimeout = 3000
                 c.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
                 c.responseCode.let { };  c.disconnect()
-            } catch (_: Exception) { /* best effort: never crash the receiver */ }
+            } catch (e: Exception) { /* best effort: never crash the receiver */ }
             finally { onDone() }
         }.start()
     }
