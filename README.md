@@ -34,11 +34,15 @@ The first screen simulates a phone lock screen, the way the Android agent behave
 
 The app has four tabs, built in code (`MainActivity.kt`): **Home** (is Shomer on, today's counts, the last checks, setup buttons when something is off), **Check** (paste or share a message), **Family** (server address, what is and is not sent) and **Settings** (each permission and its state, history on/off and clear). Tapping a Shomer notification or an alert in the list opens the full explanation (`ExplainActivity.kt`). A clickable design model of it is in a Claude design canvas: https://claude.ai/artifact/7odGaYVHJKEKzDRDabYC7o.
 
-The list remembers only the app, the time and Shomer's own explanation of an alert. It never stores message text or the sender, and it can be switched off. **None of this has been compiled or run on a phone yet.**
+The list remembers only the app, the time and Shomer's own explanation of an alert. It never stores message text or the sender, and it can be switched off. **It compiles and its unit tests pass in CI (GitHub Actions), but it has not been run on a phone yet.**
 
 ## Checking the Kotlin engine without a phone
 
 `tools/kotlin-parity/run.sh` compiles `ShomerEngine.kt` on a plain JVM (using the Kotlin compiler that ships inside Gradle, no Android SDK) and compares its answers with the Python engine on the eval corpus plus about 400 generated messages. Last run: 460 messages, 0 differences. It does not test the Android screens. A handoff summary for explaining the project elsewhere is in `docs/HANDOFF.md`.
+
+## Getting the APK
+
+Every push that touches `app/` builds the app in GitHub Actions. Open the repo's **Actions** tab, pick the latest green run, and download `shomer-debug-apk` from the bottom of the page (needs a GitHub login). Unzip it and copy `app-debug.apk` to an Android phone, open it, and allow "install from this source". Then, in the app, enable SMS checking and notification access (Android 13+ may also need "Allow restricted settings" on the app's info page). This is a debug build for a family install, not a Play Store release.
 
 ## Try it
 
