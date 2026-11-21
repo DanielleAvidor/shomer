@@ -56,4 +56,34 @@ class ShomerEngineTest {
         val r = engine.check("דואר ישראל: עדכנו פרטי אשראי תוך 24 שעות https://israelpost-fee.top/pay")
         assertTrue(AgentCheck.shouldAlert(r, strict = true))
     }
+
+    @Test
+    fun hiddenAndDefangedAddressesAreStillRead() {
+        assertEquals(Verdict.DONT_CLICK, engine.check("דואר ישראל: שלמו hxxps://israelpost[.]paliet[.]top/il").verdict)
+        assertEquals("evil.test", ShomerEngine.parseHost("evil.test\\.israelpost.co.il").first)
+    }
+
+    @Test
+    fun fileNamesAreNotAddresses() {
+        assertTrue(engine.extractUrls("שלחתי לך את report.pdf ואת app.js").isEmpty())
+    }
+
+    @Test
+    fun linkToAWellKnownSiteIsNotJudgedAsALookalike() {
+        val r = engine.check("דואר ישראל: ראית? https://www.ynet.co.il/news/article/abc")
+        assertEquals(Verdict.CANT_VERIFY, r.links[0].verdict)
+    }
+
+    @Test
+    fun oneTimeCodeMessageGetsItsOwnNotice() {
+        val r = engine.check("בנק לאומי: קוד האימות שלך הוא 482913. אל תמסור אותו לאף אחד.")
+        assertTrue(r.headline.contains("קוד"))
+        assertFalse(AgentCheck.shouldAlert(r, strict = false))
+    }
+
+    @Test
+    fun officialAddressHeadlineSaysItIsNotAnApproval() {
+        val r = engine.check("https://israelpost.co.il/track")
+        assertTrue(r.headline.contains("לא אישור"))
+    }
 }

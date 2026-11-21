@@ -26,6 +26,10 @@ Design choices that matter:
 - **Family features.** Send the result to a family member on WhatsApp (verdict and address only, never the message), save the result as a picture, a family screen with alerts you can mark as handled, and a one-time setup with an explicit consent screen.
 - **Calm, large UI** for older adults and families: RTL Hebrew, embedded fonts (Open Sans and Cardo, both open license), no external requests.
 
+## The demo
+
+The first screen is an inbox that works the way the Android agent does: sample messages arrive on their own, Shomer checks each one without being asked, and only the risky ones raise an alert (four of nine in the sample). "Manual check" is a second tab for pasting a message. The messages are made-up samples, shown as such on screen.
+
 ## Try it
 
 ```bash
@@ -46,6 +50,24 @@ Standard library only; Python 3.10+. In the page, use the example buttons, then 
 | `shomer/server.py`, `shomer/static/index.html` | Local demo server and Hebrew UI |
 | `eval/` | Test corpus and evaluation script |
 | `app/` | Android app (Kotlin): background agent (SMS receiver + notification listener for WhatsApp and others), share target, alerts, family reporting |
+
+## How this was built
+
+I set the product direction and ran the research; Claude (an AI assistant) wrote the code and drafts under my direction, and I reviewed and changed them.
+
+- **Mine:** picking the problem and the user (an older relative who gets scam messages), the three interviews, and the rules the product holds to: never say "safe", always point to the official route, speak up only when there is a reason, keep the family alert opt-in. I also rejected an AI agent that signs into people's accounts, and asked for the background agent and English support after seeing early versions.
+- **Claude's:** the rule engine, the web demo, the Android code, the tests and first drafts of the docs.
+- **Simulated users are not user research.** The agent reviews (a designer, a hiring-manager reviewer, a product critic, nine simulated users) are role-play by an AI. They found real bugs, which is what I used them for, but they say nothing about what real people do. The only user evidence is three oral interviews with people in one family.
+- **Not verified yet:** the Android app has never been compiled or run on a phone, and only three organizations in the directory are verified.
+
+## What I cut, and why
+
+- **An AI model deciding verdicts.** A rule engine gives the same answer for the same input and can be explained to the person reading it. An AI second opinion is groundwork only (see below).
+- **An agent that signs in to accounts to confirm a message.** Too much access for the risk it removes.
+- **iPhone background checking.** iOS does not let an app read SMS or WhatsApp. Paste and share only.
+- **Reading WhatsApp messages in full.** Notifications only, and only a short list of apps.
+- **A score or "safe" badge.** It would invite trust the tool has not earned.
+- **More organizations.** Better three verified than thirty guessed; adding banks is the next data task.
 
 ## What is and isn't proven
 

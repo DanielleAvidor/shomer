@@ -6,10 +6,10 @@
 
 **Who suffers and how.** Older adults in Israel receive phishing SMS and emails every week that impersonate institutions they know and trust (Kvish 6, GOV.IL, the police, the post office, banks, the Home Front Command). The messages look real, so many people click first and realize afterwards. Sender names can't be trusted: the National Cyber Directorate warned about fake Kvish 6 debt messages that appeared *inside an existing GOV.IL SMS thread*.
 
-**How big it is (evidence so far).**
-- In 2024 the Israel Police opened about 2,639 cases of suspected elder fraud, up roughly 27% year over year. The figure covers all fraud types, not only messages, and is likely an undercount because some victims don't report out of embarrassment. The Bank of Israel notes that fraudsters focus on people with low digital familiarity.
-- Local press, citing a security vendor's data, reports a sharp rise (hundreds of percent) in fake messages since the start of 2025. This is a secondary source and should be verified.
-- US data (FTC) shows that older adults tend to lose more money per incident, and are more exposed to government-impersonation scams than younger adults. To confirm for Israel.
+**How big it is (evidence so far).** Source status is marked on each line; none of these figures was re-checked against the primary source by me.
+- **[Reported, secondary source]** In 2024 the Israel Police opened about 2,639 cases of suspected elder fraud, up roughly 27% year over year. The figure covers all fraud types, not only messages, and is likely an undercount because some victims don't report out of embarrassment. The Bank of Israel notes that fraudsters focus on people with low digital familiarity.
+- **[Unverified]** Local press, citing a security vendor's data, reports a sharp rise (hundreds of percent) in fake messages since the start of 2025. This is a secondary source and should be verified.
+- **[Assumption for Israel]** US data (FTC) shows that older adults tend to lose more money per incident, and are more exposed to government-impersonation scams than younger adults. To confirm for Israel.
 
 **What people do today.** They ask a family member, or find out after clicking. In the builder's family, the relative who is asked then checks the message manually with an AI chatbot. This human-in-the-loop workaround works when someone is available, but it doesn't scale and fails when the person clicks before asking.
 
@@ -305,3 +305,13 @@ A tester agent (role-play, not real users) ran the web demo at three screen size
 - Not tested on a device. Notification previews may truncate long messages.
 - Distribution: the Play Store limits both SMS and notification access, so this is a family install for now.
 - Success measure to define with real users: alerts per week per person, share of alerts judged useful, and whether she stops forwarding messages to family.
+
+## 18. The agent-driven demo
+
+The demo's first screen is an inbox, not a text box. Sample messages arrive on their own (about one every four seconds), Shomer checks each through the same alert policy as section 17 and either stays quiet ("checked, no need to alert") or raises an alert with the full explanation beside it. Pasting remains as a second, manual tab. This follows the interview feedback that a tool she must remember to open does not replace help from family.
+
+What it shows and what it does not: the nine sample messages were written by me and Claude to cover the cases (a friend's link, a lookalike post office, a family group, an official message, a "hi grandma" request, a bank code, a toll lookalike, a family reminder, a bank phone number). Four alert and five stay quiet. That shows the policy, not its accuracy on real traffic.
+
+## 19. How this was built and what was cut
+
+Direction, research and product rules are mine; Claude wrote the code and first drafts. Simulated-user reviews found real bugs but are not user research. The only user evidence is three oral interviews in one family. What I cut on purpose: AI-decided verdicts, an agent that signs in to accounts, iPhone background checking, full WhatsApp reading, any "safe" badge, and more directory entries than I could verify. See the README for the short version.

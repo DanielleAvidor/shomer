@@ -40,6 +40,7 @@ class ShomerEngine(directoryJson: String) {
     private val shorteners: Set<String>
     private val badTlds: Set<String>
     private val neutral: Set<String>
+    private val common: Set<String>
     private val signals: List<Signal>
     private val aliasPatterns: List<Pair<Org, List<Regex>>>
 
@@ -63,6 +64,7 @@ class ShomerEngine(directoryJson: String) {
             }
         } ?: emptyList()
         neutral = root.optJSONArray("neutral_domains")?.let { strings(it).toSet() } ?: emptySet()
+        common = root.optJSONArray("common_domains")?.let { strings(it).toSet() } ?: emptySet()
         aliasPatterns = orgs.map { o -> o to o.aliases.map { aliasPattern(it) } }
     }
 
@@ -77,6 +79,8 @@ class ShomerEngine(directoryJson: String) {
         val out = mutableListOf<String>()
         for (m in URL_RE.findAll(text)) {
             val u = m.value.trimEnd(*TRAILING)
+            if (u.isNotEmpty() && !Regex("^(?:https?://|www\\.)", RegexOption.IGNORE_CASE).containsMatchIn(u) &&
+                u.split('/', '?', '#')[0].substringAfterLast('.').lowercase() in FILE_EXT) continue // "report.pdf" is a file name, not an address
             if (u.isNotEmpty() && u !in out) out.add(u)
         }
         return out
@@ -123,7 +127,7 @@ class ShomerEngine(directoryJson: String) {
             val (official, matched) = match
             val prefixes = official.restrictedPaths[matched]
             if (!prefixes.isNullOrEmpty() && prefixes.none { parsePath(url).startsWith(it) })
-                return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("$matched הוא אתר ממשלתי כללי, ולא הצלחנו לוודא שהדף הזה שייך ל${official.nameHe}"), official.id)
+                return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("הכתובת היא של אתר ממשלתי כללי ($matched), ולא הצלחנו לוודא שהדף הזה שייך לגוף ששלח את ההודעה"))
             if (claimedIds.isEmpty() && linkOnly && official.verified)
                 return LinkReport(url, host, Verdict.MATCHES_OFFICIAL, listOf("זו הכתובת הרשמית של ${official.nameHe}. זה לא אומר שההודעה שהגיעה עם הקישור אמיתית"), official.id)
             if (claimedIds.isEmpty())
@@ -136,6 +140,8 @@ class ShomerEngine(directoryJson: String) {
         }
         if (host in shorteners || registrable(host) in shorteners)
             return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + "זה קישור קצר, ואי אפשר לראות לאן הוא באמת מוביל")
+        if (registrable(host) in common && !userinfo && lookalikeOf(host) == null)
+            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + "זה קישור לאתר מוכר, לא לאתר של הגוף שהוזכר בהודעה, ולכן לא בדקנו אותו")
         val look = lookalikeOf(host)
         val punycode = host.split(".").any { it.startsWith("xn--") } || host.any { it.code > 127 }
         if (punycode) reasons.add("בכתובת יש תווים מוסווים שנראים כמו אותיות רגילות")
@@ -153,7 +159,8 @@ class ShomerEngine(directoryJson: String) {
         return LinkReport(url, host, Verdict.CANT_VERIFY, reasons)
     }
 
-    fun check(text: String): CheckResult {
+    fun check(rawText: String): CheckResult {
+        val text = prepare(rawText)
         val urls = extractUrls(text)
         val claimed = claimedOrgs(text)
         val leftover = URL_RE.replace(text, " ").trim(' ', '\n', '\t', '.', ',', ':', ';', '-')
@@ -165,7 +172,8 @@ class ShomerEngine(directoryJson: String) {
         val ids = sigs.map { it.id }.toSet()
         val pressure = sigs.filter { it.kind == "pressure" }.map { it.id }.toSet()
         val phone = PHONE_RE.containsMatchIn(text)
-        val score = sigs.sumOf { it.weight } + if (phone && claimed.isNotEmpty()) 1 else 0
+        var score = sigs.sumOf { it.weight } + if (phone && claimed.isNotEmpty()) 1 else 0
+        if ("family" in ids && ids.none { it in setOf("family_intro", "urgency", "threat") }) score -= 1 // a request alone is not enough
         val applicable = urls.isNotEmpty() || claimed.isNotEmpty() || score >= 3
         var verdict = when {
             reports.any { it.verdict == Verdict.DONT_CLICK } -> Verdict.DONT_CLICK
@@ -180,7 +188,7 @@ class ShomerEngine(directoryJson: String) {
                 verdict = Verdict.CANT_VERIFY; downgraded = true
                 reasons.add("ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
             }
-            if ("credentials" in ids || pressure.size >= 2) {
+            if ("credentials" in ids || "install" in ids || pressure.size >= 2) {
                 verdict = Verdict.CANT_VERIFY; downgraded = true
                 reasons.add("הכתובת תואמת, אבל ההודעה מלחיצה או מבקשת פרטים. גופים רשמיים לא עושים את זה בהודעה")
             }
@@ -207,7 +215,7 @@ class ShomerEngine(directoryJson: String) {
             verdict == Verdict.DONT_CLICK ->
                 "אל תענו ואל תשלמו" to "אל תמסרו פרטים ואל תענו להודעה. אם זה נוגע לכם, פנו בעצמכם דרך האתר, האפליקציה או הטלפון הרשמיים."
             verdict == Verdict.MATCHES_OFFICIAL ->
-                "הכתובת תואמת לאתר הרשמי" to "זה לא אומר שההודעה בטוחה. הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
+                "הכתובת היא של האתר הרשמי, אבל זה לא אישור להודעה" to "זה לא אומר שההודעה בטוחה. הדרך המומלצת היא לפתוח את האפליקציה או האתר הרשמי בעצמכם ולא דרך ההודעה."
             else -> (if (urls.isNotEmpty()) "לא הצלחנו לבדוק. אל תלחצו ושאלו מישהו מהמשפחה"
                      else "לא הצלחנו לבדוק. אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה") to
                 "אם ההודעה נוגעת לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי, או התקשרו למוקד הרשמי."
@@ -216,13 +224,20 @@ class ShomerEngine(directoryJson: String) {
         if (!applicable) {
             headline = "לא מצאנו סימן חשד, אבל זה לא אישור"
             advice = "לא מצאנו כאן קישור או בקשה חשודה. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
+            reasons.removeAll { it.startsWith("אין בהודעה") }
             val letters = text.count { Character.isLetter(it) }
             val foreign = text.count { it in '\u0400'..'\u04FF' || it in '\u0600'..'\u06FF' }
             if (letters >= 12 && foreign.toDouble() / letters >= 0.3) {
                 unsupported = true
                 headline = "שומר בודק רק הודעות בעברית ובאנגלית"
-                advice = "לא יכולנו לבדוק את ההודעה הזאת, וזה לא אומר שהיא בטוחה. אם היא מבקשת כסף, סיסמה או קוד, אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה."
+                advice = "לא בדקנו את ההודעה הזאת, וזה לא אומר שהיא בטוחה. אם היא מבקשת כסף, סיסמה, קוד או שתתקשרו למישהו, אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה."
+                reasons.add("ההודעה כתובה בשפה ששומר עוד לא קורא")
             }
+        }
+        if (urls.isEmpty() && claimed.isNotEmpty() && applicable && ids.none { it in NOT_CODE } && CODE_NUM.containsMatchIn(text) && CODE_WARN.containsMatchIn(text)) {
+            headline = "זו הודעה עם קוד. אל תמסרו את הקוד לאף אחד"
+            advice = "אם לא ביקשתם את הקוד, אל תעשו כלום. אם משהו מדאיג אתכם, התקשרו לבנק במספר הרשמי."
+            reasons.clear(); reasons.add("זו נראית הודעת קוד רגילה, וההודעה עצמה מזהירה לא למסור אותו")
         }
         val certain = verdict == Verdict.DONT_CLICK && (reports.any { it.verdict == Verdict.DONT_CLICK } || score >= 4)
         val orgForQuestion = claimed.firstOrNull() ?: reports.firstNotNullOfOrNull { r -> orgs.firstOrNull { it.id == r.orgId } }
@@ -238,16 +253,30 @@ class ShomerEngine(directoryJson: String) {
         /** Pattern.UNICODE_CHARACTER_CLASS is not available in every Android regex implementation (ICU-backed, already Unicode-aware), so look it up at run time and fall back to 0. */
         private val UNICODE_CLASSES: Int = try { Pattern::class.java.getField("UNICODE_CHARACTER_CLASS").getInt(null) } catch (e: Exception) { 0 }
 
+        // The lookarounds are ASCII only: a Hebrew letter glued to an address must not hide it.
         private val URL_RE = unicodeRegex(
-            """(?:https?://|www\.)[^\s<>"'־״]+|(?<![\w@.-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>"']*)?(?![\w.-])""",
+            """(?:https?://|www\.)[^\s<>"'־״]+|(?<![a-z0-9@._-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>"']*)?(?![a-z0-9._-])""",
         )
-        private val PHONE_RE = unicodeRegex("""(?<![\d*])0(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)""", ignoreCase = false)
+        private val PHONE_RE = unicodeRegex(
+            """(?<![\d*])0(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)""" +
+            """|(?<![\d*])(?:\+|00)?972[-\s]?\(?0?\)?[-\s]?(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)""" +
+            """|(?<![\w*])\*\d{3,5}(?![\d*])""" +
+            """|(?<!\d)1[-\s]?(?:700|800|801|900)[-\s]?\d{3}[-\s]?\d{3}(?!\d)""", ignoreCase = false)
+        private val INVISIBLE = Regex("[\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]")
+        private val FILE_EXT = setOf("pdf", "js", "jpg", "jpeg", "png", "gif", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "mp3", "mp4", "py", "java", "json", "xml", "css", "svg", "heic")
+        private val NOT_CODE = setOf("credentials", "family", "payment", "install", "prize", "threat")
+        private val CODE_NUM = unicodeRegex("""(?:קוד|סיסמ)[^.\n]{0,25}\d{4,8}|\d{4,8}[^.\n]{0,20}(?:קוד|סיסמ)""", ignoreCase = false)
+        private val CODE_WARN = unicodeRegex("""אל (?:ת)?(?:מסור|שתף|שלח|גל|ספר|תגיד)|לעולם|לא (?:מבקש|נבקש)""", ignoreCase = false)
+
+        /** Undo tricks that hide an address: invisible direction marks, "hxxps" and "[.]" defanging. */
+        fun prepare(text: String): String =
+            INVISIBLE.replace(text, "").replace(Regex("hxxp", RegexOption.IGNORE_CASE), "http").replace(Regex("""\[\.]|\(\.\)|\{\.}"""), ".")
         private val IP_RE = Regex("""^\d{1,3}(\.\d{1,3}){3}$""")
         private val TRAILING = charArrayOf('.', ',', ';', ':', '!', '?', ')', ']', '}', '״', '"', '\'')
         private val SECOND_LEVEL = setOf("co.il", "org.il", "gov.il", "muni.il", "ac.il", "net.il", "k12.il")
 
         fun parsePath(url: String): String {
-            val u = url.replace(Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "")
+            val u = url.replace('\\', '/').replace(Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "")
             val end = u.indexOfFirst { it == '/' || it == '?' || it == '#' }
             if (end < 0 || u[end] != '/') return "/"
             return u.substring(end).substringBefore('?').substringBefore('#')
@@ -275,7 +304,7 @@ class ShomerEngine(directoryJson: String) {
 
         /** Returns (host the browser would really visit, whether the URL contains user:pass@ tricks). */
         fun parseHost(url: String): Pair<String, Boolean> {
-            val u = url.replace(Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "")
+            val u = url.replace('\\', '/').replace(Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "")
             val end = u.indexOfFirst { it == '/' || it == '?' || it == '#' }
             var netloc = if (end >= 0) u.substring(0, end) else u
             val userinfo = netloc.contains('@')
