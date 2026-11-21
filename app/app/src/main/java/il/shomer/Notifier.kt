@@ -29,6 +29,7 @@ object Notifier {
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
+            .setContentIntent(PendingIntent.getActivity(context, System.currentTimeMillis().toInt(), ExplainActivity.intentFor(context, r), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT))
         r.officialUrl?.let {
             val open = PendingIntent.getActivity(context, 0, Intent(Intent.ACTION_VIEW, Uri.parse(it)), PendingIntent.FLAG_IMMUTABLE)
             b.addAction(0, "לפתוח את האתר הרשמי", open)

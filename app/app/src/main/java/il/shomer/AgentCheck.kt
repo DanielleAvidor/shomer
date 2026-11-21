@@ -4,7 +4,7 @@ import android.content.Context
 
 /**
  * The always-on part: every watched incoming message goes through here, whether it came from an SMS
- * or from a messaging-app notification. The check runs on the phone. The text is not stored; only a
+ * or from a messaging-app notification. The check runs on the phone. The text is not stored (History keeps only the app, the time and Shomer's own explanation of an alert); only a
  * short-lived hash is kept in memory so the same message is not announced twice.
  */
 object AgentCheck {
@@ -45,11 +45,13 @@ object AgentCheck {
     }
 
     /** Returns true if an alert was shown. [onDone] always runs, also if the check fails, so a broadcast is never left hanging. */
-    fun handle(context: Context, text: String, strict: Boolean = false, onDone: () -> Unit = {}): Boolean {
+    fun handle(context: Context, text: String, strict: Boolean = false, source: String = "SMS", onDone: () -> Unit = {}): Boolean {
         try {
             if (text.isBlank() || alreadySeen(text)) { onDone(); return false }
             val result = Checker.engine(context).check(text)
-            if (!shouldAlert(result, strict)) { onDone(); return false }
+            val alert = shouldAlert(result, strict)
+            History.record(context, source, result, alert) // no message text, no sender
+            if (!alert) { onDone(); return false }
             Notifier.show(context, result)
             GuardianClient.report(context, result, onDone) // metadata only; no-op unless a family server was set
             return true

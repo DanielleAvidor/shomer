@@ -30,9 +30,11 @@ Design choices that matter:
 
 The first screen simulates a phone lock screen, the way the Android agent behaves: sample messages arrive on their own, Shomer checks each one without being opened, and only a risky message gets a red Shomer notification under it (four of nine in the sample). Tapping that notification opens the explanation. "Manual check" is a second tab for pasting a message. The messages are made-up samples, labeled as such on screen.
 
-## App mockup
+## The Android interface
 
-A clickable six-screen model of the Android app (setup, home, lock-screen alert, explanation, family, settings) is in a Claude design canvas: https://claude.ai/artifact/7odGaYVHJKEKzDRDabYC7o. Home, family and the detailed settings screen are proposals; the code today has the status screen, the permissions flow and manual check. The numbers in it are sample data.
+The app has four tabs, built in code (`MainActivity.kt`): **Home** (is Shomer on, today's counts, the last checks, setup buttons when something is off), **Check** (paste or share a message), **Family** (server address, what is and is not sent) and **Settings** (each permission and its state, history on/off and clear). Tapping a Shomer notification or an alert in the list opens the full explanation (`ExplainActivity.kt`). A clickable design model of it is in a Claude design canvas: https://claude.ai/artifact/7odGaYVHJKEKzDRDabYC7o.
+
+The list remembers only the app, the time and Shomer's own explanation of an alert. It never stores message text or the sender, and it can be switched off. **None of this has been compiled or run on a phone yet.**
 
 ## Try it
 

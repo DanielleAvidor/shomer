@@ -11,7 +11,7 @@ class SmsReceiver : BroadcastReceiver() {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
         val body = Telephony.Sms.Intents.getMessagesFromIntent(intent).joinToString("") { it.messageBody ?: "" }
         val pending = goAsync() // keep the process alive until the optional family report finishes
-        AgentCheck.handle(context, body, strict = false) { pending.finish() }
+        AgentCheck.handle(context, body, strict = false, source = "SMS") { pending.finish() }
     }
 }
 

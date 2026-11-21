@@ -27,7 +27,7 @@ class ShomerListener : NotificationListenerService() {
         if (n.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
         val text = newestMessage(n)
         // SMS apps also show RCS chats, which the SMS receiver never sees; AgentCheck filters the repeat of a plain SMS.
-        if (text.isNotBlank()) AgentCheck.handle(applicationContext, text, strict = !isSmsApp)
+        if (text.isNotBlank()) AgentCheck.handle(applicationContext, text, strict = !isSmsApp, source = appLabel(pkg))
     }
 
     override fun onListenerDisconnected() {
@@ -43,6 +43,14 @@ class ShomerListener : NotificationListenerService() {
             ?: (ex.getCharSequence(Notification.EXTRA_BIG_TEXT) ?: ex.getCharSequence(Notification.EXTRA_TEXT))?.toString()
             ?: return ""
         return raw.trim()
+    }
+
+    private fun appLabel(pkg: String) = when (pkg) {
+        "com.whatsapp", "com.whatsapp.w4b" -> "וואטסאפ"
+        "org.telegram.messenger" -> "טלגרם"
+        "com.facebook.orca" -> "מסנג׳ר"
+        "com.google.android.gm" -> "ג׳ימייל"
+        else -> "הודעות"
     }
 
     companion object {
