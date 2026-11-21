@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%231D4B41%22/%3E%3Cg color=%22%23E8EEE6%22 fill=%22none%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2238%22 stroke=%22currentColor%22 stroke-width=%225%22/%3E%3Cg transform=%22translate(50 50) scale(.86) translate(-50 -51)%22%3E%3Cpath d=%22M191 0 82 1291H243L304 554Q371 570 432.0 598.5Q493 627 533 674Q580 731 603.5 813.0Q627 895 636 988L664 1291H821L793 989Q780 855 750.0 759.5Q720 664 659 593Q603 525 521.5 485.0Q440 445 323 425Q321 425 319.0 424.5Q317 424 316 424L340 136H619Q757 136 875.0 210.5Q993 285 1070 420Q1146 557 1163 730L1216 1291H1374L1320 728Q1309 613 1276.0 512.5Q1243 412 1190 325Q1136 237 1065.0 170.0Q994 103 896 61Q832 28 759.5 14.0Q687 0 609 0Z%22 transform=%22translate(25.25 72.95) scale(.034 -.034)%22 fill=%22currentColor%22 stroke=%22currentColor%22 stroke-width=%2270%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#E8EEE6">
@@ -14,7 +14,7 @@
      Oxblood stamp #9E2320 · Bronze #76500A · Indigo seal #224C8C */
   :root{
     --paper:#E8EEE6; --sheet:#FBFBF7; --ink:#16302A; --soft:#41564E; --dim:#52655D;
-    --line:#CBD6CB; --line-strong:#7E9187; --pine:#1D4B41; --pine-d:#143630; --wash:#DCE5DA;
+    --line:#CBD6CB; --line-strong:#64776D; --pine:#1D4B41; --pine-d:#143630; --wash:#DCE5DA;
     --red:#9E2320; --red-bg:#F8E9E5; --bronze:#76500A; --bronze-bg:#F7EDD2; --indigo:#224C8C; --indigo-bg:#E5ECF7;
     --serif:"Open Sans",system-ui,"Arial Hebrew",Arial,sans-serif; --sans:"Open Sans",system-ui,"Segoe UI","Arial Hebrew",Arial,sans-serif;
     --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
@@ -80,6 +80,12 @@
   .recent li>.n{margin-inline-start:6px;font-size:14px;background:var(--wash);border-radius:99px;padding:0 9px;color:var(--soft)}
 
   /* home / how it works */
+  .toast{position:fixed;inset-inline:16px;bottom:16px;max-width:520px;margin-inline:auto;background:var(--ink);color:#fff;padding:14px 18px;border-radius:14px;font-weight:700;z-index:20}
+  .actions .btn{white-space:normal}
+  [data-ctx][aria-pressed="true"]{background:var(--pine);color:#fff;border-color:var(--pine)}
+  .how-ill{display:none}
+  @media(min-width:900px){.how-ill{display:block}.how-ill svg{width:min(100%,300px);height:auto;margin:0 auto 6px;display:block}}
+  .how .never{margin:18px 0 0;padding-top:14px;border-top:1px dashed var(--line-strong);color:var(--soft);font-size:18px}
   .how{border:1.5px dashed var(--line-strong);border-radius:20px;padding:26px 24px}
   .how h2{font:800 28px/1.25 var(--serif);margin:0 0 6px}
   .how ol{margin:0;padding:0;list-style:none;counter-reset:s}
@@ -173,7 +179,7 @@
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.6"/></filter></svg>
 <div class="top"><div class="top-in">
-  <div class="brand"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="20" cy="20" r="17"/><circle cx="20" cy="20" r="12.5" stroke-width="1.4" stroke-dasharray="1.5 4"/><circle cx="20" cy="17.5" r="3.2"/><path d="M20 21v6.5"/></svg><h1>שומר</h1><span>בודקים הודעה<br>לפני שלוחצים</span></div>
+  <div class="brand"><svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5"/><circle cx="50" cy="50" r="37" stroke="currentColor" stroke-width="2" stroke-dasharray="1.2 4.6" stroke-linecap="round"/><path d="M191 0 82 1291H243L304 554Q371 570 432.0 598.5Q493 627 533 674Q580 731 603.5 813.0Q627 895 636 988L664 1291H821L793 989Q780 855 750.0 759.5Q720 664 659 593Q603 525 521.5 485.0Q440 445 323 425Q321 425 319.0 424.5Q317 424 316 424L340 136H619Q757 136 875.0 210.5Q993 285 1070 420Q1146 557 1163 730L1216 1291H1374L1320 728Q1309 613 1276.0 512.5Q1243 412 1190 325Q1136 237 1065.0 170.0Q994 103 896 61Q832 28 759.5 14.0Q687 0 609 0Z" transform="translate(25.25 72.95) scale(.034 -.034)" fill="currentColor" stroke="currentColor" stroke-width="70" stroke-linejoin="round"/></svg><h1>שומר</h1><span>בודקים הודעה<br>לפני שלוחצים</span></div>
   <nav role="tablist" aria-label="מסכים">
     <button role="tab" id="tab-check" aria-selected="true">בדיקת הודעה</button>
     <button role="tab" id="tab-fam" aria-selected="false">משפחה</button>
@@ -200,6 +206,33 @@
     </div>
   </div>
   <div class="result-col"><div id="out" aria-live="polite"></div></div>
+<div id="toast" class="toast" role="alert" hidden></div>
+<template id="tpl-ill"><svg viewBox="0 0 440 400" fill="none" role="img" aria-label="טלפון עם הודעה שבה קישור, ועדשה מגדלת שמסמנת אותו בסימן עצירה">
+  <ellipse cx="205" cy="372" rx="130" ry="14" fill="#16302A" opacity=".08"/>
+  <rect x="110" y="24" width="190" height="338" rx="32" fill="#FBFBF7" stroke="#16302A" stroke-width="4"/>
+  <rect x="180" y="38" width="50" height="8" rx="4" fill="#CBD6CB"/>
+  <rect x="132" y="84" width="146" height="132" rx="18" fill="#DCE5DA"/>
+  <path d="M146 216l-10 22 30-12z" fill="#DCE5DA"/>
+  <rect x="150" y="106" width="104" height="10" rx="5" fill="#7E9187"/>
+  <rect x="150" y="128" width="78" height="10" rx="5" fill="#7E9187"/>
+  <rect x="150" y="160" width="108" height="12" rx="6" fill="#F8E9E5"/>
+  <path d="M152 184q5-6 10 0t10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0" stroke="#9E2320" stroke-width="3" stroke-linecap="round"/>
+  <rect x="150" y="156" width="104" height="12" rx="6" fill="#9E2320" opacity=".9"/>
+  <rect x="132" y="256" width="146" height="14" rx="7" fill="#E8EEE6"/>
+  <rect x="132" y="284" width="100" height="14" rx="7" fill="#E8EEE6"/>
+  <g>
+    <path d="M318 270l66 70" stroke="#1D4B41" stroke-width="20" stroke-linecap="round"/>
+    <circle cx="276" cy="226" r="74" fill="#FBFBF7" fill-opacity=".94" stroke="#1D4B41" stroke-width="12"/>
+    <g transform="rotate(-10 276 226)" stroke="#9E2320" stroke-width="7" stroke-linecap="round">
+      <circle cx="276" cy="226" r="36" stroke-width="3" opacity=".55"/>
+      <circle cx="276" cy="226" r="30"/>
+      <path d="M255 247l42-42"/>
+    </g>
+  </g>
+  <circle cx="64" cy="96" r="5" fill="#1D4B41" opacity=".25"/>
+  <circle cx="82" cy="74" r="3" fill="#1D4B41" opacity=".2"/>
+  <circle cx="372" cy="120" r="4" fill="#9E2320" opacity=".3"/>
+</svg></template>
   <div class="recent-col"><div class="recent" id="recent" hidden><h2>נבדקו לאחרונה</h2><ul id="recent-list"></ul></div></div>
 </section>
 
@@ -224,8 +257,16 @@ const ICON = {
 const LABEL = {dont_click:"הודעה מסוכנת", cant_verify:"לא הצלחנו לבדוק", matches_official:"תואם לאתר הרשמי"};
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const post = (u, o) => fetch(u, {method:"POST", body: JSON.stringify(o || {})}).then(r => r.json());
-const get = u => fetch(u).then(r => r.json());
+const call = async (u, opts) => {
+  const c = new AbortController(), t = setTimeout(() => c.abort(), 15000);
+  try { const r = await fetch(u, {...opts, signal: c.signal}); if (!r.ok) throw new Error("http " + r.status); return await r.json(); }
+  finally { clearTimeout(t); }
+};
+const post = (u, o) => call(u, {method:"POST", body: JSON.stringify(o || {})});
+const get = u => call(u);
+const NET = `<p class="note" role="alert">לא הצלחנו להתחבר. בדקו את החיבור ונסו שוב עוד רגע.</p>`;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 6000); }
+window.addEventListener("unhandledrejection", e => { e.preventDefault(); toast("משהו השתבש בחיבור. נסו שוב עוד רגע."); });
 const hm = ts => new Date(ts*1000).toLocaleTimeString("he-IL", {hour:"2-digit", minute:"2-digit"});
 let last = null, settings = {name:"", relation:"", consented:false};
 
@@ -249,26 +290,33 @@ for (const t of ["check","fam","setup"]) $("#tab-"+t).onclick = () => show(t);
 
 /* ---------- check ---------- */
 function howItWorks(){
-  $("#out").innerHTML = `<div class="how"><h2>איך שומר בודק</h2><ol>
+  $("#out").innerHTML = `<div class="how"><div class="how-ill">${$("#tpl-ill").innerHTML}</div><h2>איך שומר בודק</h2><ol>
     <li><div><b>מדביקים הודעה.</b><span>כל הודעה שנראית לכם חשודה: SMS, מייל או וואטסאפ.</span></div></li>
     <li><div><b>שומר משווה לאתר הרשמי.</b><span>הוא בודק אם הקישור שייך לגוף ששלח, ומחפש גם לחץ ובקשות חשודות.</span></div></li>
-    <li><div><b>מקבלים תשובה ברורה.</b><span>מה לעשות עכשיו, ומה לעשות אם כבר לחצתם.</span></div></li></ol></div>`;
+    <li><div><b>מקבלים תשובה ברורה.</b><span>מה לעשות עכשיו, ומה לעשות אם כבר לחצתם.</span></div></li></ol><p class="never">התשובה היא <b>אל תלחצו</b>, <b>הכתובת תואמת לאתר הרשמי</b> או <b>לא הצלחנו לבדוק</b>. שומר אף פעם לא אומר ש"הכול בטוח".</p></div>`;
+}
+function reveal(){
+  if (!matchMedia("(min-width: 900px)").matches) $("#out").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
 }
 async function run(){
-  const text = $("#msg").value.trim(); if (!text){ $("#msg").focus(); $("#out").innerHTML = `<p class="note" role="status">קודם מדביקים כאן את ההודעה שקיבלתם, ואז לוחצים על "בדקו לי".</p>`; return; }
+  const text = $("#msg").value.trim(); if (!text){ $("#msg").focus(); $("#out").innerHTML = `<p class="note" role="status">קודם מדביקים כאן את ההודעה שקיבלתם, ואז לוחצים על "בדקו לי".</p>`; reveal(); return; }
   $("#samples").hidden = true;
-  const r = await post("/api/check", {text}); last = r; render(r); loadRecent();
+  const btn = $("#go"), label = btn.textContent; btn.disabled = true; btn.textContent = "בודקים…";
+  try { const r = await post("/api/check", {text}); last = r; render(r); loadRecent(); }
+  catch (e) { $("#out").innerHTML = NET; reveal(); }
+  finally { btn.disabled = false; btn.textContent = label; }
 }
 function render(r){
   const out = $("#out"), v = r.verdict;
   if (!r.applicable){
     out.innerHTML = `<div class="card neutral"><div class="head">${seal("cant_verify", r.headline_he)}</div><p class="adv">${esc(r.advice_he)}</p>
       <div class="actions"><button class="btn quiet" id="again">בודקים הודעה אחרת</button></div></div>`;
-    $("#again").onclick = reset; return;
+    $("#again").onclick = reset; reveal(); return;
   }
   $("#go").classList.remove("primary");
-  const link = r.links[0];
-  const dest = link && link.host ? `<div class="sec"><h3>הקישור בהודעה פותח את האתר</h3><div class="host${link.host.length > 22 ? " long" : ""}">${hostHtml(link.host)}</div></div>` : "";
+  const link = r.links.find(l => l.verdict === "dont_click") || r.links[0];
+  const moreLinks = r.links.length > 1 ? `<p class="hint">${r.links.length === 2 ? "ובעוד קישור אחד בהודעה" : "ובעוד " + (r.links.length - 1) + " קישורים בהודעה"}</p>` : "";
+  const dest = link && link.host ? `<div class="sec"><h3>הקישור בהודעה פותח את האתר</h3><div class="host${link.host.length > 22 ? " long" : ""}">${hostHtml(link.host)}</div>${moreLinks}</div>` : "";
   const ctxq = r.context_question_he ? `<div class="sec ctx"><h3>שאלה שעוזרת להחליט</h3><p class="q">${esc(r.context_question_he)}</p><div class="row"><button class="btn" data-ctx="yes">כן</button><button class="btn" data-ctx="no">לא</button></div><p class="ans" id="ctx-ans" role="status"></p></div>` : "";
   const cmp = link && link.official_domain && link.real_domain && link.real_domain !== link.official_domain ? `<div class="sec cmp"><h3>השוואה לאתר הרשמי</h3><dl><dt>האתר שבקישור</dt><dd><bdi>${esc(link.real_domain)}</bdi></dd><dt>האתר הרשמי של ${esc(link.org_name)}</dt><dd><bdi>${esc(link.official_domain)}</bdi></dd></dl></div>` : "";
   const whyOpen = matchMedia("(min-width: 900px)").matches ? " open" : "";
@@ -295,7 +343,7 @@ function render(r){
       : "גם אם ציפיתם לזה, היכנסו דרך האתר או האפליקציה הרשמיים ולא דרך ההודעה.";
     out.querySelectorAll("[data-ctx]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
   });
-  if (!matchMedia("(min-width: 900px)").matches) out.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+  reveal();
 }
 function reset(){ $("#go").classList.add("primary"); $("#msg").value = ""; $("#samples").hidden = false; howItWorks(); last = null; window.scrollTo({top:0}); $("#msg").focus(); }
 function dedupe(list){
@@ -306,12 +354,13 @@ function dedupe(list){
   return out;
 }
 async function loadRecent(){
-  const g = await get("/api/guardian"); settings = g.settings;
+  let g; try { g = await get("/api/guardian"); } catch (e) { return; } settings = g.settings;
   $("#recent").hidden = !g.recent.length;
   $("#recent-list").innerHTML = dedupe(g.recent).slice(0,5).map(e => `<li><span class="dot ${e.verdict}"></span><div>${LABEL[e.verdict]}${e.org ? " · " + esc(e.org) : ""}<div class="h">${esc(e.host || "")}</div></div>${e.n > 1 ? `<span class="n">×${e.n}</span>` : ""}<time>${hm(e.ts)}</time></li>`).join("");
 }
 
 $("#go").onclick = run;
+$("#msg").addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") run(); });
 $("#msg").addEventListener("paste", () => setTimeout(run, 80));
 $("#msg").addEventListener("input", () => { $("#samples").hidden = $("#msg").value.trim() !== ""; });
 $("#paste").onclick = async () => {
@@ -355,7 +404,7 @@ async function saveImage(r){
 
 /* ---------- family ---------- */
 async function loadFamily(){
-  const g = await get("/api/guardian"); settings = g.settings;
+  let g; try { g = await get("/api/guardian"); } catch (e) { $("#p-fam").innerHTML = NET; return; } settings = g.settings;
   const who = settings.name || "המשפחה";
   const el = $("#p-fam");
   const groups = []; for (const a of g.alerts){ const q = groups[groups.length-1]; if (q && q.host === a.host && q.org === a.org){ q.ids.push(a.id); q.n++; } else groups.push({...a, ids:[a.id], n:1}); }

@@ -283,3 +283,9 @@ Whether the app should check automatically on Android (needs the Android build),
 - The English patterns and the English test cases were written by the same person, so they show the logic works, not how well it works on real English scam messages.
 - Russian and Arabic, widely used among older adults in Israel, are not covered. That is the next language step, and it needs native speakers to write the patterns and review them.
 - The result screen is still Hebrew. An English-speaking user would get a correct verdict with Hebrew explanations.
+
+## 16. QA round on the interface
+
+A tester agent (role-play, not real users) ran the web demo at three screen sizes and reported 4 major and about 15 smaller findings. Fixed: Russian and Arabic text was shown as "nothing suspicious" and now says the language is not supported; on small phones the result could be off-screen for harmless messages and empty input; with several links only the first host was shown, now the dangerous one; when the server was down the screen stayed silent, now it says so and the button shows it is working; the main button text was clipped at 360px; the selected yes/no button was barely visible; input border contrast raised from 2.8:1 to 4.0:1; Ctrl+Enter submits. The "nothing suspicious" headline now carries the caveat itself.
+
+**Still open.** On a dangerous result the main action button is near the bottom of a long page (about 2,400px on a small phone); moving it up is a layout decision to test with real users. Tabs have no arrow-key support. The saved image has empty space. Pasting always runs the check at once. Not tested: real clipboard, WhatsApp, screen readers, Safari/Firefox, the Android app.

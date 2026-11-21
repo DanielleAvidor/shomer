@@ -78,6 +78,7 @@ class Result:
     escalated_by_advisor: bool = False
     context_question_he: str = ""
     certain: bool = False  # high confidence that this is a scam (used for family alerts)
+    unsupported_language: bool = False  # the message is mostly in a script the checker does not read (e.g. Russian, Arabic)
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -356,10 +357,17 @@ class Engine:
                         else "לא הצלחנו לבדוק. אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה")
             advice = "אם ההודעה נוגעת לכם, פתחו בעצמכם את האפליקציה או האתר הרשמי, או התקשרו למוקד הרשמי."
             steps = ["אל תלחצו ואל תענו", "שאלו מישהו מהמשפחה", route]
+        unsupported = False
         if not applicable:
-            headline = "לא מצאנו כאן משהו חשוד"
+            headline = "לא מצאנו סימן חשד, אבל זה לא אישור"
             advice = "לא מצאנו כאן קישור או בקשה חשודה. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
             steps = []
+            letters = re.findall(r"[^\W\d_]", text)
+            foreign = re.findall(r"[\u0400-\u04FF\u0600-\u06FF]", text)
+            if len(letters) >= 12 and len(foreign) / len(letters) >= 0.3:
+                unsupported = True
+                headline = "שומר בודק רק הודעות בעברית ובאנגלית"
+                advice = "לא יכולנו לבדוק את ההודעה הזאת, וזה לא אומר שהיא בטוחה. אם היא מבקשת כסף, סיסמה או קוד, אל תפעלו לפי ההודעה ושאלו מישהו מהמשפחה."
         if_clicked = [] if verdict is Verdict.MATCHES_OFFICIAL or not applicable or not urls else [
             "אל תכניסו שום פרט נוסף",
             "אם הזנתם פרטי כרטיס אשראי, התקשרו מיד לחברת האשראי וחסמו את הכרטיס",
@@ -374,5 +382,6 @@ class Engine:
         res = Result(verdict, headline, advice, reasons, [o.id for o in claimed], reports, official_url, applicable,
                      [g["he"] for g in sigs], steps, if_clicked, share, kind)
         res.certain = certain
+        res.unsupported_language = unsupported
         res.context_question_he = context_q
         return res

@@ -169,3 +169,22 @@ def test_context_question_for_known_org_and_certainty_flag():
     assert "חבילה" in r.context_question_he and r.certain
     soft = Engine().check("קיבלת חבילה https://bit.ly/3xYz")
     assert not soft.certain
+
+
+def test_russian_and_arabic_are_reported_as_unsupported_not_as_clean():
+    for t in ["Ваш банковский счёт будет заблокирован. Срочно позвоните и сообщите пароль",
+              "حسابك البنكي سيتم حظره اليوم، اتصل الآن وأعطنا كلمة المرور"]:
+        r = E.check(t)
+        assert not r.applicable and r.unsupported_language
+        assert "בעברית ובאנגלית" in r.headline_he
+
+
+def test_ordinary_hebrew_and_english_are_not_flagged_unsupported():
+    for t in ["נתראה בערב אצל סבתא", "see you tonight at eight at grandma's place"]:
+        r = E.check(t)
+        assert not r.unsupported_language
+        assert "אישור" in r.headline_he or "לא" in r.headline_he
+
+
+def test_nothing_found_headline_itself_carries_the_caveat():
+    assert "לא אישור" in E.check("נתראה בערב").headline_he
