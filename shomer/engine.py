@@ -45,6 +45,7 @@ class Org:
     verified: bool
     source: str
     restricted_paths: dict = field(default_factory=dict)
+    context_he: str = ""  # a question that helps the person judge: were you expecting this?
 
 
 @dataclass
@@ -76,6 +77,7 @@ class Result:
     kind: str = "link"  # "link" or "content" (no link to check, judged on what the message asks)
     escalated_by_advisor: bool = False
     context_question_he: str = ""
+    certain: bool = False  # high confidence that this is a scam (used for family alerts)
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -366,5 +368,11 @@ class Engine:
         ]
         host = reports[0].host if reports else ""
         share = f"בדקתי הודעה עם שומר. התוצאה: {headline}." + (f" הקישור פותח את האתר {host}." if host else "") + " אפשר להסתכל על זה יחד?"
-        return Result(verdict, headline, advice, reasons, [o.id for o in claimed], reports, official_url, applicable,
-                      [g["he"] for g in sigs], steps, if_clicked, share, kind)
+        certain = verdict is Verdict.DONT_CLICK and (any(r.verdict is Verdict.DONT_CLICK for r in reports) or score >= 4)
+        org_for_q = claimed[0] if claimed else next((self.by_id[r.matched_org] for r in reports if r.matched_org in self.by_id), None)
+        context_q = org_for_q.context_he if org_for_q else ""
+        res = Result(verdict, headline, advice, reasons, [o.id for o in claimed], reports, official_url, applicable,
+                     [g["he"] for g in sigs], steps, if_clicked, share, kind)
+        res.certain = certain
+        res.context_question_he = context_q
+        return res

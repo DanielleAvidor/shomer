@@ -23,7 +23,8 @@
       "official_url": "https://israelpost.co.il",
       "app": "אפליקציית דואר ישראל",
       "verified": true,
-      "source": "National Cyber Directorate warning (JDN/Maariv coverage); Israel Hayom article naming israelpost.co.il as the official address"
+      "source": "National Cyber Directorate warning (JDN/Maariv coverage); Israel Hayom article naming israelpost.co.il as the official address",
+      "context_he": "ציפית לחבילה מדואר ישראל?"
     },
     {
       "id": "carmel_tunnels",
@@ -45,7 +46,8 @@
       "official_url": "https://www.carmeltunnels.co.il/bills",
       "app": "",
       "verified": true,
-      "source": "Walla (15.7.2025): the operator recommends checking debts only via carmeltunnels.co.il/bills or by calling *5424"
+      "source": "Walla (15.7.2025): the operator recommends checking debts only via carmeltunnels.co.il/bills or by calling *5424",
+      "context_he": "נסעת במנהרות הכרמל לאחרונה?"
     },
     {
       "id": "israel_police_fines",
@@ -72,7 +74,8 @@
         "gov.il": [
           "/he/service/enforcement-reports"
         ]
-      }
+      },
+      "context_he": "קיבלת לאחרונה דוח או קנס?"
     },
     {
       "id": "home_front_command",
@@ -91,7 +94,8 @@
       "official_url": "https://www.oref.org.il",
       "app": "אפליקציית פיקוד העורף",
       "verified": false,
-      "source": "oref.org.il appears in an official municipal document; TO RE-CHECK directly on the Home Front Command site"
+      "source": "oref.org.il appears in an official municipal document; TO RE-CHECK directly on the Home Front Command site",
+      "context_he": "ביקשת עדכונים מפיקוד העורף?"
     },
     {
       "id": "kvish6",
@@ -113,7 +117,8 @@
       "official_url": "https://www.kvish6.co.il",
       "app": "",
       "verified": false,
-      "source": "TO VERIFY: Derech Eretz published a warning on its own site (Globes, 25.8.2025) but the exact domain was not confirmed in desk research"
+      "source": "TO VERIFY: Derech Eretz published a warning on its own site (Globes, 25.8.2025) but the exact domain was not confirmed in desk research",
+      "context_he": "נסעת בכביש 6 לאחרונה?"
     },
     {
       "id": "bank_leumi",
@@ -133,7 +138,8 @@
       "official_url": "https://www.leumi.co.il",
       "app": "אפליקציית בנק לאומי",
       "verified": false,
-      "source": "TO VERIFY from the bank's official site"
+      "source": "TO VERIFY from the bank's official site",
+      "context_he": "יש לך עניין פתוח בבנק לאומי?"
     },
     {
       "id": "bank_hapoalim",
@@ -155,7 +161,8 @@
       "official_url": "https://www.bankhapoalim.co.il",
       "app": "אפליקציית בנק הפועלים",
       "verified": false,
-      "source": "TO VERIFY from the bank's official site"
+      "source": "TO VERIFY from the bank's official site",
+      "context_he": "יש לך עניין פתוח בבנק הפועלים?"
     },
     {
       "id": "bit",
@@ -175,7 +182,8 @@
       "official_url": "https://www.bitpay.co.il",
       "app": "אפליקציית ביט",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "ביקשת או ביצעת העברה בביט?"
     },
     {
       "id": "btl",
@@ -194,7 +202,8 @@
       "official_url": "https://www.btl.gov.il",
       "app": "",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "יש לך עניין פתוח בביטוח הלאומי?"
     },
     {
       "id": "bank_discount",
@@ -213,7 +222,8 @@
       "official_url": "https://www.discountbank.co.il",
       "app": "אפליקציית בנק דיסקונט",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "יש לך עניין פתוח בבנק דיסקונט?"
     },
     {
       "id": "bank_mizrahi",
@@ -232,7 +242,8 @@
       "official_url": "https://www.mizrahi-tefahot.co.il",
       "app": "אפליקציית בנק מזרחי",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "יש לך עניין פתוח בבנק מזרחי?"
     },
     {
       "id": "paypal",
@@ -250,7 +261,8 @@
       "official_url": "https://www.paypal.com",
       "app": "",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "ביצעת לאחרונה קנייה או העברה בפייפאל?"
     },
     {
       "id": "tax_authority",
@@ -269,7 +281,8 @@
       "official_url": "https://www.gov.il/he/departments/israel_tax_authority",
       "app": "",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "ציפית לדבר מרשות המסים?"
     },
     {
       "id": "iec",
@@ -287,7 +300,8 @@
       "official_url": "https://www.iec.co.il",
       "app": "אפליקציית חברת החשמל",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "ציפית לחשבון או הודעה מחברת החשמל?"
     },
     {
       "id": "maccabi",
@@ -305,7 +319,8 @@
       "official_url": "https://www.maccabi4u.co.il",
       "app": "אפליקציית מכבי",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "קבעת לאחרונה תור במכבי?"
     },
     {
       "id": "clalit",
@@ -323,7 +338,8 @@
       "official_url": "https://www.clalit.co.il",
       "app": "אפליקציית כללית",
       "verified": false,
-      "source": "TO VERIFY from the official site"
+      "source": "TO VERIFY from the official site",
+      "context_he": "קבעת לאחרונה תור בכללית?"
     }
   ],
   "shorteners": [

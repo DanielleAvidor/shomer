@@ -25,7 +25,7 @@ def make_db(path: str = ":memory:") -> sqlite3.Connection:
     db = sqlite3.connect(path, check_same_thread=False)
     db.execute(
         "CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, verdict TEXT, "
-        "org TEXT, host TEXT, tapped INTEGER DEFAULT 0, handled INTEGER DEFAULT 0)"
+        "org TEXT, host TEXT, tapped INTEGER DEFAULT 0, handled INTEGER DEFAULT 0, certain INTEGER DEFAULT 0)"
     )
     db.execute("CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT)")
     return db
@@ -37,7 +37,8 @@ DB = make_db()
 def record(result) -> int:
     host = result.links[0].host if result.links else ""
     org = result.claimed_orgs[0] if result.claimed_orgs else ""
-    cur = DB.execute("INSERT INTO events (ts, verdict, org, host) VALUES (?,?,?,?)", (time.time(), result.verdict.value, org, host))
+    cur = DB.execute("INSERT INTO events (ts, verdict, org, host, certain) VALUES (?,?,?,?,?)",
+                     (time.time(), result.verdict.value, org, host, int(result.certain)))
     DB.commit()
     return cur.lastrowid
 
@@ -68,10 +69,10 @@ def second_opinion(text: str, result):
 
 
 def guardian_summary() -> dict:
-    rows = DB.execute("SELECT id, ts, verdict, org, host, tapped, handled FROM events ORDER BY id DESC LIMIT 50").fetchall()
+    rows = DB.execute("SELECT id, ts, verdict, org, host, tapped, handled, certain FROM events ORDER BY id DESC LIMIT 50").fetchall()
     events = [
         dict(id=r[0], ts=r[1], verdict=r[2], org=ENGINE.by_id[r[3]].name_he if r[3] in ENGINE.by_id else "", host=r[4],
-             tapped=bool(r[5]), handled=bool(r[6]))
+             tapped=bool(r[5]), handled=bool(r[6]), certain=bool(r[7]))
         for r in rows
     ]
     counts = {"dont_click": 0, "cant_verify": 0, "matches_official": 0}
@@ -79,7 +80,8 @@ def guardian_summary() -> dict:
         counts[e["verdict"]] += 1
     # Immediate alert for every high-confidence "don't click" that nobody has handled yet
     # (Android cannot see taps in other apps).
-    alerts = [e for e in events if (e["verdict"] == "dont_click" or e["tapped"]) and not e["handled"]]
+    # Alert the family only for high-confidence scams (or a confirmed tap), and only what the protected person agreed to.
+    alerts = [e for e in events if ((e["verdict"] == "dont_click" and e["certain"]) or e["tapped"]) and not e["handled"]]
     return {"counts": counts, "alerts": alerts, "recent": events[:12], "settings": get_settings()}
 
 
@@ -144,8 +146,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"error": "bad verdict"}, 400)
             # Android cannot observe taps inside other apps, so a high-confidence 'dont_click' alerts immediately.
             cur = DB.execute(
-                "INSERT INTO events (ts, verdict, org, host, tapped) VALUES (?,?,?,?,?)",
-                (time.time(), verdict, str(data.get("org", ""))[:40], str(data.get("host", ""))[:120], int(verdict == "dont_click")),
+                "INSERT INTO events (ts, verdict, org, host, tapped, certain) VALUES (?,?,?,?,?,?)",
+                (time.time(), verdict, str(data.get("org", ""))[:40], str(data.get("host", ""))[:120],
+                 int(verdict == "dont_click"), int(bool(data.get("certain", verdict == "dont_click")))),
             )
             DB.commit()
             self._json({"event_id": cur.lastrowid})

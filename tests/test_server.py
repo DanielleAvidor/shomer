@@ -82,3 +82,12 @@ def test_no_event_is_recorded_before_consent(base):
     status, out = post(base, "/api/check", {"text": "דואר ישראל https://israelpost.paliet.top/il"})
     assert status == 200 and out["verdict"] == "dont_click" and out["event_id"] is None
     assert server.DB.execute("SELECT COUNT(*) FROM events").fetchone()[0] == before
+
+
+def test_family_alert_only_for_certain_scams(base):
+    post(base, "/api/settings", {"name": "בדיקה", "relation": "סבתא", "consented": True})
+    post(base, "/api/check", {"text": "דואר ישראל: אשר כתובת https://israelpost.paliet.top/il"})
+    post(base, "/api/check", {"text": "קיבלת חבילה https://soft-case-only.example.xyz/a"})
+    with urllib.request.urlopen(base + "/api/guardian") as resp:
+        hosts = [a["host"] for a in json.loads(resp.read())["alerts"]]
+    assert "israelpost.paliet.top" in hosts and "soft-case-only.example.xyz" not in hosts

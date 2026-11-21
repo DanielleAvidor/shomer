@@ -162,3 +162,10 @@ def test_link_only_unverified_org_is_not_a_match():
 def test_breakdown_shows_real_vs_official_domain():
     l = Engine().check("https://israelpost.paliet.top/il").links[0]
     assert (l.real_domain, l.official_domain, l.org_name) == ("paliet.top", "israelpost.co.il", "דואר ישראל")
+
+
+def test_context_question_for_known_org_and_certainty_flag():
+    r = Engine().check("דואר ישראל: החבילה שלך נעצרה. אנא אשר כתובת https://israelpost.paliet.top/il")
+    assert "חבילה" in r.context_question_he and r.certain
+    soft = Engine().check("קיבלת חבילה https://bit.ly/3xYz")
+    assert not soft.certain

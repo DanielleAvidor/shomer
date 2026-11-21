@@ -240,7 +240,7 @@ Decisions already made and built into the code (`shomer/advisor.py`):
 Not built: any real advisor. Testing one needs an API key and network access, and accuracy would need its own evaluation against real messages.
 
 
-## 14. First user research (pilot oral questionnaire, one participant)
+## 14. First user research (pilot oral questionnaires, three people in one family)
 
 On 2026-11-21 one older woman (the builder's grandmother, Android, SMS and WhatsApp) answered a short oral questionnaire about suspicious messages, read aloud by the builder. Full notes and limits: `docs/research/interview-01-grandmother.md`.
 
@@ -252,3 +252,21 @@ What it changes in this document (hypotheses to test, based on n=1):
 - **Context.** What protected her was knowing she had no parcel. A context question is a candidate feature (see section 13).
 
 Not yet validated: any of the above with a second person, the mother, or someone outside the family.
+
+
+### Update after two more conversations (mother and builder)
+Notes: `docs/research/questionnaire-02-mother.md`, `docs/research/self-report-03-builder.md`. All from one family, so they are not independent.
+
+- **Pattern repeats.** Both older women received the same two scams (Road 6 and Israel Post), asked family, and then asked an AI chat. The builder receives one about every one to two months and checks it herself by comparing addresses and signing in to the real site.
+- **Frequency is low.** Roughly one suspicious message per month per person. The value is catching the rare costly mistake, not daily convenience.
+- **Both older women want an immediate warning** from the phone saying the link does not lead to the real site, and they want to paste or share a message to check it. The mother has an iPhone, so the Android SMS approach does not reach her; paste and share do.
+- **Family alerts:** neither wants alerts about herself. The mother wants alerts about her own mother, only for certain danger, and the grandmother agreed aloud. Built as: alerts only after on-screen consent and only for high-confidence results (`certain`).
+
+### Changes made because of this
+- A link can be checked on its own: the real address is shown next to the official address.
+- A context question per organisation ("were you expecting a parcel from Israel Post?") with a short answer for yes and for no. It never calls anything safe.
+- The main button now reads "sign in to the official site's personal area" so the person verifies at the source.
+- Family alerts are limited to high-confidence scams.
+
+### Still open
+Whether the app should check automatically on Android (needs the Android build), an iPhone share extension, deeper links into each organisation's personal area (needs verified official pages), and testing with people outside the family.

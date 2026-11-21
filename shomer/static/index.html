@@ -104,6 +104,7 @@
   .sec h3{font:700 16px var(--sans);color:var(--soft);margin:0 0 8px}
   .host{direction:ltr;text-align:left;unicode-bidi:isolate;font:700 clamp(21px,5.6vw,30px)/1.3 var(--mono);overflow-wrap:anywhere;word-break:normal}
   .cmp dl{margin:0;display:grid;grid-template-columns:1fr;gap:2px}.cmp dd+dt{margin-top:10px}.cmp dt{color:var(--soft);font-size:16px}.cmp dd{margin:0;font:600 18px var(--mono, ui-monospace,monospace);direction:ltr;text-align:right;overflow-wrap:break-word;word-break:normal}
+  .ctx .q{font-weight:700;font-size:20px;margin:0 0 10px}.ctx .row{margin-top:0}.ctx .btn{flex:1}.ctx .ans{margin:12px 0 0;font-size:18px}
   .host.long{font-size:clamp(18px,4.8vw,24px)}
   .host .dim{color:var(--dim);font-weight:400}
   .host b{color:var(--c)}
@@ -268,16 +269,17 @@ function render(r){
   $("#go").classList.remove("primary");
   const link = r.links[0];
   const dest = link && link.host ? `<div class="sec"><h3>הקישור בהודעה פותח את האתר</h3><div class="host${link.host.length > 22 ? " long" : ""}">${hostHtml(link.host)}</div></div>` : "";
+  const ctxq = r.context_question_he ? `<div class="sec ctx"><h3>שאלה שעוזרת להחליט</h3><p class="q">${esc(r.context_question_he)}</p><div class="row"><button class="btn" data-ctx="yes">כן</button><button class="btn" data-ctx="no">לא</button></div><p class="ans" id="ctx-ans" role="status"></p></div>` : "";
   const cmp = link && link.official_domain && link.real_domain && link.real_domain !== link.official_domain ? `<div class="sec cmp"><h3>השוואה לאתר הרשמי</h3><dl><dt>האתר שבקישור</dt><dd><bdi>${esc(link.real_domain)}</bdi></dd><dt>האתר הרשמי של ${esc(link.org_name)}</dt><dd><bdi>${esc(link.official_domain)}</bdi></dd></dl></div>` : "";
   const whyOpen = matchMedia("(min-width: 900px)").matches ? " open" : "";
   const why = r.reasons_he.length ? `<div class="sec"><details class="clicked"${whyOpen}><summary>למה שומר חושב ככה?</summary><ul class="why">${r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
   const steps = r.steps_he.length ? `<div class="sec"><h3>מה עושים עכשיו</h3><ol class="steps">${r.steps_he.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>` : "";
   const clicked = r.if_clicked_he.length ? `<div class="sec"><details class="clicked"><summary>כבר לחצתי או מסרתי פרטים. מה עושים?</summary><ul>${r.if_clicked_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
-  const official = r.official_url ? `<a class="btn primary official" href="${esc(r.official_url)}" target="_blank" rel="noopener">פותחים את האתר הרשמי</a>` : "";
+  const official = r.official_url ? `<a class="btn primary official" href="${esc(r.official_url)}" target="_blank" rel="noopener">היכנסו לאזור האישי באתר הרשמי</a>` : "";
   const note = "";
   out.innerHTML = `<div class="card ${v}">
     <div class="head">${seal(v, r.headline_he, r.kind)}</div>
-    <p class="adv">${esc(r.advice_he)}</p>${dest}${cmp}${why}${steps}${clicked}
+    <p class="adv">${esc(r.advice_he)}</p>${dest}${cmp}${ctxq}${why}${steps}${clicked}
     <div class="actions">${official}
       <button class="btn ${r.official_url ? "wa" : "primary"}" id="share">שליחה לבן משפחה בוואטסאפ</button>
       <button class="btn" id="save">שמירת התוצאה כתמונה</button>
@@ -286,6 +288,13 @@ function render(r){
   $("#share").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(r.share_text_he), "_blank", "noopener");
   $("#save").onclick = () => saveImage(r);
   $("#again").onclick = reset;
+  out.querySelectorAll("[data-ctx]").forEach(b => b.onclick = () => {
+    const a = $("#ctx-ans");
+    a.textContent = b.dataset.ctx === "no"
+      ? "אם לא ציפיתם לזה, זו עוד סיבה לא ללחוץ. היכנסו רק דרך האתר או האפליקציה הרשמיים."
+      : "גם אם ציפיתם לזה, היכנסו דרך האתר או האפליקציה הרשמיים ולא דרך ההודעה.";
+    out.querySelectorAll("[data-ctx]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  });
   if (!matchMedia("(min-width: 900px)").matches) out.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
 }
 function reset(){ $("#go").classList.add("primary"); $("#msg").value = ""; $("#samples").hidden = false; howItWorks(); last = null; window.scrollTo({top:0}); $("#msg").focus(); }
