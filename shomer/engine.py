@@ -61,6 +61,7 @@ class Org:
     verified: bool
     source: str
     restricted_paths: dict = field(default_factory=dict)
+    unconfirmed_domains: list = field(default_factory=list)  # probably the organization's, not confirmed from its own site: never "official", never "lookalike"
     context_he: str = ""  # a question that helps the person judge: were you expecting this?
 
 
@@ -270,6 +271,10 @@ class Engine:
                                   [f"הכתובת נראית כמו האתר של {official.name_he}, אבל הכתובת הרשמית עוד לא נבדקה אצלנו"], official.id)
             return LinkReport(url, host, Verdict.MATCHES_OFFICIAL,
                               [f"הכתובת תואמת לאתר הרשמי של {official.name_he}"], official.id)
+        if not userinfo:
+            for o in self.orgs:
+                if any(host == d or host.endswith("." + d) for d in o.unconfirmed_domains):
+                    return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + [f"הכתובת נראית קשורה ל{o.name_he}, אבל עוד לא אימתנו אותה"], o.id)
         if host in self.shorteners or registrable(host) in self.shorteners:
             return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור קצר, ואי אפשר לראות לאן הוא באמת מוביל"])
         if registrable(host) in self.common and not userinfo and not self._lookalike_of(host):

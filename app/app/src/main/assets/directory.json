@@ -146,13 +146,16 @@
       ],
       "domains": [
         "leumi.co.il",
-        "leumicard.co.il"
+        "bankleumi.co.il"
       ],
       "official_url": "https://www.leumi.co.il",
       "app": "אפליקציית בנק לאומי",
-      "verified": false,
-      "source": "TO VERIFY from the bank's official site",
-      "context_he": "יש לך עניין פתוח בבנק לאומי?"
+      "verified": true,
+      "source": "Bank Leumi's own page (leumi.co.il/Articles/9596) says its SMS and email links lead to a URL containing leumi.co.il or bankleumi.co.il. leumicard.co.il removed: not confirmed as the bank's own domain. Checked 2026-11-21.",
+      "context_he": "יש לך עניין פתוח בבנק לאומי?",
+      "unconfirmed_domains": [
+        "leumicard.co.il"
+      ]
     },
     {
       "id": "bank_hapoalim",
@@ -168,14 +171,16 @@
         "poalim"
       ],
       "domains": [
-        "bankhapoalim.co.il",
-        "poalim.co.il"
+        "bankhapoalim.co.il"
       ],
       "official_url": "https://www.bankhapoalim.co.il",
       "app": "אפליקציית בנק הפועלים",
-      "verified": false,
-      "source": "TO VERIFY from the bank's official site",
-      "context_he": "יש לך עניין פתוח בבנק הפועלים?"
+      "verified": true,
+      "source": "Bank Hapoalim's own site (bankhapoalim.co.il, fraud and security pages). poalim.co.il removed: not confirmed from the bank's site. Checked 2026-11-21.",
+      "context_he": "יש לך עניין פתוח בבנק הפועלים?",
+      "unconfirmed_domains": [
+        "poalim.co.il"
+      ]
     },
     {
       "id": "bit",
@@ -218,8 +223,8 @@
       ],
       "official_url": "https://www.btl.gov.il",
       "app": "",
-      "verified": false,
-      "source": "TO VERIFY from the official site",
+      "verified": true,
+      "source": "National Insurance's own site (btl.gov.il) and its warnings: real links always end in gov.il; sender name BituahLeumi. Other gov.il pages stay 'cannot verify'. Checked 2026-11-21.",
       "context_he": "יש לך עניין פתוח בביטוח הלאומי?"
     },
     {
@@ -239,8 +244,8 @@
       ],
       "official_url": "https://www.discountbank.co.il",
       "app": "אפליקציית בנק דיסקונט",
-      "verified": false,
-      "source": "TO VERIFY from the official site",
+      "verified": true,
+      "source": "Bank Discount's own site and documents (www.discountbank.co.il). Checked 2026-11-21.",
       "context_he": "יש לך עניין פתוח בבנק דיסקונט?"
     },
     {
@@ -261,8 +266,8 @@
       ],
       "official_url": "https://www.mizrahi-tefahot.co.il",
       "app": "אפליקציית בנק מזרחי",
-      "verified": false,
-      "source": "TO VERIFY from the official site",
+      "verified": true,
+      "source": "Mizrahi-Tefahot's own fraud-warning page: 'The bank's website address is www.mizrahi-tefahot.co.il'. Checked 2026-11-21.",
       "context_he": "יש לך עניין פתוח בבנק מזרחי?"
     },
     {
@@ -325,8 +330,8 @@
       ],
       "official_url": "https://www.iec.co.il",
       "app": "אפליקציית חברת החשמל",
-      "verified": false,
-      "source": "TO VERIFY from the official site",
+      "verified": true,
+      "source": "IEC statements quoted by Israel National News and ESET Israel name iec.co.il as the official address (secondary reporting of the company's warning). Checked 2026-11-21.",
       "context_he": "ציפית לחשבון או הודעה מחברת החשמל?"
     },
     {
@@ -346,8 +351,8 @@
       ],
       "official_url": "https://www.maccabi4u.co.il",
       "app": "אפליקציית מכבי",
-      "verified": false,
-      "source": "TO VERIFY from the official site",
+      "verified": true,
+      "source": "Maccabi's own site pages at maccabi4u.co.il. Checked 2026-11-21.",
       "context_he": "קבעת לאחרונה תור במכבי?"
     },
     {
@@ -367,8 +372,8 @@
       ],
       "official_url": "https://www.clalit.co.il",
       "app": "אפליקציית כללית",
-      "verified": false,
-      "source": "TO VERIFY from the official site",
+      "verified": true,
+      "source": "Clalit's own site pages at clalit.co.il (www.clalit.co.il). Checked 2026-11-21.",
       "context_he": "קבעת לאחרונה תור בכללית?"
     }
   ],

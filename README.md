@@ -30,6 +30,10 @@ Design choices that matter:
 
 The first screen simulates a phone lock screen, the way the Android agent behaves: sample messages arrive on their own, Shomer checks each one without being opened, and only a risky message gets a red Shomer notification under it (four of nine in the sample). Tapping that notification opens the explanation. "Manual check" is a second tab for pasting a message. The messages are made-up samples, labeled as such on screen.
 
+## App mockup
+
+A clickable six-screen model of the Android app (setup, home, lock-screen alert, explanation, family, settings) is in a Claude design canvas: https://claude.ai/artifact/7odGaYVHJKEKzDRDabYC7o. Home, family and the detailed settings screen are proposals; the code today has the status screen, the permissions flow and manual check. The numbers in it are sample data.
+
 ## Try it
 
 ```bash
@@ -58,7 +62,7 @@ I set the product direction and ran the research; Claude (an AI assistant) wrote
 - **Mine:** picking the problem and the user (an older relative who gets scam messages), the three interviews, and the rules the product holds to: never say "safe", always point to the official route, speak up only when there is a reason, keep the family alert opt-in. I also rejected an AI agent that signs into people's accounts, and asked for the background agent and English support after seeing early versions.
 - **Claude's:** the rule engine, the web demo, the Android code, the tests and first drafts of the docs.
 - **Simulated users are not user research.** The agent reviews (a designer, a hiring-manager reviewer, a product critic, nine simulated users) are role-play by an AI. They found real bugs, which is what I used them for, but they say nothing about what real people do. The only user evidence is three oral interviews with people in one family.
-- **Not verified yet:** the Android app has never been compiled or run on a phone, and only three organizations in the directory are verified.
+- **Not verified yet:** the Android app has never been compiled or run on a phone, and 11 of the 16 directory entries are verified, each against the organization's own site or its own published warning (see `source` in `directory.json`). Kvish 6, Bit, PayPal, the Tax Authority and the Home Front Command are not.
 
 ## What I cut, and why
 
@@ -67,7 +71,7 @@ I set the product direction and ran the research; Claude (an AI assistant) wrote
 - **iPhone background checking.** iOS does not let an app read SMS or WhatsApp. Paste and share only.
 - **Reading WhatsApp messages in full.** Notifications only, and only a short list of apps.
 - **A score or "safe" badge.** It would invite trust the tool has not earned.
-- **More organizations.** Better three verified than thirty guessed; adding banks is the next data task.
+- **Unverified organizations as "matching".** An organization is only ever reported as matching once its domain is confirmed from its own site. Related domains that are probably but not provably the organization's (for example the credit-card arm of a bank) are listed as `unconfirmed_domains` and report "can't verify", never a false alarm.
 
 ## What is and isn't proven
 
@@ -77,7 +81,7 @@ I set the product direction and ran the research; Claude (an AI assistant) wrote
 - **Accuracy on real messages.** The evaluation corpus is written by me, modeled on published warnings. It is also partly tautological: several cases were added after an adversarial review, so they test fixes, not unseen data. It is a regression check, not an accuracy estimate. The PRD sets numeric targets to measure on at least 50 real, consented messages.
 - **Android.** The Kotlin source has not been built. Open questions: whether a sideloaded app keeps SMS-receive permission, Android's restricted-settings behavior, Gmail API access for a non-published app.
 - **That users understand the alerts.** Needs testing with real older adults.
-- **Directory coverage.** 4 of 9 entries are marked verified, with sources of uneven quality (see `directory.json`); the Home Front Command entry still needs a direct check, and the rest are marked `TO VERIFY`.
+- **Directory coverage.** 11 of 16 entries are verified (checked 2026-11-21, mostly from the organization's own pages; IEC from the company's statements as quoted in the press). Five are still `TO VERIFY`, including Kvish 6, whose own site I could not open from here.
 - **Statistics in the PRD** (elder-fraud case counts, growth rates) come from press coverage; the original source links still need to be added.
 - **"Analysis on the device"** is a design goal for the Android app only. In the web demo the text is sent to the local demo server (running on your own machine) and is not stored.
 

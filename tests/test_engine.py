@@ -41,8 +41,15 @@ def test_extracts_bare_domains_and_strips_punctuation():
 
 
 def test_unverified_directory_entry_never_yields_match():
-    r = E.check("בנק לאומי https://www.leumi.co.il")
+    r = E.check("כביש 6 https://www.kvish6.co.il")  # kvish6 is still unverified in the directory
     assert r.verdict is Verdict.CANT_VERIFY
+
+
+def test_verified_bank_matches_but_related_domain_is_not_a_false_alarm():
+    assert E.check("בנק לאומי: הצהרון באתר https://www.leumi.co.il").verdict is Verdict.MATCHES_OFFICIAL
+    assert E.check("בנק לאומי: פרטי כרטיס https://www.leumicard.co.il/x").verdict is Verdict.CANT_VERIFY
+    assert E.check("בנק הפועלים: https://poalim.co.il/x").verdict is Verdict.CANT_VERIFY
+    assert E.check("בנק הפועלים: https://poalim.co.il.evil.top/x").verdict is Verdict.DONT_CLICK
 
 
 def test_two_links_worst_verdict_wins():

@@ -16,6 +16,8 @@ data class Org(
     val domains: List<String>, val officialUrl: String, val verified: Boolean,
     val restrictedPaths: Map<String, List<String>> = emptyMap(),
     val contextHe: String = "",
+    /** Probably the organization's, not confirmed from its own site: never "official", never "lookalike". */
+    val unconfirmedDomains: List<String> = emptyList(),
 )
 
 data class LinkReport(val url: String, val host: String, val verdict: Verdict, val reasons: List<String>, val orgId: String? = null)
@@ -53,7 +55,8 @@ class ShomerEngine(directoryJson: String) {
                 strings(o.getJSONArray("brand_tokens")), strings(o.getJSONArray("domains")),
                 o.getString("official_url"), o.getBoolean("verified"),
                 o.optJSONObject("restricted_paths")?.let { rp -> rp.keys().asSequence().associateWith { k -> strings(rp.getJSONArray(k)) } } ?: emptyMap(),
-                o.optString("context_he", ""))
+                o.optString("context_he", ""),
+                o.optJSONArray("unconfirmed_domains")?.let { strings(it) } ?: emptyList())
         }
         shorteners = strings(root.getJSONArray("shorteners")).toSet()
         badTlds = strings(root.getJSONArray("suspicious_tlds")).toSet()
@@ -138,6 +141,8 @@ class ShomerEngine(directoryJson: String) {
                 return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("הכתובת נראית כמו האתר של ${official.nameHe}, אבל הכתובת הרשמית עוד לא נבדקה אצלנו"), official.id)
             return LinkReport(url, host, Verdict.MATCHES_OFFICIAL, listOf("הכתובת תואמת לאתר הרשמי של ${official.nameHe}"), official.id)
         }
+        if (!userinfo) for (o in orgs) if (o.unconfirmedDomains.any { host == it || host.endsWith(".$it") })
+            return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + "הכתובת נראית קשורה ל${o.nameHe}, אבל עוד לא אימתנו אותה", o.id)
         if (host in shorteners || registrable(host) in shorteners)
             return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + "זה קישור קצר, ואי אפשר לראות לאן הוא באמת מוביל")
         if (registrable(host) in common && !userinfo && lookalikeOf(host) == null)
