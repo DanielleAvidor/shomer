@@ -240,9 +240,9 @@ Decisions already made and built into the code (`shomer/advisor.py`):
 Not built: any real advisor. Testing one needs an API key and network access, and accuracy would need its own evaluation against real messages.
 
 
-## 14. First user research (one informal interview)
+## 14. First user research (pilot oral questionnaire, one participant)
 
-On 2026-11-21 one older woman (the builder's grandmother, Android, SMS and WhatsApp) answered questions about suspicious messages. Full notes and limits: `docs/research/interview-01-grandmother.md`.
+On 2026-11-21 one older woman (the builder's grandmother, Android, SMS and WhatsApp) answered a short oral questionnaire about suspicious messages, read aloud by the builder. Full notes and limits: `docs/research/interview-01-grandmother.md`.
 
 What it changes in this document (hypotheses to test, based on n=1):
 - **Positioning.** The strongest signal is a wish for independence. She declined automatic alerts to family and wants the phone to check and warn her. The family screen should become optional, with sharing only when she chooses. The earlier "family guardian" framing needs to be revisited after more interviews.

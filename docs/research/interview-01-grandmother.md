@@ -1,6 +1,6 @@
-# Interview 01: grandmother (informal, in person)
+# Oral questionnaire 01: grandmother (in person, one participant)
 
-**Date:** 2026-11-21. **Format:** informal conversation, questions asked by Claude and relayed by the builder (her granddaughter), who typed the answers. About 10 minutes.
+**Date:** 2026-11-21. **Format:** short structured oral questionnaire (about 8 questions, the same ones planned for the written survey). Questions were prepared by Claude and read aloud by the builder (her granddaughter), who typed the answers. About 10 minutes. This is one participant, so it is a pilot, not a survey sample.
 **Participant:** one older woman, uses an Android phone, receives both SMS and WhatsApp. Name withheld.
 
 ## What she said (paraphrased by the interviewer)
