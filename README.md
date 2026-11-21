@@ -28,7 +28,7 @@ Design choices that matter:
 
 ## The demo
 
-The first screen is an inbox that works the way the Android agent does: sample messages arrive on their own, Shomer checks each one without being asked, and only the risky ones raise an alert (four of nine in the sample). "Manual check" is a second tab for pasting a message. The messages are made-up samples, shown as such on screen.
+The first screen simulates a phone lock screen, the way the Android agent behaves: sample messages arrive on their own, Shomer checks each one without being opened, and only a risky message gets a red Shomer notification under it (four of nine in the sample). Tapping that notification opens the explanation. "Manual check" is a second tab for pasting a message. The messages are made-up samples, labeled as such on screen.
 
 ## Try it
 

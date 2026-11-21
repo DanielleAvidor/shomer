@@ -308,9 +308,9 @@ A tester agent (role-play, not real users) ran the web demo at three screen size
 
 ## 18. The agent-driven demo
 
-The demo's first screen is an inbox, not a text box. Sample messages arrive on their own (about one every four seconds), Shomer checks each through the same alert policy as section 17 and either stays quiet ("checked, no need to alert") or raises an alert with the full explanation beside it. Pasting remains as a second, manual tab. This follows the interview feedback that a tool she must remember to open does not replace help from family.
+The demo's first screen is a simulated phone lock screen, not a text box and not an app screen. Sample messages arrive on their own (about one every four seconds). Shomer checks each through the same alert policy as section 17. A quiet message just sits there as the ordinary notification it is; a risky one gets a red Shomer notification right under it, which is what the Android app does (a high-priority notification). Nothing has to be opened to see the warning; tapping it opens the full explanation. Pasting remains as a second, manual tab. This follows the interview feedback that a tool she must remember to open does not replace help from family.
 
-What it shows and what it does not: the nine sample messages were written by me and Claude to cover the cases (a friend's link, a lookalike post office, a family group, an official message, a "hi grandma" request, a bank code, a toll lookalike, a family reminder, a bank phone number). Four alert and five stay quiet. That shows the policy, not its accuracy on real traffic.
+What it shows and what it does not: the nine sample messages were written by me and Claude to cover the cases (a friend's link, a lookalike post office, a family group, an official message, a "hi grandma" request, a bank code, a toll lookalike, a family reminder, a bank phone number). Four alert and five stay quiet. That shows the policy, not its accuracy on real traffic, and the notification is a drawing of what the Android app would post, which has not run on a phone yet.
 
 ## 19. How this was built and what was cut
 
