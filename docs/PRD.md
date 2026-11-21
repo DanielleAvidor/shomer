@@ -238,3 +238,17 @@ Decisions already made and built into the code (`shomer/advisor.py`):
 - **Nothing says "safe".** The existing rule still applies to any advisor text.
 
 Not built: any real advisor. Testing one needs an API key and network access, and accuracy would need its own evaluation against real messages.
+
+
+## 14. First user research (one informal interview)
+
+On 2026-11-21 one older woman (the builder's grandmother, Android, SMS and WhatsApp) answered questions about suspicious messages. Full notes and limits: `docs/research/interview-01-grandmother.md`.
+
+What it changes in this document (hypotheses to test, based on n=1):
+- **Positioning.** The strongest signal is a wish for independence. She declined automatic alerts to family and wants the phone to check and warn her. The family screen should become optional, with sharing only when she chooses. The earlier "family guardian" framing needs to be revisited after more interviews.
+- **Real behaviour.** She already asks a relative, who checks with an AI chat. Competitors are "ask family" and general chatbots.
+- **Warning copy.** She preferred a warning that names the organisation and says what to do: "אל תלחצי על הקישור. הוא לא מוביל לאתר של דואר ישראל."
+- **Pop-up.** She wants the warning as a pop-up on the screen.
+- **Context.** What protected her was knowing she had no parcel. A context question is a candidate feature (see section 13).
+
+Not yet validated: any of the above with a second person, the mother, or someone outside the family.
