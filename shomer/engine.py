@@ -94,6 +94,7 @@ class Result:
     escalated_by_advisor: bool = False
     context_question_he: str = ""
     certain: bool = False  # high confidence that this is a scam (used for family alerts)
+    signal_ids: list = field(default_factory=list)  # which content signals matched (urgency, threat, credentials, ...)
     unsupported_language: bool = False  # the message is mostly in a script the checker does not read (e.g. Russian, Arabic)
 
     def to_dict(self) -> dict:
@@ -420,5 +421,6 @@ class Engine:
                      [g["he"] for g in sigs], steps, if_clicked, share, kind)
         res.certain = certain
         res.unsupported_language = unsupported
+        res.signal_ids = [g["id"] for g in sigs]
         res.context_question_he = context_q
         return res

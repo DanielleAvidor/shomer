@@ -44,6 +44,41 @@
   main{max-width:1120px;margin:0 auto;padding:28px 20px 72px}
 
   /* check screen */
+  /* ---- inbox: the agent works, the person is told ---- */
+  .inbox{display:grid;gap:22px;grid-template-columns:minmax(0,1fr)}
+  @media(min-width:900px){.inbox{grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:28px 48px;align-items:start}.detail-col{position:sticky;top:20px}}
+  .agent-card{background:var(--sheet);border:1px solid var(--line);border-radius:20px;padding:20px 22px;box-shadow:var(--shadow)}
+  .agent-row{display:flex;gap:14px;align-items:flex-start}
+  .agent-row h2{font:800 26px/1.2 var(--serif);margin:0 0 4px}
+  .agent-row p{margin:0;color:var(--soft)}
+  .pulse{flex:none;width:16px;height:16px;border-radius:50%;background:var(--pine);margin-top:9px;box-shadow:0 0 0 0 rgba(29,75,65,.45)}
+  @media (prefers-reduced-motion:no-preference){.pulse{animation:pulse 2.4s infinite}@keyframes pulse{70%{box-shadow:0 0 0 12px rgba(29,75,65,0)}100%{box-shadow:0 0 0 0 rgba(29,75,65,0)}}.msg.fresh{animation:slidein .35s ease-out}@keyframes slidein{from{opacity:0;transform:translateY(-10px)}}}
+  .agent-stats{display:flex;gap:28px;margin:16px 0 4px;padding:0}
+  .agent-stats div{display:grid}
+  .agent-stats dt{color:var(--soft);font-size:16px}
+  .agent-stats dd{margin:0;font:800 34px/1.1 var(--serif)}
+  .sim{margin:12px 0;padding:10px 14px;background:var(--wash);border-radius:12px;color:var(--ink);font-size:17px}
+  .agent-alert{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;background:var(--red-bg);border:2px solid var(--red);color:var(--red);border-radius:16px;padding:14px 16px;font-weight:700}
+  .agent-alert[hidden]{display:none}
+  .agent-alert span{flex:1 1 220px}
+  .agent-alert .btn{min-height:46px;padding:0 16px;color:var(--ink)}
+  .feed{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+  .msg-btn{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--sheet);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px}
+  .msg-btn:focus-visible{outline:3px solid var(--pine);outline-offset:3px}
+  .msg.alert .msg-btn{border-color:var(--red);border-inline-start:8px solid var(--red);background:var(--red-bg)}
+  .msg.open .msg-btn{box-shadow:0 0 0 3px var(--pine)}
+  .msg-top{display:flex;gap:10px;align-items:baseline;font-size:16px;color:var(--soft)}
+  .msg-top .chan{background:var(--wash);color:var(--ink);border-radius:8px;padding:1px 9px;font-weight:700}
+  .msg-top .from{color:var(--ink);font-size:18px}
+  .msg-top time{margin-inline-start:auto}
+  .msg-text{margin:8px 0 10px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+  .msg-status{font-size:17px;color:var(--soft);display:flex;gap:8px;align-items:center}
+  .msg.alert .msg-status{color:var(--red);font-weight:800}
+  .spin{width:16px;height:16px;border-radius:50%;border:3px solid var(--line-strong);border-top-color:var(--pine)}
+  @media (prefers-reduced-motion:no-preference){.spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}}
+  .orig{background:var(--sheet);border:1px dashed var(--line-strong);border-radius:16px;padding:14px 16px;margin-bottom:16px}
+  .orig span{display:block;color:var(--soft);font-size:16px;margin-bottom:4px}
+  .orig p{margin:0;overflow-wrap:anywhere}
   .check{display:grid;gap:28px;grid-template-columns:minmax(0,1fr)}
   @media(min-width:900px){
     .check{grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-areas:"input result" "recent result";grid-template-rows:auto 1fr;gap:28px 48px;align-items:start}
@@ -187,14 +222,29 @@
 <div class="top"><div class="top-in">
   <div class="brand"><svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5"/><circle cx="50" cy="50" r="37" stroke="currentColor" stroke-width="2" stroke-dasharray="1.2 4.6" stroke-linecap="round"/><path d="M191 0 82 1291H243L304 554Q371 570 432.0 598.5Q493 627 533 674Q580 731 603.5 813.0Q627 895 636 988L664 1291H821L793 989Q780 855 750.0 759.5Q720 664 659 593Q603 525 521.5 485.0Q440 445 323 425Q321 425 319.0 424.5Q317 424 316 424L340 136H619Q757 136 875.0 210.5Q993 285 1070 420Q1146 557 1163 730L1216 1291H1374L1320 728Q1309 613 1276.0 512.5Q1243 412 1190 325Q1136 237 1065.0 170.0Q994 103 896 61Q832 28 759.5 14.0Q687 0 609 0Z" transform="translate(25.25 72.95) scale(.034 -.034)" fill="currentColor" stroke="currentColor" stroke-width="70" stroke-linejoin="round"/></svg><h1>שומר</h1><span>בודקים הודעה<br>לפני שלוחצים</span></div>
   <nav role="tablist" aria-label="מסכים" id="tabs">
-    <button role="tab" id="tab-check" aria-selected="true">בדיקת הודעה</button>
+    <button role="tab" id="tab-inbox" aria-selected="true">הודעות נכנסות</button>
+    <button role="tab" id="tab-check" aria-selected="false">בדיקה ידנית</button>
     <button role="tab" id="tab-fam" aria-selected="false">משפחה</button>
     <button role="tab" id="tab-setup" aria-selected="false">הגדרה</button>
   </nav>
 </div></div>
 
 <main>
-<section id="p-check" class="check" role="tabpanel" aria-labelledby="tab-check">
+<section id="p-inbox" class="inbox" role="tabpanel" aria-labelledby="tab-inbox">
+  <div class="feed-col">
+    <div class="agent-card">
+      <div class="agent-row"><span class="pulse" aria-hidden="true"></span><div><h2>שומר פועל ברקע</h2><p id="agent-sub">בודק כל הודעה שמגיעה, ומתריע רק כשיש סיבה.</p></div></div>
+      <dl class="agent-stats"><div><dt>הודעות שנבדקו</dt><dd id="st-checked">0</dd></div><div><dt>התראות</dt><dd id="st-alerts">0</dd></div></dl>
+      <p class="sim"><b>הדמיה.</b> הודעות לדוגמה מגיעות לבד, כמו בטלפון, ושומר בודק כל אחת בלי שתעשו כלום. באפליקציה האמיתית אלה ההודעות שלכם.</p>
+      <div class="row"><button class="btn" id="sim-toggle">השהיה</button><button class="btn" id="sim-restart">מההתחלה</button></div>
+    </div>
+    <div id="agent-alert" class="agent-alert" role="alert" hidden></div>
+    <ul id="feed" class="feed" aria-label="הודעות נכנסות"></ul>
+  </div>
+  <div class="detail-col"><div id="detail"><p class="note">בחרו הודעה כדי לראות מה שומר מצא בה. התראה חדשה נפתחת כאן לבד.</p></div></div>
+</section>
+
+<section id="p-check" class="check" role="tabpanel" aria-labelledby="tab-check" hidden>
   <div class="input-col">
     <label class="q" for="msg">איזו הודעה קיבלתם?</label>
     <textarea id="msg" placeholder="הדביקו כאן את ההודעה"></textarea>
@@ -290,18 +340,81 @@ function hostHtml(host){
 }
 
 /* ---------- tabs ---------- */
+const TABS = ["inbox","check","fam","setup"];
 function show(tab){
-  for (const t of ["check","fam","setup"]){ const b = $("#tab-"+t); b.setAttribute("aria-selected", t === tab); b.tabIndex = t === tab ? 0 : -1; b.setAttribute("aria-controls", "p-"+t); $("#p-"+t).hidden = t !== tab; }
-  if (tab === "fam") loadFamily(); if (tab === "setup") renderSetup(); if (tab === "check") loadRecent();
+  for (const t of TABS){ const b = $("#tab-"+t); b.setAttribute("aria-selected", t === tab); b.tabIndex = t === tab ? 0 : -1; b.setAttribute("aria-controls", "p-"+t); $("#p-"+t).hidden = t !== tab; }
+  if (tab === "inbox") simEnter(); if (tab === "fam") loadFamily(); if (tab === "setup") renderSetup(); if (tab === "check") loadRecent();
 }
-for (const t of ["check","fam","setup"]) $("#tab-"+t).onclick = () => show(t);
+for (const t of TABS) $("#tab-"+t).onclick = () => show(t);
 $("#tabs").addEventListener("keydown", e => {
-  const order = ["check","fam","setup"], cur = order.findIndex(t => $("#tab-"+t).getAttribute("aria-selected") === "true");
+  const order = TABS, cur = order.findIndex(t => $("#tab-"+t).getAttribute("aria-selected") === "true");
   const step = {ArrowRight: -1, ArrowLeft: 1}[e.key]; let to = null;
   if (step) to = (cur + step + order.length) % order.length; else if (e.key === "Home") to = 0; else if (e.key === "End") to = order.length - 1;
   if (to === null) return; e.preventDefault(); show(order[to]); $("#tab-"+order[to]).focus();
 });
-show("check");
+
+
+
+/* ---------- inbox: simulated incoming messages, checked by the agent ---------- */
+const SIM = [
+  {ch:"chat", app:"וואטסאפ", from:"נועה", t:"מה קורה? מתי מתפנה לקפה? https://waze.com/ul?q=cafe"},
+  {ch:"sms", app:"הודעת SMS", from:"‎050-5551234", t:"דואר ישראל: החבילה שלך נעצרה בגלל כתובת שגויה. אנא אשר כתובת https://israelpost.paliet.top/il"},
+  {ch:"chat", app:"וואטסאפ", from:"קבוצת המשפחה", t:"מי מביא עוגה לשבת? אני מביאה את הפירות"},
+  {ch:"sms", app:"הודעת SMS", from:"דואר ישראל", t:"דואר ישראל: החבילה שלך הגיעה לסניף. מעקב: https://israelpost.co.il/track"},
+  {ch:"chat", app:"וואטסאפ", from:"‎053-5559876", t:"היי סבתא, זה אני, החלפתי מספר. אפשר להעביר לי דחוף 2,500 שקל? אל תגידי לאמא"},
+  {ch:"sms", app:"הודעת SMS", from:"בנק לאומי", t:"בנק לאומי: קוד האימות שלך הוא 482913. אל תמסור אותו לאף אחד, גם לא לנציג הבנק."},
+  {ch:"sms", app:"הודעת SMS", from:"‎052-5554321", t:"כביש 6: חוב פתוח לתשלום. שלמו תוך 24 שעות כדי למנוע קנס נוסף https://kvish6.co.il.pay-now.top/bills"},
+  {ch:"chat", app:"וואטסאפ", from:"אמא", t:"תזכרי שיש רופא ביום ג׳ ב-10 בבוקר, אני אבוא לקחת אותך"},
+  {ch:"sms", app:"הודעת SMS", from:"‎03-5551234", t:"בנק הפועלים: חשבונך ייחסם היום. התקשרו עכשיו למספר 03-5551234"},
+];
+const sim = {i: 0, timer: null, paused: false, checked: 0, alerts: 0, results: [], started: false};
+function simRenderItem(idx){
+  const m = SIM[idx], r = sim.results[idx];
+  const status = !r ? `<span class="spin" aria-hidden="true"></span>בודק…`
+    : r.error ? "לא הצלחנו לבדוק עכשיו"
+    : r.alert ? `התראה: ${esc(r.headline_he)}` : "נבדקה. אין צורך להתריע";
+  return `<button class="msg-btn" data-i="${idx}"><div class="msg-top"><span class="chan">${esc(m.app)}</span><b class="from"><bdi>${esc(m.from)}</bdi></b><time><bdi>${hm(r ? r.ts : Date.now()/1000)}</bdi></time></div><p class="msg-text">${esc(m.t)}</p><div class="msg-status">${status}</div></button>`;
+}
+function simStats(){ $("#st-checked").textContent = sim.checked; $("#st-alerts").textContent = sim.alerts; }
+function simOpen(idx, userAction){
+  const m = SIM[idx], r = sim.results[idx]; if (!r || r.error) return;
+  document.querySelectorAll("#feed .msg").forEach(li => li.classList.toggle("open", +li.dataset.i === idx));
+  const d = $("#detail");
+  d.innerHTML = `<div class="orig"><span>ההודעה שהגיעה, ${esc(m.app)} מ-<bdi>${esc(m.from)}</bdi>:</span><p><bdi>${esc(m.t)}</bdi></p></div><div id="detail-card"></div>`;
+  render(r, d.querySelector("#detail-card"), () => { d.innerHTML = '<p class="note">בחרו הודעה כדי לראות מה שומר מצא בה.</p>'; }, {focus: !!userAction, scroll: !!userAction});
+}
+async function simStep(){
+  clearTimeout(sim.timer); if (sim.paused) return;
+  if (sim.i >= SIM.length){ $("#agent-sub").textContent = "סיימנו את ההדגמה. אפשר להתחיל שוב."; return; }
+  const idx = sim.i++, li = document.createElement("li");
+  li.className = "msg fresh"; li.dataset.i = idx; li.innerHTML = simRenderItem(idx);
+  $("#feed").prepend(li); sim.results[idx] = null;
+  li.querySelector("button").onclick = () => simOpen(idx, true);
+  try {
+    const r = await post("/api/ingest", {text: SIM[idx].t, channel: SIM[idx].ch}); r.ts = Date.now()/1000; sim.results[idx] = r;
+    sim.checked++; if (r.alert) sim.alerts++;
+    li.classList.toggle("alert", !!r.alert); li.innerHTML = simRenderItem(idx); li.querySelector("button").onclick = () => simOpen(idx, true);
+    if (r.alert){
+      const a = $("#agent-alert"); a.hidden = false;
+      a.innerHTML = `<span>שומר מתריע: ${esc(r.headline_he)}</span><button class="btn" id="al-open">להסבר</button><button class="btn" id="al-close" aria-label="סגירה">סגירה</button>`;
+      a.querySelector("#al-open").onclick = () => { simOpen(idx, true); };
+      a.querySelector("#al-close").onclick = () => { a.hidden = true; };
+      if (matchMedia("(min-width: 900px)").matches) simOpen(idx, false);
+    }
+  } catch (e) { sim.results[idx] = {error: true, ts: Date.now()/1000}; li.innerHTML = simRenderItem(idx); }
+  simStats();
+  sim.timer = setTimeout(simStep, 4300);
+}
+function simEnter(){ if (!sim.started){ sim.started = true; sim.timer = setTimeout(simStep, 900); } }
+function simReset(){
+  clearTimeout(sim.timer); sim.i = 0; sim.checked = 0; sim.alerts = 0; sim.results = []; sim.paused = false;
+  $("#feed").innerHTML = ""; $("#agent-alert").hidden = true; $("#sim-toggle").textContent = "השהיה"; simStats();
+  $("#agent-sub").textContent = "בודק כל הודעה שמגיעה, ומתריע רק כשיש סיבה.";
+  $("#detail").innerHTML = '<p class="note">בחרו הודעה כדי לראות מה שומר מצא בה. התראה חדשה נפתחת כאן לבד.</p>';
+  sim.timer = setTimeout(simStep, 600);
+}
+$("#sim-toggle").onclick = () => { sim.paused = !sim.paused; $("#sim-toggle").textContent = sim.paused ? "המשך" : "השהיה"; if (!sim.paused) simStep(); };
+$("#sim-restart").onclick = simReset;
 
 /* ---------- check ---------- */
 function howItWorks(){
@@ -310,8 +423,8 @@ function howItWorks(){
     <li><div><b>שומר משווה לאתר הרשמי.</b><span>הוא בודק אם הקישור שייך לגוף ששלח, ומחפש גם לחץ ובקשות חשודות.</span></div></li>
     <li><div><b>מקבלים תשובה ברורה.</b><span>מה לעשות עכשיו, ומה לעשות אם כבר לחצתם.</span></div></li></ol><p class="never">התשובה היא <b>אל תלחצו</b>, <b>הכתובת היא של האתר הרשמי, אבל זה לא אישור להודעה</b> או <b>לא הצלחנו לבדוק</b>. שומר אף פעם לא אומר ש"הכול בטוח".</p></div>`;
 }
-function reveal(){
-  if (!matchMedia("(min-width: 900px)").matches) $("#out").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+function reveal(el = $("#out")){
+  if (!matchMedia("(min-width: 900px)").matches) el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
 }
 async function run(){
   const text = $("#msg").value.trim(); if (!text){ $("#msg").focus(); $("#out").innerHTML = `<p class="note" role="status">קודם מדביקים כאן את ההודעה שקיבלתם, ואז לוחצים על "בדקו לי".</p>`; reveal(); return; }
@@ -321,14 +434,14 @@ async function run(){
   catch (e) { $("#out").innerHTML = NET; reveal(); }
   finally { btn.disabled = false; btn.textContent = label; }
 }
-function render(r){
-  const out = $("#out"), v = r.verdict;
+function render(r, out = $("#out"), onAgain = reset, opts = {}){
+  const v = r.verdict;
   if (!r.applicable){
     out.innerHTML = `<div class="card neutral"><div class="head">${seal("cant_verify", r.headline_he)}</div><p class="adv">${esc(r.advice_he)}</p>
       <div class="actions"><button class="btn quiet" id="again">בודקים הודעה אחרת</button></div></div>`;
-    $("#again").onclick = reset; reveal(); return;
+    out.querySelector("#again").onclick = onAgain; if (opts.scroll !== false) reveal(out); return;
   }
-  $("#go").classList.remove("primary");
+  if (out.id === "out") $("#go").classList.remove("primary");
   const link = r.links.find(l => l.verdict === "dont_click") || r.links[0];
   const moreLinks = r.links.length > 1 ? `<p class="hint">${r.links.length === 2 ? "ובעוד קישור אחד בהודעה" : "ובעוד " + (r.links.length - 1) + " קישורים בהודעה"}</p>` : "";
   const dest = link && link.host ? `<div class="sec"><h3>הקישור בהודעה פותח את האתר</h3><div class="host${link.host.length > 22 ? " long" : ""}">${hostHtml(link.host)}</div>${moreLinks}</div>` : "";
@@ -350,18 +463,18 @@ function render(r){
       <button class="btn" id="save">שמירת התוצאה כתמונה</button>
       <button class="btn quiet" id="again">בודקים הודעה אחרת</button></div>
     <p class="foot">נבדק בשעה <bdi>${hm(Date.now()/1000)}</bdi>.${note}</p></div>`;
-  $("#share").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(r.share_text_he), "_blank", "noopener");
-  $("#save").onclick = () => saveImage(r);
-  $("#again").onclick = reset;
+  out.querySelector("#share").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(r.share_text_he), "_blank", "noopener");
+  out.querySelector("#save").onclick = () => saveImage(r);
+  out.querySelector("#again").onclick = onAgain;
   out.querySelectorAll("[data-ctx]").forEach(b => b.onclick = () => {
-    const a = $("#ctx-ans");
+    const a = out.querySelector("#ctx-ans");
     a.textContent = b.dataset.ctx === "no"
       ? "אם לא ציפיתם לזה, זו עוד סיבה לא ללחוץ. היכנסו רק דרך האתר או האפליקציה הרשמיים."
       : "גם אם ציפיתם לזה, היכנסו דרך האתר או האפליקציה הרשמיים ולא דרך ההודעה.";
     out.querySelectorAll("[data-ctx]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
   });
-  const hd = out.querySelector("h2"); if (hd){ hd.tabIndex = -1; hd.focus({preventScroll:true}); }
-  reveal();
+  if (opts.focus !== false){ const hd = out.querySelector("h2"); if (hd){ hd.tabIndex = -1; hd.focus({preventScroll:true}); } }
+  if (opts.scroll !== false) reveal(out);
 }
 function reset(){ $("#go").classList.add("primary"); $("#msg").value = ""; $("#samples").hidden = false; howItWorks(); last = null; window.scrollTo({top:0}); $("#msg").focus(); }
 function dedupe(list){
@@ -467,7 +580,7 @@ function renderSetup(){
   };
 }
 
-howItWorks(); loadRecent();
+howItWorks(); loadRecent(); show("inbox");
 </script>
 </body>
 </html>

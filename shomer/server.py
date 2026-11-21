@@ -15,6 +15,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from .agent import should_alert
 from .advisor import Advisor, NullAdvisor, apply_advice
 from .engine import Engine
 
@@ -177,6 +178,16 @@ class Handler(BaseHTTPRequestHandler):
             result = second_opinion(text, result)
             out = result.to_dict()
             out["event_id"] = record(result) if (result.applicable and get_settings()["consented"]) else None
+            self._json(out)
+        elif self.path == "/api/ingest":
+            # What the background agent does with every incoming message: check it and decide whether to speak up.
+            text = str(data.get("text", ""))
+            channel = "sms" if data.get("channel") == "sms" else "chat"
+            result = second_opinion(text, ENGINE.check(text))
+            alert = should_alert(result, strict=(channel != "sms"))
+            out = result.to_dict()
+            out["alert"] = alert
+            out["event_id"] = record(result) if (alert and get_settings()["consented"]) else None
             self._json(out)
         elif self.path == "/api/report":
             # Used by the phone: metadata only (verdict, org id, link host). Never the message text.
