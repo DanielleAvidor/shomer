@@ -33,9 +33,15 @@ class ShomerEngineTest {
 
     @Test
     fun unsupportedLanguageIsNotReportedAsClean() {
-        val r = engine.check("Ваш банковский счёт будет заблокирован. Срочно позвоните и сообщите пароль")
+        val r = engine.check("Привет, как дела? Давай встретимся завтра в кафе в центре города")
         assertFalse(r.applicable)
         assertTrue(r.unsupportedLanguage)
+    }
+
+    @Test
+    fun russianScamIsStillCaughtBySignals() {
+        val r = engine.check("Ваш банковский счёт будет заблокирован. Срочно позвоните и сообщите пароль")
+        assertEquals(Verdict.DONT_CLICK, r.verdict)
     }
 
     @Test
