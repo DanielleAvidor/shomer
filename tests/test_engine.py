@@ -261,3 +261,9 @@ def test_general_government_link_is_not_tied_to_the_police():
 def test_a_long_message_is_checked_to_the_end():
     r = E.check("שלום " * 1500 + " דואר ישראל שלמו https://israelpost-fee.top/pay")
     assert r.verdict is Verdict.DONT_CLICK
+
+
+def test_stray_brackets_in_a_link_never_crash():
+    for t in ["https://[192.168.1.1:80/x", "דואר ישראל https://israelpost.co.il[.]evil.top/a", "x http://]a[b/c", "http://[::1"]:
+        r = E.check(t)
+        assert r.verdict is not Verdict.MATCHES_OFFICIAL

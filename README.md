@@ -36,6 +36,10 @@ The app has four tabs, built in code (`MainActivity.kt`): **Home** (is Shomer on
 
 The list remembers only the app, the time and Shomer's own explanation of an alert. It never stores message text or the sender, and it can be switched off. **None of this has been compiled or run on a phone yet.**
 
+## Checking the Kotlin engine without a phone
+
+`tools/kotlin-parity/run.sh` compiles `ShomerEngine.kt` on a plain JVM (using the Kotlin compiler that ships inside Gradle, no Android SDK) and compares its answers with the Python engine on the eval corpus plus about 400 generated messages. Last run: 460 messages, 0 differences. It does not test the Android screens. A handoff summary for explaining the project elsewhere is in `docs/HANDOFF.md`.
+
 ## Try it
 
 ```bash

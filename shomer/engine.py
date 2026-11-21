@@ -123,17 +123,28 @@ def registrable(host: str) -> str:
     return ".".join(labels[-2:]) if len(labels) >= 2 else host
 
 
+def _split(u: str):
+    """urlsplit, but a stray bracket (a fake IPv6 literal) must never crash the check."""
+    try:
+        return urlsplit(u)
+    except ValueError:
+        try:
+            return urlsplit(u.replace("[", "").replace("]", ""))
+        except ValueError:
+            return urlsplit("http://")
+
+
 def parse_host(url: str) -> tuple[str, bool]:
     """Return (lowercase host, has_userinfo). The host is what the browser would really visit."""
     u = url if re.match(r"^[a-z][a-z0-9+.-]*://", url, re.I) else "http://" + url
-    parts = urlsplit(u.replace("\\", "/"))  # a browser treats a backslash like a slash, so "evil.test\\.israelpost.co.il" goes to evil.test
+    parts = _split(u.replace("\\", "/"))  # a browser treats a backslash like a slash, so "evil.test\\.israelpost.co.il" goes to evil.test
     host = (parts.hostname or "").rstrip(".").lower()
     return host, "@" in parts.netloc
 
 
 def parse_path(url: str) -> str:
     u = url if re.match(r"^[a-z][a-z0-9+.-]*://", url, re.I) else "http://" + url
-    return urlsplit(u.replace("\\", "/")).path or "/"
+    return _split(u.replace("\\", "/")).path or "/"
 
 
 def _token_hit(host: str, tokens: list) -> bool:
