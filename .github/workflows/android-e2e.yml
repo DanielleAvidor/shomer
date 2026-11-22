@@ -7,6 +7,9 @@ on:
   push:
     paths: ["app/**", "tools/e2e/**", ".github/workflows/android-e2e.yml", "shomer/data/directory.json"]
 
+permissions:
+  contents: write
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -39,3 +42,14 @@ jobs:
         with:
           name: shomer-emulator-run
           path: e2e-out/
+      - name: Save the evidence in the repository (docs/proof)
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p docs/proof
+          cp e2e-out/*.png e2e-out/shomer-notifications.txt docs/proof/ 2>/dev/null || true
+          cp e2e-out/e2e.mp4 docs/proof/ 2>/dev/null || true
+          grep -E "ShomerE2E.*(verdict|sms received)" e2e-out/logcat.txt > docs/proof/app-decisions.txt 2>/dev/null || true
+          printf 'Run: %s\nCommit: %s\nEmulator: Android 13 (API 33), x86_64\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" > docs/proof/RUN.txt
+          git config user.name "github-actions"; git config user.email "actions@users.noreply.github.com"
+          git add docs/proof
+          git diff --cached --quiet || { git commit -m "Emulator evidence from run $GITHUB_RUN_ID [skip ci]"; git pull --rebase -q origin main; git push; }
