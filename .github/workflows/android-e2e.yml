@@ -43,7 +43,7 @@ jobs:
           name: shomer-emulator-run
           path: e2e-out/
       - name: Save the evidence in the repository (docs/proof)
-        if: always() && github.ref == 'refs/heads/main'
+        if: success() && github.ref == 'refs/heads/main'
         run: |
           mkdir -p docs/proof
           cp e2e-out/*.png e2e-out/shomer-notifications.txt docs/proof/ 2>/dev/null || true

@@ -42,3 +42,12 @@ echo "--- package receivers ---"; adb shell dumpsys package il.shomer | grep -iE
 sleep 2; kill $REC 2>/dev/null || true; sleep 3
 adb pull /data/local/tmp/e2e.mp4 "$OUT/e2e.mp4" || true
 echo "--- Shomer notifications ---"; cat "$OUT/shomer-notifications.txt"
+# The run fails unless the scam raised exactly one alert and the ordinary message raised none.
+FAIL=0
+ALERTS=$(grep -c "android.title=String (⛔" "$OUT/shomer-notifications.txt" || true)
+OTHER=$(grep -c "android.title=String (❓" "$OUT/shomer-notifications.txt" || true)
+[ "$ALERTS" = "1" ] || { echo "FAIL: expected exactly 1 alert for the scam SMS, saw $ALERTS"; FAIL=1; }
+[ "$OTHER" = "0" ] || { echo "FAIL: the ordinary message must not raise an alert, saw $OTHER"; FAIL=1; }
+[ -s "$OUT/crashes.txt" ] && { echo "FAIL: the app crashed"; cat "$OUT/crashes.txt" | head -20; FAIL=1; }
+[ "$FAIL" = "0" ] && echo "PASS: scam -> one alert, ordinary message -> none"
+exit $FAIL
