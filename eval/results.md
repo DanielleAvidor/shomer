@@ -1,8 +1,8 @@
 # Evaluation summary (synthetic corpus, regression check only)
 
-- Scam messages: 28; legitimate messages: 19 (12 contain a link or a named organization)
-- Scams not reported as 'matches official' (includes 'cant verify', so not a catch rate): 28/28
-- Scams hard-blocked with 'Don't click': 20/28
+- Scam messages: 36; legitimate messages: 19 (12 contain a link or a named organization)
+- Scams not reported as 'matches official' (includes 'cant verify', so not a catch rate): 36/36
+- Scams hard-blocked with 'Don't click': 25/36
 - Scams wrongly reported as 'matches official' (worst failure): 0
 - Legitimate messages wrongly told 'Don't click' (false alarms): 0/12
 - Legitimate messages told 'can't verify' (friction): 7/12
@@ -18,3 +18,6 @@
 - s19: critic: gov.il is shared, only the fines service path counts
 - s22: official domain but the message pressures and asks for card details: never reassure
 - e06: English, shortener hides the destination
+- s90: open redirect on an official domain is not a match
+- s91: dot-dot after the allowed path
+- s96: official link plus a payment request is not a match

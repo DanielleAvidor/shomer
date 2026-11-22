@@ -17,9 +17,14 @@ REC=$!
 adb shell am start -n il.shomer/.MainActivity; sleep 4
 adb exec-out screencap -p > "$OUT/01-app-home.png"
 
-send() { # $1 = sender, $2 = text, $3 = label
+send() { # $1 = sender, $2 = text, $3 = label, $4 = "expect" if Shomer should post a notification
   adb emu sms send "$1" "$2"
-  sleep 4
+  if [ "${4:-}" = "expect" ]; then   # the emulated modem is slow: wait until the notification is really there
+    for i in $(seq 1 45); do adb shell dumpsys notification --noredact | grep -q "pkg=il.shomer" && break; sleep 1; done
+    sleep 2
+  else
+    sleep 15
+  fi
   adb exec-out screencap -p > "$OUT/$3-heads-up.png"
   adb shell cmd statusbar expand-notifications; sleep 2
   adb exec-out screencap -p > "$OUT/$3-shade.png"
@@ -27,7 +32,7 @@ send() { # $1 = sender, $2 = text, $3 = label
 }
 adb shell input keyevent KEYCODE_HOME; sleep 1
 # 1. A scam: the Israel Post name, with a link that is not the official site. Should raise an alert.
-send 0501234567 'דואר ישראל: החבילה שלך נעצרה. אשר כתובת https://israelpost.paliet.top/il' 02-scam
+send 0501234567 'דואר ישראל: החבילה שלך נעצרה. אשר כתובת https://israelpost.paliet.top/il' 02-scam expect
 # 2. An ordinary message. Should stay quiet.
 send 0527654321 'אני מגיעה בשש, תשמרו לי מקום' 03-ordinary
 

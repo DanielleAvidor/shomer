@@ -1,12 +1,13 @@
-# Shomer (working title) — Product Requirements (v0.2 draft)
+# Shomer (working title) — Product Requirements (v0.3 draft)
 
-> Status: draft, with a working prototype (see section 12). Items marked **[Hypothesis]** are not validated yet. The name is a placeholder.
+> **Status (one line, used everywhere):** the engine, the 11 verified directory entries, the Hebrew web demo and the tests run; the Android app builds and passes its unit tests in CI, and on an emulator in CI a scam SMS raises one alert and an ordinary message raises none (evidence in `docs/proof/`). It has **not** run on a physical phone: the first real phone blocked the install (see section 9). There is no real-user data beyond three oral interviews in one family. Items marked **[Hypothesis]** are not validated. The name is a placeholder.
+
 
 ## 1. Problem
 
 **Who suffers and how.** Older adults in Israel receive phishing SMS and emails every week that impersonate institutions they know and trust (Kvish 6, GOV.IL, the police, the post office, banks, the Home Front Command). The messages look real, so many people click first and realize afterwards. Sender names can't be trusted: the National Cyber Directorate warned about fake Kvish 6 debt messages that appeared *inside an existing GOV.IL SMS thread*.
 
-**How big it is (evidence so far).** Source status is marked on each line; none of these figures was re-checked against the primary source by me.
+**How big it is: not known.** There is no primary-source sizing yet, so this document makes no market-size claim. What follows is context only; source status is marked on each line and none of these figures was re-checked against the primary source by me. The builder's own families reported roughly one suspicious message per month per person (section 14), which suggests the value is in the rare costly mistake rather than daily use.
 - **[Reported, secondary source]** In 2024 the Israel Police opened about 2,639 cases of suspected elder fraud, up roughly 27% year over year. The figure covers all fraud types, not only messages, and is likely an undercount because some victims don't report out of embarrassment. The Bank of Israel notes that fraudsters focus on people with low digital familiarity.
 - **[Unverified]** Local press, citing a security vendor's data, reports a sharp rise (hundreds of percent) in fake messages since the start of 2025. This is a secondary source and should be verified.
 - **[Assumption for Israel]** US data (FTC) shows that older adults tend to lose more money per incident, and are more exposed to government-impersonation scams than younger adults. To confirm for Israel.
@@ -62,7 +63,7 @@ The relative who today answers "is this real?". Working assumptions **[Hypothesi
 
 ## 3. Positioning
 
-**Positioning statement.** For older adults in Israel and the relatives who look out for them, who want to know whether a message is real before they tap, Shomer is a message checker that verifies the link against the official sources of the organization the message claims to come from, and takes the user straight to the real site or app. Unlike general scam detectors and spam filters, it verifies against an official source rather than guessing, speaks calm plain Hebrew, and keeps a family member in the loop.
+**Positioning statement.** For older adults in Israel and the relatives who look out for them, who want to know whether a message is real before they tap, Shomer is a message checker that verifies the link against the official sources of the organization the message claims to come from, and takes the user straight to the real site or app. Unlike general scam detectors and spam filters, it verifies against an official source rather than guessing, speaks calm plain Hebrew, and and, only if the older adult agrees, lets a relative know when it matters.
 
 ### Landscape (from desk research, not hands-on testing)
 
@@ -73,11 +74,12 @@ The relative who today answers "is this real?". Working assumptions **[Hypothesi
 | WhatsApp Scam Alert | On-device warning for messages from non-contacts. Limited beta (Aug 2026). | WhatsApp only; not SMS or email. |
 | Fisherman (Israeli) | Automatically filters phishing, spam and ads SMS into Junk on iPhone, tuned to Israeli message patterns. | Filters but (per its listing) doesn't explain, verify against the official site, or involve family. |
 | ScanMySMS (Israeli) | Free: upload a message or email to check whether a link is malicious. Claims 99% accuracy (unverified). | Manual "paste and ask" model; no passive protection, no family loop. |
+| Truecaller Scam Checker | Free web and Android tool launched in September 2026: paste a link, a phone number or a message and get checks plus community reports (TechCrunch, 2026-09-27); an Israeli outlet tested it on Hebrew Israel Post and Tax Authority lures (gadgety.co.il). Not tested hands-on by me. | Manual "paste and ask" model driven by a community database; I have not seen it check a link against the official domain of the organization the message names, or run in the background. Unverified. |
 | Security suites (e.g., ESET, NordVPN Message Protection) | Anti-phishing and message protection with Hebrew interfaces. | General-purpose, not designed for older adults or the family loop. |
 
 ### Differentiators to test (hypotheses)
 1. **Verify against an official source, then route to it.** A curated directory of Israeli institutions and a one-tap "open the official site or app".
-2. **Family loop.** The guardian sets it up and is informed when it matters.
+2. **Independence first, family loop optional.** [Hypothesis, weakened] All three people interviewed declined alerts about themselves (section 14), so the product leads with "the phone checks and warns me" and treats the family loop as an opt-in extra, not the core differentiator.
 3. **Designed for older adults.** Large text, one button, a calm tone.
 
 **Before claiming any difference publicly:** run the same real messages through ScanMySMS, Fisherman and Google Messages and record how each behaves.
@@ -99,8 +101,8 @@ Platform vendors are expanding built-in detection and will likely make basic det
 | US-2 | P0 | As an older adult, I can open the official site or app in one tap. | When the organization is in the directory, the alert has a button to its official URL. |
 | US-3 | P0 | As an older adult, a lookalike link is stopped. | Official domain used as a prefix/subdomain of another domain, `@` tricks, punycode, IP links and brand-token lookalikes all return "Don't click". |
 | US-4 | P0 | As the system, I never reassure on weak evidence. | A link may only return "matches official" if: its directory entry is `verified` with a source; the message itself names that same organization (a link never vouches for itself); a shared domain such as gov.il matches only on a listed path; and the message does not also ask the reader to phone a number. |
-| US-5 | P0 | As a guardian, I'm told when a high-confidence risky message arrives. | A "Don't click" verdict creates an immediate alert; other verdicts appear in the daily summary. |
-| US-6 | P0 | As an older adult, my messages stay private. | Message text is never stored or sent; only verdict, organization id and link host leave the phone, and only if a server address was configured with consent. |
+| US-5 | P2 (was P0) | As a guardian, I'm told when a high-confidence risky message arrives, **only if the protected person agreed**. | A "Don't click" verdict creates an alert only after on-screen consent. Demoted from P0 because the only evidence (three interviews, one family) shows people decline alerts about themselves. Built, but not part of the core promise. |
+| US-6 | P0 | As an older adult, my messages stay private. | Message text is never stored or sent by default; only verdict, organization id and link host leave the phone, and only if an HTTPS server address was configured with consent. The optional AI second opinion (section 13) is off by default and, if switched on, sends the message text to an outside service; it is not built. |
 | US-7 | P1 | As an older adult, I can share any message (WhatsApp, email) to the app to check it. | Android share target accepts plain text and shows the same verdict. |
 | US-8 | P1 | As a guardian, I can see what happened over time. | Family screen shows counts and recent events without message text. |
 | US-9 | P2 | As a guardian, I can add or correct a directory entry. | Not built; directory is edited by hand in v1. |
@@ -167,6 +169,7 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 - No scam reported as "matches official": **0** (hard requirement).
 - Scams reported as "Don't click" or "can't verify": **≥ 95%**.
 - Legitimate messages wrongly told "Don't click": **≤ 2%**.
+- **Hard rule:** an official domain plus any request for payment, personal details or a call is never "matches official" (enforced in the engine since the third review round).
 - Time from message arrival to verdict: **< 1 s** on the family's phones.
 
 **Behavior (with real users, 4 weeks):**
@@ -174,7 +177,7 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 - Manual "is this real?" questions to the guardian: **down by at least a third**.
 - Comprehension: **at least 4 of 5** older adults can explain in their own words what to do after a "Don't click" alert.
 
-**Current status:** the synthetic regression corpus (written by the author, modeled on published examples, 8 added after the adversarial review) passes (run `python eval/run_eval.py` for the current count): 0 scams reported as matching, 0 false "Don't click" on legitimate messages. This is **not** the quality measurement above; it only guards against regressions (`eval/results.md`). Note on the target arithmetic: 0 misses out of 25 scams is still consistent with a true miss rate of up to about 12%, so the real test set needs enough scams to make the 95% target meaningful.
+**Current status (synthetic corpus, `python eval/run_eval.py`):** 55 messages written by the author, modeled on published examples (36 scams, 19 legitimate, 12 of those with a link or a named organization). Scams wrongly reported as "matches official": **0/36**. Scams hard-blocked with "Don't click": **25/36**; the other 11 are "can't verify". With the SMS alert policy, **34/36** scams raise an alert in SMS and **17/36** in a chat app (the chat policy is deliberately stricter). Legitimate messages told "Don't click": **0/12**; told "can't verify": **7/12** (friction); confirmed as matching the official site: **5/12**; **4/19** legitimate messages still raise an SMS alert. These numbers are a regression guard, **not** the quality measurement above: the corpus was written by the same person who wrote the rules, and 0 misses in 36 scams is still consistent with a true miss rate of roughly 8%. "0/36 matches official" counts "can't verify" as a pass, so it is not a catch rate.
 
 ## 8. Validation plan
 
@@ -182,14 +185,15 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 2. Short conversations with 5 older adults and 5 adult children: how do they decide today, what do they do after a click, what wording would they trust.
 3. Test the alert text and design with a real user for comprehension (large text, Hebrew).
 4. Document what changed in the product because of what was learned.
-5. Hands-on comparison: run the same 20 messages through ScanMySMS, Fisherman, Google Messages and this prototype, and record verdicts side by side.
+5. Hands-on comparison: run the same 20 messages through ScanMySMS, Fisherman, Truecaller Scam Checker, Google Messages and this prototype, and record verdicts side by side.
+6. **Riskiest assumption, one-week test (not run).** The assumption: an older adult who has never seen the product can install it and understand an alert on her own. Test: 5 older adults, **3 of them outside the builder's family**, each installs the app alone (timed) and receives one fake scam SMS; ask her to say in her own words what to do. Fail if fewer than 3 of 5 explain it correctly, or if 4 of 5 cannot install it without help. Until this is done, "validated" is not claimed anywhere.
 
 **Decision criterion.** Continue investing only if the quality targets in section 7 are met on the real message set **and** at least 3 of 5 older adults understand the alert. If the quality targets pass but comprehension fails, redesign the alert before anything else. If real messages show most scams have no link (phone numbers, "reply to this number"), pivot the next version toward those before expanding platforms.
 
 ## 9. Risks and open questions
 
 - **False alarms and false reassurance.** Too many alerts cause fatigue, and a wrong "fine" can cost money. Mitigation: conservative language, three states, escalation.
-- **Android permission and distribution constraints.** Reading SMS and notifications requires sensitive permissions, and installing outside the Play Store adds friction. **[Verify during build]**
+- **Distribution is blocked on real phones (observed, 2026-11-22).** The first real phone tried (a Google phone, Android with Play Protect) refused the sideloaded APK with "App blocked to protect your device: this app can request access to sensitive data", and the install still failed after Play Protect app scanning was switched off. An app that reads SMS or notifications and is not from the Play Store may not be installable on current phones at all. Google Play restricts SMS permissions to default SMS apps, so a public release needs another route (for example the Share-to-Shomer and paste flow, a Play-approved notification-listener declaration, or a family build installed over a cable with `adb`). Until a route is proven on a physical phone, v1 may reduce to paste and share. On an emulator the background alert works (`docs/proof/`).
 - **Gmail access** for a non-published app may be limited to test users **[verify]**.
 - **Privacy and consent.** Messages are personal data. Needs a clear consent model and data minimization.
 - **Platform competition.** Google and WhatsApp are building scam alerts. Differentiate on Israel-specific coverage, Hebrew, the family loop, and the official-route action.
@@ -206,25 +210,25 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 ## 11. Data sources
 
 - Public warnings from Israel's National Cyber Directorate and the police (as reported by Israeli media).
-- Official websites and apps of the organizations in the directory (each entry carries its source and a `verified` flag in `shomer/data/directory.json`).
+- Official websites and apps of the organizations in the directory. Each entry carries a `verified` flag and a check date in `shomer/data/directory.json`. **Limitation:** the entries do not yet carry a per-entry source URL, so a reader cannot re-check them independently; adding them is the next data task. A directory test checks that every verified entry has a check date and that the Python and Android copies are identical.
 - Consented example messages from users (not yet collected).
 
 ## 12. Build status (prototype)
 
 **Second round.** After the redesign (stamp-style result, new signals, family and setup screens) three agents ran again: the simulated older adult, the simulated young user, and an adversarial tester for the new content rules (reports in the review log folder when available). Results are summarized in the README.
 
-**Review log.** Five review agents (designer, hiring-manager, product critic, simulated older adult, simulated young user) ran against the repo. Changes made because of them: links no longer vouch for their own organization; shared gov.il restricted to a path; brand matching no longer fires inside unrelated words; app-store links neutral; phone numbers downgrade a match; a match is shown in calm blue with a link icon instead of a green check (a simulated older adult read green as "safe"); the recommended action now comes first; plainer Hebrew ("לא הצלחנו לבדוק" instead of "אי אפשר לאמת"); paste instructions; no external font request. Open items from the reviews: the problem statistics need source links; 5 real conversations and a real incident are still missing; the Android app is uncompiled; the simulated users' findings need confirmation with real older adults.
+**Review log.** Five review agents (designer, hiring-manager, product critic, simulated older adult, simulated young user) ran against the repo. Changes made because of them: links no longer vouch for their own organization; shared gov.il restricted to a path; brand matching no longer fires inside unrelated words; app-store links neutral; phone numbers downgrade a match; a match is shown in calm blue with a link icon instead of a green check (a simulated older adult read green as "safe"); the recommended action now comes first; plainer Hebrew ("לא הצלחנו לבדוק" instead of "אי אפשר לאמת"); paste instructions; no external font request. Open items from the reviews: the problem statistics need source links; 5 real conversations and a real incident are still missing; the simulated users' findings need confirmation with real older adults.
 
 
 | Part | Status |
 |---|---|
-| Verification engine (Python) | Built, tests passing (`python -m pytest`). Checks link destination and message content (urgency, threats, requests for card details or codes, prizes, family impersonation); scams without a link are now caught |
-| Trusted Directory | Only entries marked verified can produce "matches official": currently Israel Post, Carmel Tunnels and the police fines service on one gov.il path. Home Front Command, Kvish 6, the banks, Bit, National Insurance and other organizations are kept so lookalikes can be caught, but are unverified until someone confirms their domain from an official source |
-| Web demo (Hebrew, RTL) | Built and exercised in a browser on phone and desktop widths: check screen with stamp-style result, share to WhatsApp, save as picture; family screen with alerts and "handled"; one-time setup with consent |
-| Android app (Kotlin) | **Source written, not compiled or run**: no Android SDK in the build environment. Needs a first build in Android Studio |
-| Real-message evaluation, interviews, user comprehension test | **Not started**; requires the builder's family |
+| Verification engine (Python) | Built, 158 tests passing (`python -m pytest`), run in CI on every push. Checks link destination and message content (urgency, threats, requests for card details or codes, prizes, payment, family impersonation). Hardened after the third review: open redirects and `..` paths on official domains, odd characters in hosts, IPv6, Cyrillic lookalikes in bare domains, letters spread with spaces, fullwidth letters, slow patterns, very long text |
+| Trusted Directory | 11 of 16 entries verified: Israel Post, Carmel Tunnels, the police fines service (one gov.il path), Bank Leumi, Bank Hapoalim, Discount, Mizrahi-Tefahot, National Insurance, Israel Electric Corporation, Clalit, Maccabi. Unverified (kept so lookalikes can be caught): Kvish 6, Bit, PayPal, Tax Authority, Home Front Command |
+| Web demo (Hebrew, RTL) | Built and exercised in a browser at phone and desktop widths. A static copy for GitHub Pages is built from the real engine (`tools/build_demo.py`); it can check only the example messages |
+| Android app (Kotlin) | Builds and passes unit tests in CI; the Kotlin engine matches the Python engine on 490 messages (`tools/kotlin-parity`); on an Android 13 emulator in CI one scam SMS raises one alert and an ordinary one none (`docs/proof/`). Running it on the emulator found two crashes that unit tests could not see (Android's regex differs from the JVM's). **Not run on a physical phone** |
+| Real-message evaluation, interviews, user comprehension test | Not started beyond three oral interviews in one family; see section 8 |
 
-Open technical questions for the Android build: does a sideloaded app keep `RECEIVE_SMS` without Play restrictions; behavior of Android's "restricted settings" for sideloaded apps; Gmail API access for a non-published app.
+Open technical questions for the Android build: whether any installable route exists on current phones (section 9); behavior of Android's "restricted settings" for sideloaded apps; Gmail API access for a non-published app.
 
 
 ## 13. Roadmap: optional AI second opinion (groundwork built, feature not built)
@@ -286,7 +290,7 @@ Whether the app should check automatically on Android (needs the Android build),
 
 ## 16. QA round on the interface
 
-A tester agent (role-play, not real users) ran the web demo at three screen sizes and reported 4 major and about 15 smaller findings. Fixed: Russian and Arabic text was shown as "nothing suspicious" and now says the language is not supported; on small phones the result could be off-screen for harmless messages and empty input; with several links only the first host was shown, now the dangerous one; when the server was down the screen stayed silent, now it says so and the button shows it is working; the main button text was clipped at 360px; the selected yes/no button was barely visible; input border contrast raised from 2.8:1 to 4.0:1; Ctrl+Enter submits. The "nothing suspicious" headline now carries the caveat itself.
+A tester agent (role-play, not real users) ran the web demo at three screen sizes and reported 4 major and about 15 smaller findings. Fixed: Russian and Arabic text was shown as "nothing suspicious" and now says the language is not supported; on small phones the result could be off-screen for harmless messages and empty input; with several links only the first host was shown, now the dangerous one; when the server was down the screen stayed silent, now it says so and the button shows it is working; the main button text was clipped at 360px; the selected yes/no button was barely visible; input border contrast raised from 2.8:1 to 4.0:1; Ctrl+Enter submits. The headline for a message with nothing to check now reads as "could not check" with the caveat inside it.
 
 **Still open.** On a dangerous result the main action button is near the bottom of a long page (about 2,400px on a small phone); moving it up is a layout decision to test with real users. Tabs have no arrow-key support. The saved image has empty space. Pasting always runs the check at once. Not tested: real clipboard, WhatsApp, screen readers, Safari/Firefox, the Android app.
 
@@ -298,11 +302,11 @@ A tester agent (role-play, not real users) ran the web demo at three screen size
 
 **Channels.** SMS (receiver) and, through notification access, WhatsApp, Telegram, Gmail and Messenger. Not possible on iPhone.
 
-**Alert policy (a product decision, not a technical one).** The cost of a false alarm is that people stop trusting the app, so the agent is quiet by default: for SMS it alerts on "don't click", and on "can't verify" only when a known organization is named and the message has a link or pushes; in chat apps only on a high-confidence "don't click" that also pushes or imitates a known organization, because people share links and mention banks there all the time (a deliberate trade of some misses for trust). It never alerts on "matches official" and never reassures. Family alerts stay opt-in and high-confidence only.
+**Alert policy (a product decision, not a technical one).** The cost of a false alarm is that people stop trusting the app, so the agent is quiet by default: for SMS it alerts on "don't click", and on "can't verify" when a known organization is named and the message has a link or pushes, or when a link to an unknown site comes with a threat, a request for secrets, a prize, an install request or a payment; in chat apps only on a high-confidence "don't click" that also pushes or imitates a known organization, because people share links and mention banks there all the time (a deliberate trade of some misses for trust). It never alerts on "matches official" and never reassures. Family alerts stay opt-in and high-confidence only.
 
 **Risks and open questions.**
 - The permission is broad (all notifications) even though only a few apps are read. The consent text must say so, and the app must show plainly whether it is on.
-- Not tested on a device. Notification previews may truncate long messages.
+- Tested on an emulator in CI, not on a physical phone. Notification previews may truncate long messages.
 - Distribution: the Play Store limits both SMS and notification access, so this is a family install for now.
 - Success measure to define with real users: alerts per week per person, share of alerts judged useful, and whether she stops forwarding messages to family.
 
@@ -310,8 +314,40 @@ A tester agent (role-play, not real users) ran the web demo at three screen size
 
 The demo's first screen is a simulated phone lock screen, not a text box and not an app screen. Sample messages arrive on their own (about one every four seconds). Shomer checks each through the same alert policy as section 17. A quiet message just sits there as the ordinary notification it is; a risky one gets a red Shomer notification right under it, which is what the Android app does (a high-priority notification). Nothing has to be opened to see the warning; tapping it opens the full explanation. Pasting remains as a second, manual tab. This follows the interview feedback that a tool she must remember to open does not replace help from family.
 
-What it shows and what it does not: the nine sample messages were written by me and Claude to cover the cases (a friend's link, a lookalike post office, a family group, an official message, a "hi grandma" request, a bank code, a toll lookalike, a family reminder, a bank phone number). Four alert and five stay quiet. That shows the policy, not its accuracy on real traffic, and the notification is a drawing of what the Android app would post, which has not run on a phone yet.
+What it shows and what it does not: the nine sample messages were written by me and Claude to cover the cases (a friend's link, a lookalike post office, a family group, an official message, a "hi grandma" request, a bank code, a toll lookalike, a family reminder, a bank phone number). Four alert and five stay quiet. That shows the policy, not its accuracy on real traffic, and the lock-screen notification in the demo is a drawing; the real notification is shown by the emulator evidence in `docs/proof/`, which is not a physical phone.
 
 ## 19. How this was built and what was cut
 
 Direction, research and product rules are mine; Claude wrote the code and first drafts. Simulated-user reviews found real bugs but are not user research. The only user evidence is three oral interviews in one family. What I cut on purpose: AI-decided verdicts, an agent that signs in to accounts, iPhone background checking, full WhatsApp reading, any "safe" badge, and more directory entries than I could verify. See the README for the short version.
+
+
+## 20. Threat model
+
+**What is protected.** The older adult's money and credentials; her trust in the alert (an alert that cries wolf is switched off, an "all clear" that is wrong is worse); the privacy of her messages.
+
+**Adversary.** A scammer who sends SMS or chat messages at scale, impersonating an organization or a relative, and who can read this project's public rules and test messages against them. Not in scope: malware on the phone, a compromised official site, targeted attacks on one person.
+
+**Trust boundaries.** (1) The message text is untrusted input to the engine. (2) `directory.json` is the only source of "official" and is trusted: a wrong entry would make a scam "match official". Entries are changed by hand in a reviewed commit; there is no automatic update, no signing, and no per-entry source URL yet. (3) The optional family server receives only verdict, organization id and link host over HTTPS; the local demo server accepts only `localhost` Host and Origin headers.
+
+**Evasions tried in the third review, and the status.**
+
+| Evasion | Status |
+|---|---|
+| Lookalike domains, subdomain prefixes, `@` tricks, punycode, IP links, backslash hosts | Caught (tests) |
+| Open redirect on an official domain (`?url=https://evil`) | Now "can't verify", never a match |
+| `..` or encoded `%2f` in a restricted path | Path is normalized before it is compared |
+| NUL, control or invisible characters in a host; ideographic dots; IPv6 literals | Now "don't click" |
+| Cyrillic letter in a scheme-less domain | Now "don't click" |
+| Letters spread with spaces; fullwidth and math letters | Undone before matching |
+| Very long or pathological text (quadratic regexes found: up to 18 s on 32,000 characters) | Patterns fixed; input capped at 20,000 characters; a test sets a one-second budget |
+| A scam that names no organization | SMS alerts if it has a link and a push; chat stays quiet by design |
+| Scams with no link (callback numbers, QR codes) | Partly caught by content signals; not reliably. Open |
+| Redirectors and shorteners | Shorteners are "can't verify"; the final destination is not followed (no network in the engine). Open |
+| A scam that mentions an organization Shomer does not know | Not caught as a lookalike; "can't verify" only. Open |
+| Homoglyph leetspeak (`Leum1`) | Open |
+
+**What the product never does:** say a message is safe. An official match is shown as "the address is official, this is not confirmation of the message"; a message with nothing to check is shown as "could not check".
+
+## 21. Review rounds
+
+Round 3 (2026-11-22): five role-play reviewers (QA engineer, product critic, hiring manager, security engineer, designer) wrote 72 rejects between them; the reports are in `docs/reviews/`. Role-play reviewers are a way to find bugs and weak claims quickly; they are **not** user research. What changed because of them is listed in the commit history and in sections 6 to 12, 17 and 20. The rejects that need real people (research, distribution on a physical phone) are not closed.
