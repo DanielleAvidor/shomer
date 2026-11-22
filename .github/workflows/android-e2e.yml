@@ -5,7 +5,7 @@ name: Android on an emulator
 on:
   workflow_dispatch:
   push:
-    paths: ["tools/e2e/**", ".github/workflows/android-e2e.yml"]
+    paths: ["app/**", "tools/e2e/**", ".github/workflows/android-e2e.yml", "shomer/data/directory.json"]
 
 jobs:
   e2e:
