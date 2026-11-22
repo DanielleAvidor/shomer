@@ -1,4 +1,4 @@
-    NotificationRecord(0x0c3849db: pkg=il.shomer user=UserHandle{0} id=70191665 tag=null importance=4 key=0|il.shomer|70191665|null|10174: Notification(channel=shomer_checks shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0x00000000 actions=1 vis=PRIVATE))
+    NotificationRecord(0x00eaf1c9: pkg=il.shomer user=UserHandle{0} id=70925439 tag=null importance=4 key=0|il.shomer|70925439|null|10174: Notification(channel=shomer_checks shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0x00000000 actions=1 vis=PRIVATE))
       icon=Icon(typ=RESOURCE pkg=il.shomer id=0x01080027)
                 android.title=String (⛔ אל תלחצו על הקישור)
                 android.text=String (הכתובת מנסה לחקות את דואר ישראל אבל היא לא האתר שלהם)
@@ -8,6 +8,3 @@
                 android.bigText=String (Messages is processing an incoming message)
                 android.title=String (Serial console enabled)
                 android.text=String (Performance is impacted. To disable, check bootloader.)
-                android.title=null
-                android.text=String (Messages is processing an incoming message)
-                android.bigText=String (Messages is processing an incoming message)
