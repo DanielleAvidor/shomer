@@ -267,3 +267,58 @@ def test_stray_brackets_in_a_link_never_crash():
     for t in ["https://[192.168.1.1:80/x", "דואר ישראל https://israelpost.co.il[.]evil.top/a", "x http://]a[b/c", "http://[::1"]:
         r = E.check(t)
         assert r.verdict is not Verdict.MATCHES_OFFICIAL
+
+
+# ---- findings from the five-person review (docs/reviews) ------------------------------------------------------------
+
+def test_open_redirect_on_an_official_domain_is_not_a_match():
+    r = E.check("בנק לאומי https://leumi.co.il/redirect?url=https://evil.test")
+    assert r.verdict is Verdict.CANT_VERIFY
+
+
+def test_dot_dot_in_a_restricted_path_does_not_pass():
+    r = E.check("משטרת ישראל https://www.gov.il/he/service/enforcement-reports/../../x")
+    assert r.verdict is not Verdict.MATCHES_OFFICIAL
+    assert E.check("משטרת ישראל https://www.gov.il/he/service/enforcement-reports%2f..%2f..%2fx").verdict is not Verdict.MATCHES_OFFICIAL
+
+
+def test_letters_spread_with_spaces_still_name_the_organization():
+    r = E.check("ב נ ק לאומי: חשבונך ייחסם https://evil.test/x")
+    assert "bank_leumi" in r.claimed_orgs and r.verdict is Verdict.DONT_CLICK
+
+
+def test_fullwidth_letters_are_read_as_ordinary_letters():
+    assert "bank_leumi" in E.check("בנק ＬＥＵＭＩ חשבונך ייחסם https://evil.test").claimed_orgs
+
+
+def test_odd_characters_in_a_host_are_never_official():
+    for t in ["בנק לאומי https://leumi.co.il%00.evil.test/x", "בנק לאומי https://evil。test/x",
+              "בנק לאומי https://evil.top‏.leumi.co.il/x", "בנק לאומי https://[::1]/x"]:
+        assert E.check(t).verdict is Verdict.DONT_CLICK, t
+
+
+def test_a_foreign_script_letter_glued_to_a_bare_domain_is_a_lookalike():
+    r = E.check("בנק לאומי: אשרו аleumi.co.il/login")  # the first letter is Cyrillic
+    assert r.verdict is Verdict.DONT_CLICK
+
+
+def test_a_domain_at_the_end_of_a_sentence_is_still_a_link():
+    assert [l.host for l in E.check("לאתר evil.com. חשבונך ייחסם").links] == ["evil.com"]
+
+
+def test_official_link_with_a_payment_or_prize_request_is_not_a_match():
+    for t in ["דואר ישראל: שלמו 9.90 ש\"ח https://israelpost.co.il/pay", "דואר ישראל: זכיתם בשובר https://israelpost.co.il/win"]:
+        assert E.check(t).verdict is not Verdict.MATCHES_OFFICIAL, t
+
+
+def test_pathological_input_is_fast():
+    import time
+    for t in ["0501" * 15000, "1,2,3 " * 10000, "a " * 30000, "שלום " * 20000]:
+        t0 = time.time()
+        E.check(t)
+        assert time.time() - t0 < 1.0
+
+
+def test_a_message_longer_than_the_cap_is_never_a_match():
+    r = E.check("דואר ישראל https://israelpost.co.il/track " + "שלום " * 5000)
+    assert r.verdict is not Verdict.MATCHES_OFFICIAL and any("ארוכה" in x for x in r.reasons_he)

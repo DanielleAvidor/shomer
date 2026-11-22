@@ -439,14 +439,14 @@
       "id": "prize",
       "kind": "pressure",
       "weight": 2,
-      "pattern": "זכית|זכיתם|זכיה|זכייה|הוגרלת|החזר (?:כספי|מס|ארנונה)|הגרלה|מתנה|שובר|you(?:'ve| have)? won|claim your (?:prize|reward|gift)|gift card|free gift|congratulations[^.\\n]{0,40}(?:won|win|selected|prize|reward|chosen)|you(?:'ve| have)? been (?:selected|chosen)|lottery|prize draw|(?:tax )?refund (?:of|is|available|pending)|(?:eligible|entitled) (?:for|to) (?:a |your )?(?:refund|reward|prize|compensation)|выигр\\w+|вы победили|лотере\\w+|ربحت|فزت|جائزة|earn \\$?\\d+[^.\\n]{0,15}(?:a|per) day|להרוויח[^.\\n]{0,15}\\d+|\\d+ ?(?:שקל|ש\\\\\\\"ח|₪)? ?ביום|רווח מובטח|guaranteed (?:profit|returns?)",
+      "pattern": "זכית|זכיתם|זכיה|זכייה|הוגרלת|החזר (?:כספי|מס|ארנונה)|הגרלה|מתנה|שובר|you(?:'ve| have)? won|claim your (?:prize|reward|gift)|gift card|free gift|congratulations[^.\\n]{0,40}(?:won|win|selected|prize|reward|chosen)|you(?:'ve| have)? been (?:selected|chosen)|lottery|prize draw|(?:tax )?refund (?:of|is|available|pending)|(?:eligible|entitled) (?:for|to) (?:a |your )?(?:refund|reward|prize|compensation)|выигр\\w+|вы победили|лотере\\w+|ربحت|فزت|جائزة|earn \\$?\\d+[^.\\n]{0,15}(?:a|per) day|להרוויח[^.\\n]{0,15}\\d+|(?<!\\d)\\d+ ?(?:שקל|ש\\\\\\\"ח|₪)? ?ביום|רווח מובטח|guaranteed (?:profit|returns?)",
       "he": "ההודעה מבטיחה כסף או פרס, וזה סימן נפוץ להונאה"
     },
     {
       "id": "payment",
       "kind": "money",
       "weight": 1,
-      "pattern": "שלמו|לשלם|תשלום|בביט|בפייבוקס|paybox|העברה בנקאית|(?:pay|payment of)[^.\\n]{0,30}(?:fee|fine|customs|delivery)|customs fee|delivery fee|unpaid|send (?:me )?money|wire (?:me|the|us)|bank transfer|transfer (?:the )?(?:money|funds|payment)|pay(?:ment)? (?:now|today|immediately|the (?:fee|fine|invoice|balance|toll))|western union|crypto|bitcoin|usdt|\\bbit\\b app|pay ?box|small (?:fee|charge)|\\d[\\d.,]* ?(?:nis|ils|shekels?|₪) (?:fee|fine|charge|payment)|переведите|оплатите|оплата|ادفع|حول المبلغ|scan (?:the )?qr|סרקו (?:את )?(?:ה)?(?:קוד|QR|ברקוד)",
+      "pattern": "שלמו|לשלם|תשלום|בביט|בפייבוקס|paybox|העברה בנקאית|(?:pay|payment of)[^.\\n]{0,30}(?:fee|fine|customs|delivery)|customs fee|delivery fee|unpaid|send (?:me )?money|wire (?:me|the|us)|bank transfer|transfer (?:the )?(?:money|funds|payment)|pay(?:ment)? (?:now|today|immediately|the (?:fee|fine|invoice|balance|toll))|western union|crypto|bitcoin|usdt|\\bbit\\b app|pay ?box|small (?:fee|charge)|(?<![\\d.,])(?<![\\d.,])\\d[\\d.,]* ?(?:nis|ils|shekels?|₪) (?:fee|fine|charge|payment)|переведите|оплатите|оплата|ادفع|حول المبلغ|scan (?:the )?qr|סרקו (?:את )?(?:ה)?(?:קוד|QR|ברקוד)",
       "he": "ההודעה מבקשת תשלום"
     },
     {

@@ -18,6 +18,9 @@ E = Engine()
     ("היי אמא, זה המספר החדש שלי, הטלפון נפל ונשבר. אפשר להעביר לי דחוף 2,500 שקל? אחזיר מחר", True, True),
     ("בנק לאומי: קוד האימות שלך הוא 482913. אל תמסור אותו לאף אחד, גם לא לנציג הבנק.", False, False),
     ("אפשר להעביר ביט 50 ש\"ח על הקפה?", True, False),
+    ("החבילה שלך ממתינה https://evil.xyz/pay שלמו", False, True),      # no organization named, but a link and a payment push
+    ("החבילה שלך ממתינה https://evil.xyz/pay שלמו", True, False),      # chat: stays quiet
+    ("ראית את הכתבה? https://example.org/post", False, False),         # a link alone is not enough
 ])
 def test_alert_policy(text, strict, expected):
     assert should_alert(E.check(text), strict) is expected, text

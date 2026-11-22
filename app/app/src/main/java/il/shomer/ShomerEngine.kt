@@ -121,13 +121,17 @@ class ShomerEngine(directoryJson: String) {
         val claimedIds = claimed.map { it.id }.toSet()
         val reasons = mutableListOf<String>()
         if (host.isEmpty()) return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("לא הצלחנו לקרוא את כתובת הקישור"))
+        if (Regex("[\\u0000-\\u0020%]").containsMatchIn(host))
+            return LinkReport(url, host, Verdict.DONT_CLICK, listOf("בכתובת יש תווים מוסווים שמסתירים לאן הקישור באמת פותח"))
         if (userinfo) reasons.add("הקישור משתמש בטריק של הסימן @ כדי להסוות לאן הוא באמת פותח")
-        if (IP_RE.matches(host)) return LinkReport(url, host, Verdict.DONT_CLICK, reasons + "הקישור פותח למספר ולא לכתובת אתר רגילה")
+        if (IP_RE.matches(host) || ':' in host) return LinkReport(url, host, Verdict.DONT_CLICK, reasons + "הקישור פותח למספר ולא לכתובת אתר רגילה")
         if (host in neutral)
             return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + "זה קישור לחנות אפליקציות ולא לאתר של השולח, ולכן לא בדקנו אותו")
         val match = officialMatch(host)
         if (match != null && !userinfo) {
             val (official, matched) = match
+            if (REDIRECT_TAIL.containsMatchIn(parseTail(url)))
+                return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("הכתובת היא של ${official.nameHe}, אבל היא כוללת הפניה לכתובת אחרת, ולא ראינו לאן היא מובילה"), official.id)
             val prefixes = official.restrictedPaths[matched]
             if (!prefixes.isNullOrEmpty() && prefixes.none { parsePath(url).startsWith(it) })
                 return LinkReport(url, host, Verdict.CANT_VERIFY, listOf("הכתובת היא של אתר ממשלתי כללי ($matched), ולא הצלחנו לוודא שהדף הזה שייך לגוף ששלח את ההודעה"))
@@ -165,12 +169,17 @@ class ShomerEngine(directoryJson: String) {
     }
 
     fun check(rawText: String): CheckResult {
-        val text = prepare(rawText)
+        val hidden = URL_RE.findAll(pre(rawText)).map { it.value }.filter { INVISIBLE.containsMatchIn(it) }.toList()
+        var text = prepare(rawText)
+        val tooLong = text.length > MAX_CHARS
+        if (tooLong) text = text.substring(0, MAX_CHARS)
         val urls = extractUrls(text)
         val claimed = claimedOrgs(text)
         val leftover = URL_RE.replace(text, " ").trim(' ', '\n', '\t', '.', ',', ':', ';', '-')
         val linkOnly = urls.isNotEmpty() && leftover.length <= 3
-        val reports = urls.map { analyzeLink(it, claimed, linkOnly) }
+        val reports = urls.map { analyzeLink(it, claimed, linkOnly) }.toMutableList()
+        for (h in hidden) // invisible characters inside an address: prepare() removed them, but a real address never has them
+            reports.add(LinkReport(h, parseHost(INVISIBLE.replace(h, "")).first, Verdict.DONT_CLICK, listOf("בכתובת יש תווים בלתי נראים שמסתירים לאן הקישור באמת פותח")))
         val body = URL_RE.replace(normalize(text), " ").lowercase()
         val badTld = reports.any { it.host.isNotEmpty() && it.host.substringAfterLast('.') in badTlds }
         val sigs = signals.filter { it.rx.containsMatchIn(body) }
@@ -193,10 +202,14 @@ class ShomerEngine(directoryJson: String) {
                 verdict = Verdict.CANT_VERIFY; downgraded = true
                 reasons.add("ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
             }
-            if ("credentials" in ids || "install" in ids || pressure.size >= 2) {
+            if (ids.any { it in setOf("credentials", "install", "payment", "prize", "family", "threat") } || pressure.size >= 2) {
                 verdict = Verdict.CANT_VERIFY; downgraded = true
                 reasons.add("הכתובת תואמת, אבל ההודעה מלחיצה או מבקשת פרטים. גופים רשמיים לא עושים את זה בהודעה")
             }
+        }
+        if (tooLong) {
+            if (verdict == Verdict.MATCHES_OFFICIAL) { verdict = Verdict.CANT_VERIFY; downgraded = true }
+            reasons.add("ההודעה ארוכה מאוד, ובדקנו רק את תחילתה")
         }
         // An unverifiable link plus a pushy message is treated as a scam.
         if (verdict == Verdict.CANT_VERIFY && urls.isNotEmpty() && (score >= 3 || (score >= 2 && badTld)) && !downgraded) verdict = Verdict.DONT_CLICK
@@ -227,8 +240,8 @@ class ShomerEngine(directoryJson: String) {
         }
         var unsupported = false
         if (!applicable) {
-            headline = "לא מצאנו סימן חשד, אבל זה לא אישור"
-            advice = "לא מצאנו כאן קישור או בקשה חשודה. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
+            headline = "לא הצלחנו לבדוק. אין בהודעה קישור או בקשה, וזה לא אישור"
+            advice = "אין בהודעה קישור או בקשה שאפשר לבדוק. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
             reasons.removeAll { it.startsWith("אין בהודעה") }
             val letters = text.count { Character.isLetter(it) }
             val foreign = text.count { it in '\u0400'..'\u04FF' || it in '\u0600'..'\u06FF' }
@@ -262,9 +275,9 @@ class ShomerEngine(directoryJson: String) {
             Pattern.compile("a", f); f
         } catch (e: Throwable) { 0 }
 
-        // The lookarounds are ASCII only: a Hebrew letter glued to an address must not hide it.
+        // A Hebrew letter glued to an address must not hide it, but a letter of another script (Cyrillic "а" for "a") is part of the host.
         private val URL_RE = unicodeRegex(
-            """(?:https?://|www\.)[^\s<>"'־״]+|(?<![a-z0-9@._-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>"']*)?(?![a-z0-9._-])""",
+            """(?:https?://|www\.)[^\s<>"'־״]+|(?<![-_@.])(?<![^\s!-,./:-@\[-^`{-~_א-ת־״])[^\s!-,./:-@\[-^`{-~_א-ת־״]+(?:\.[^\s!-,./:-@\[-^`{-~_א-ת־״]+)*\.[a-z]{2,24}(?:/[^\s<>"']*)?(?![a-z0-9_-])(?!\.[a-z0-9])""",
         )
         private val PHONE_RE = unicodeRegex(
             """(?<![\d*])0(?:5\d|[2-489]|7\d)[-\s]?\d{3}[-\s]?\d{4}(?!\d)""" +
@@ -278,17 +291,50 @@ class ShomerEngine(directoryJson: String) {
         private val CODE_WARN = unicodeRegex("""אל (?:ת)?(?:מסור|שתף|שלח|גל|ספר|תגיד)|לעולם|לא (?:מבקש|נבקש)""", ignoreCase = false)
 
         /** Undo tricks that hide an address: invisible direction marks, "hxxps" and "[.]" defanging. */
+        fun pre(text: String): String {
+            // Fullwidth and math-alphabet letters become ordinary letters, one code point at a time so the "…" of a cut preview stays one character.
+            val sb = StringBuilder(text.length)
+            var i = 0
+            while (i < text.length) {
+                val cp = text.codePointAt(i); val n = Character.charCount(cp)
+                val ch = text.substring(i, i + n)
+                sb.append(if (cp == 0x2026) ch else java.text.Normalizer.normalize(ch, java.text.Normalizer.Form.NFKC))
+                i += n
+            }
+            return sb.toString()
+        }
+
         fun prepare(text: String): String =
-            INVISIBLE.replace(text, "").replace(Regex("hxxp", RegexOption.IGNORE_CASE), "http").replace(Regex("""\[\.\]|\(\.\)|\{\.\}"""), ".")
+            CONTROL.replace(INVISIBLE.replace(pre(text), ""), "").replace("\u3002", ".").replace("\uff61", ".")
+                .replace(Regex("hxxp", RegexOption.IGNORE_CASE), "http").replace(Regex("""\[\.\]|\(\.\)|\{\.\}"""), ".")
+        private val CONTROL = Regex("[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]")
+        const val MAX_CHARS = 20000 // longer messages are cut for analysis and never reach "matches official"
+        private val REDIRECT_TAIL = Regex("(?:https?:)?//|https?%3a|%2f%2f|%5c%5c", RegexOption.IGNORE_CASE)
         private val IP_RE = Regex("""^\d{1,3}(\.\d{1,3}){3}$""")
         private val TRAILING = charArrayOf('.', ',', ';', ':', '!', '?', ')', ']', '}', '״', '"', '\'')
         private val SECOND_LEVEL = setOf("co.il", "org.il", "gov.il", "muni.il", "ac.il", "net.il", "k12.il")
 
+        private fun afterScheme(url: String) = url.replace('\\', '/').replace(Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "")
+
+        /** The path as a browser would resolve it: %2e %2f %5c decoded, "." and ".." segments removed, repeated slashes merged. */
         fun parsePath(url: String): String {
-            val u = url.replace('\\', '/').replace(Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://"), "")
+            val u = afterScheme(url)
             val end = u.indexOfFirst { it == '/' || it == '?' || it == '#' }
             if (end < 0 || u[end] != '/') return "/"
-            return u.substring(end).substringBefore('?').substringBefore('#')
+            val raw = u.substring(end).substringBefore('?').substringBefore('#')
+            val path = Regex("%(2e|2f|5c)", RegexOption.IGNORE_CASE).replace(raw) { m -> if (m.groupValues[1].lowercase() == "2e") "." else "/" }
+            val out = mutableListOf<String>()
+            for (seg in path.replace('\\', '/').split('/')) {
+                if (seg == "..") { if (out.isNotEmpty()) out.removeAt(out.size - 1) } else if (seg != "" && seg != ".") out.add(seg)
+            }
+            return "/" + out.joinToString("/")
+        }
+
+        /** Everything from the first ? or # on (query and fragment). */
+        fun parseTail(url: String): String {
+            val u = afterScheme(url)
+            val i = u.indexOfFirst { it == '?' || it == '#' }
+            return if (i >= 0) u.substring(i) else ""
         }
 
         /** A brand token counts only if it starts a dot/hyphen-separated part of the host. */
@@ -318,7 +364,8 @@ class ShomerEngine(directoryJson: String) {
             var netloc = if (end >= 0) u.substring(0, end) else u
             val userinfo = netloc.contains('@')
             if (userinfo) netloc = netloc.substringAfterLast('@')
-            netloc = netloc.substringBefore(':')
+            if (netloc.startsWith("[") && !netloc.contains(']')) return "" to userinfo // an unbalanced bracket: the address cannot be read
+            netloc = if (netloc.startsWith("[")) netloc.removePrefix("[").substringBefore(']') else netloc.substringBefore(':')
             return netloc.trimEnd('.').lowercase() to userinfo
         }
 
@@ -339,5 +386,7 @@ class ShomerEngine(directoryJson: String) {
 
 private val OBFUSCATION = Regex("(?<=[א-ת])[.\\-_*·\\u200b-\\u200f\\u05b0-\\u05c7](?=[א-ת])")
 
-/** Undo common obfuscation: dots, dashes, zero-width characters or niqqud between Hebrew letters. */
-fun normalize(text: String): String = OBFUSCATION.replace(text, "")
+private val SPREAD = ShomerEngine.unicodeRegex("""(?<![^\W\d_])(?:[^\W\d_] ){2,}[^\W\d_](?![^\W\d_])""", ignoreCase = false)
+
+/** Undo common obfuscation: dots, dashes, zero-width characters or niqqud between Hebrew letters, and letters spread out with spaces. */
+fun normalize(text: String): String = SPREAD.replace(OBFUSCATION.replace(text, "")) { it.value.replace(" ", "") }

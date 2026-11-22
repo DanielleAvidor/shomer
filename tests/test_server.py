@@ -140,3 +140,24 @@ def test_malformed_requests_get_a_clean_error(base):
     assert raw_post(base, "/api/handled", b'{"event_id": "abc"}', "application/json")[0] == 400
     assert raw_post(base, "/api/check", b"not json", "application/json")[0] == 400
     assert raw_post(base, "/api/check", b"[1,2]", "application/json")[0] == 400
+
+
+def _raw(base, path, headers, data=None, method="GET"):
+    req = urllib.request.Request(base + path, data=data, method=method, headers=headers)
+    try:
+        with urllib.request.urlopen(req) as r:
+            return r.status
+    except urllib.error.HTTPError as e:
+        return e.code
+
+
+def test_a_foreign_host_or_origin_is_refused(base):
+    """DNS rebinding: a page on another site that points its name at 127.0.0.1 must not read or change anything."""
+    assert _raw(base, "/api/guardian", {"Host": "evil.example"}) == 403
+    assert _raw(base, "/api/settings", {"Host": "evil.example:8000", "Content-Type": "application/json"}, b"{}", "POST") == 403
+    assert _raw(base, "/api/guardian", {"Origin": "http://evil.example"}) == 403
+    assert _raw(base, "/api/guardian", {}) == 200
+
+
+def test_a_client_that_stops_sending_does_not_hold_a_thread():
+    assert server.Handler.timeout and server.Handler.timeout <= 30

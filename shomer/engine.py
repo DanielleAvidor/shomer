@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 from pathlib import Path
 from urllib.parse import urlsplit
 
+MAX_CHARS = 20000  # longer messages are cut for analysis and never reach "matches official" (no real SMS or chat scam is this long)
 DATA = Path(__file__).parent / "data" / "directory.json"
 
 _SECOND_LEVEL = {"co.il", "org.il", "gov.il", "muni.il", "ac.il", "net.il", "k12.il"}
@@ -20,7 +22,7 @@ _URL_RE = re.compile(
     r"(?:https?://|www\.)[^\s<>\"'־״]+"
     # The lookarounds are ASCII only: a Hebrew prefix letter or a Hebrew word glued to an address ("לevil.test", "evil.testשלמו")
     # must not hide it.
-    r"|(?<![a-z0-9@._-])[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}(?:/[^\s<>\"']*)?(?![a-z0-9._-])",
+    r"|(?<![-_@.])(?<![^\s!-,./:-@\[-^`{-~_א-ת־״])[^\s!-,./:-@\[-^`{-~_א-ת־״]+(?:\.[^\s!-,./:-@\[-^`{-~_א-ת־״]+)*\.[a-z]{2,24}(?:/[^\s<>\"']*)?(?![a-z0-9_-])(?!\.[a-z0-9])",
     re.IGNORECASE,
 )
 _IP_RE = re.compile(r"^\d{1,3}(?:\.\d{1,3}){3}$")
@@ -32,13 +34,24 @@ _PHONE_RE = re.compile(
     r"|(?<![\w*])\*\d{3,5}(?![\d*])"                                                   # *5424
     r"|(?<!\d)1[-\s]?(?:700|800|801|900)[-\s]?\d{3}[-\s]?\d{3}(?!\d)"                 # 1-700-500-500
 )
+_CONTROL = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 _INVISIBLE = re.compile("[\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]")
 _FILE_EXT = {"pdf", "js", "jpg", "jpeg", "png", "gif", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "mp3", "mp4", "py", "java", "json", "xml", "css", "svg", "heic"}
 
 
+def _pre(text: str) -> str:
+    """The text as prepare() sees it, before the invisible characters are removed."""
+    return "".join(c if c == "\u2026" else unicodedata.normalize("NFKC", c) for c in text)
+
+
 def prepare(text: str) -> str:
     """Undo tricks that hide an address from a reader or a regex: invisible direction marks, 'hxxps' and '[.]' defanging."""
+    # Fullwidth and math-alphabet letters become ordinary letters. One character at a time, so that the "…" a notification preview
+    # puts after a cut link stays a single character (NFKC would turn it into three dots).
+    text = "".join(c if c == "\u2026" else unicodedata.normalize("NFKC", c) for c in text)
     text = _INVISIBLE.sub("", text)
+    text = _CONTROL.sub("", text)
+    text = text.replace("\u3002", ".").replace("\uff61", ".")  # ideographic full stops: a browser treats them as dots in a host
     text = re.sub(r"hxxp", "http", text, flags=re.I)
     return re.sub(r"\[\.\]|\(\.\)|\{\.\}", ".", text)
 
@@ -142,9 +155,35 @@ def parse_host(url: str) -> tuple[str, bool]:
     return host, "@" in parts.netloc
 
 
+def _after_scheme(url: str) -> str:
+    return re.sub(r"^[a-z][a-z0-9+.-]*://", "", url.replace("\\", "/"), flags=re.I)
+
+
 def parse_path(url: str) -> str:
-    u = url if re.match(r"^[a-z][a-z0-9+.-]*://", url, re.I) else "http://" + url
-    return _split(u.replace("\\", "/")).path or "/"
+    """The path as a browser would resolve it: %2e %2f %5c decoded, "." and ".." segments removed, repeated slashes merged."""
+    u = _after_scheme(url)
+    end = next((i for i, c in enumerate(u) if c in "/?#"), -1)
+    if end < 0 or u[end] != "/":
+        return "/"
+    path = re.sub(r"%(2e|2f|5c)", lambda m: {"2e": ".", "2f": "/", "5c": "/"}[m.group(1).lower()], re.split(r"[?#]", u[end:], maxsplit=1)[0], flags=re.I)
+    out: list = []
+    for seg in path.replace("\\", "/").split("/"):
+        if seg == "..":
+            if out:
+                out.pop()
+        elif seg not in ("", "."):
+            out.append(seg)
+    return "/" + "/".join(out)
+
+
+def parse_tail(url: str) -> str:
+    """Everything from the first ? or # on (query and fragment)."""
+    u = _after_scheme(url)
+    i = next((k for k, c in enumerate(u) if c in "?#"), -1)
+    return u[i:] if i >= 0 else ""
+
+
+_REDIRECT_TAIL = re.compile(r"(?:https?:)?//|https?%3a|%2f%2f|%5c%5c", re.I)
 
 
 def _token_hit(host: str, tokens: list) -> bool:
@@ -173,13 +212,15 @@ def _alias_pattern(alias: str) -> re.Pattern:
 
 
 _OBFUSCATION = re.compile(r"(?<=[א-ת])[.\-_*·\u200b-\u200f\u05b0-\u05c7](?=[א-ת])")
-_SPACED = re.compile(r"(?<![א-ת])([א-ת]) (?=[א-ת](?: [א-ת])*(?: |$|[.,!?]))")
+
+
+_SPREAD = re.compile(r"(?<![^\W\d_])(?:[^\W\d_] ){2,}[^\W\d_](?![^\W\d_])")
 
 
 def normalize(text: str) -> str:
-    """Undo common obfuscation: dots, dashes, zero-width characters or niqqud between Hebrew letters."""
+    """Undo common obfuscation: dots, dashes, zero-width characters or niqqud between Hebrew letters, and letters spread out with spaces."""
     text = _OBFUSCATION.sub("", text)
-    return text
+    return _SPREAD.sub(lambda m: m.group(0).replace(" ", ""), text)
 
 
 class Engine:
@@ -256,14 +297,19 @@ class Engine:
         reasons: list = []
         if not host:
             return LinkReport(url, host, Verdict.CANT_VERIFY, ["לא הצלחנו לקרוא את כתובת הקישור"])
+        if re.search(r"[\x00-\x20%]", host):
+            return LinkReport(url, host, Verdict.DONT_CLICK, ["בכתובת יש תווים מוסווים שמסתירים לאן הקישור באמת פותח"])
         if userinfo:
             reasons.append("הקישור משתמש בטריק של הסימן @ כדי להסוות לאן הוא באמת פותח")
-        if _IP_RE.match(host):
+        if _IP_RE.match(host) or ":" in host:
             return LinkReport(url, host, Verdict.DONT_CLICK, reasons + ["הקישור פותח למספר ולא לכתובת אתר רגילה"])
         if host in self.neutral:
             return LinkReport(url, host, Verdict.CANT_VERIFY, reasons + ["זה קישור לחנות אפליקציות ולא לאתר של השולח, ולכן לא בדקנו אותו"])
         official, matched = self._official_match(host)
         if official and not userinfo:
+            if _REDIRECT_TAIL.search(parse_tail(url)):
+                return LinkReport(url, host, Verdict.CANT_VERIFY,
+                                  [f"הכתובת היא של {official.name_he}, אבל היא כוללת הפניה לכתובת אחרת, ולא ראינו לאן היא מובילה"], official.id)
             prefixes = official.restricted_paths.get(matched)
             if prefixes and not any(parse_path(url).startswith(p) for p in prefixes):
                 return LinkReport(url, host, Verdict.CANT_VERIFY,
@@ -316,12 +362,18 @@ class Engine:
         return [g for g, rx in self.signals if rx.search(body)]
 
     def check(self, text: str) -> Result:
+        hidden = [m.group(0) for m in _URL_RE.finditer(_pre(text)) if _INVISIBLE.search(m.group(0))]
         text = prepare(text)
+        too_long = len(text) > MAX_CHARS
+        if too_long:
+            text = text[:MAX_CHARS]  # no real SMS is this long; bound the work an attacker can force, and say so below
         urls = self.extract_urls(text)
         claimed = self.claimed_orgs(text)
         leftover = _URL_RE.sub(" ", text).strip(" \n\t.,:;-")
         link_only = bool(urls) and len(leftover) <= 3
         reports = [self.analyze_link(u, claimed, link_only) for u in urls]
+        for h in hidden:  # invisible characters inside an address: prepare() removed them, but a real address never has them
+            reports.append(LinkReport(h, parse_host(_INVISIBLE.sub("", h))[0], Verdict.DONT_CLICK, ["בכתובת יש תווים בלתי נראים שמסתירים לאן הקישור באמת פותח"]))
         sigs = self.content_signals(text)
         sig_ids = {g["id"] for g in sigs}
         pressure = {g["id"] for g in sigs if g["kind"] == "pressure"}
@@ -349,10 +401,15 @@ class Engine:
                 verdict = Verdict.CANT_VERIFY
                 downgraded = True
                 reasons.append("ההודעה מבקשת גם להתקשר למספר טלפון, וזה לא משהו שאנחנו יכולים לבדוק")
-            if "credentials" in sig_ids or "install" in sig_ids or len(pressure) >= 2:
+            if sig_ids & {"credentials", "install", "payment", "prize", "family", "threat"} or len(pressure) >= 2:
                 verdict = Verdict.CANT_VERIFY
                 downgraded = True
                 reasons.append("הכתובת תואמת, אבל ההודעה מלחיצה או מבקשת פרטים. גופים רשמיים לא עושים את זה בהודעה")
+        if too_long:
+            if verdict is Verdict.MATCHES_OFFICIAL:
+                verdict = Verdict.CANT_VERIFY
+                downgraded = True
+            reasons.append("ההודעה ארוכה מאוד, ובדקנו רק את תחילתה")
         # An unverifiable link plus a pushy message is treated as a scam.
         if verdict is Verdict.CANT_VERIFY and urls and (score >= 3 or (score >= 2 and bad_tld)) and not downgraded:
             verdict = Verdict.DONT_CLICK
@@ -404,8 +461,8 @@ class Engine:
             steps = ["אל תלחצו ואל תענו", "שאלו מישהו מהמשפחה", route]
         unsupported = False
         if not applicable:
-            headline = "לא מצאנו סימן חשד, אבל זה לא אישור"
-            advice = "לא מצאנו כאן קישור או בקשה חשודה. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
+            headline = "לא הצלחנו לבדוק. אין בהודעה קישור או בקשה, וזה לא אישור"
+            advice = "אין בהודעה קישור או בקשה שאפשר לבדוק. זה לא אומר שההודעה בטוחה. אם משהו מרגיש לא בסדר, שאלו מישהו מהמשפחה."
             steps = []
             reasons = [r for r in reasons if not r.startswith("אין בהודעה")]
             letters = re.findall(r"[^\W\d_]", text)

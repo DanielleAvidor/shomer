@@ -13,7 +13,10 @@ object GuardianClient {
     fun report(context: Context, r: CheckResult, onDone: () -> Unit = {}) {
         val base = context.getSharedPreferences("shomer", Context.MODE_PRIVATE).getString("server_url", "").orEmpty()
         if (base.isBlank()) { onDone(); return }
-        val root = if (base.contains("://")) base else "http://$base"
+        val root = if (base.contains("://")) base else "https://$base"
+        // HTTPS only; plain HTTP is for the emulator's host and localhost (the network security config enforces the same).
+        val host = root.substringAfter("://").substringBefore('/').substringBefore(':')
+        if (!root.startsWith("https://", ignoreCase = true) && host != "localhost" && host != "10.0.2.2") { onDone(); return }
         val body = JSONObject()
             .put("verdict", r.verdict.key)
             .put("org", r.claimedOrgs.firstOrNull() ?: "")

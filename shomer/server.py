@@ -88,6 +88,19 @@ def guardian_summary() -> dict:
 
 
 class Handler(BaseHTTPRequestHandler):
+    timeout = 10  # seconds: a client that stops sending cannot hold a thread forever
+
+    def _local_only(self) -> bool:
+        """DNS rebinding and other sites: the page is only for localhost, and a request must come from this very page."""
+        host = (self.headers.get("Host") or "").rsplit(":", 1)[0].strip("[]").lower()
+        if host not in ("localhost", "127.0.0.1", "::1"):
+            return False
+        origin = self.headers.get("Origin")
+        if origin is not None:
+            o = origin.split("://", 1)[-1].rsplit(":", 1)[0].strip("[]").lower()
+            return o in ("localhost", "127.0.0.1", "::1")
+        return True
+
     def _json(self, obj, code=200):
         body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
@@ -133,6 +146,8 @@ class Handler(BaseHTTPRequestHandler):
             return None
 
     def do_GET(self):
+        if not self._local_only():
+            return self._json({"error": "forbidden"}, 403)
         if self.path in ("/", "/index.html"):
             body = (STATIC / "index.html").read_bytes()
             self.send_response(200)
@@ -160,6 +175,8 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": "not found"}, 404)
 
     def do_POST(self):
+        if not self._local_only():
+            return self._json({"error": "forbidden"}, 403)
         try:
             self._post()
         except Exception:  # never print a traceback with file paths, never leave the client hanging

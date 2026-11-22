@@ -45,3 +45,11 @@
 {"id": "e09", "kind": "legit", "text": "Happy birthday! Congratulations, hope you have a great day. Call me when you can", "expected": "not_applicable", "note": "'congratulations' alone must not trigger"}
 {"id": "e10", "kind": "legit", "text": "Mom, I'll be at the hospital cafeteria at 5 to visit grandpa", "expected": "not_applicable", "note": "'hospital' alone is a weak word"}
 {"id": "e11", "kind": "legit", "text": "Israel Post: track your parcel https://israelpost.co.il/track", "expected": "matches_official", "note": "English message, official address; match shown but never 'safe'"}
+{"id": "s90", "kind": "scam", "text": "בנק לאומי https://leumi.co.il/redirect?url=https://evil.test", "expected": "cant_verify", "note": "open redirect on an official domain is not a match"}
+{"id": "s91", "kind": "scam", "text": "משטרת ישראל https://www.gov.il/he/service/enforcement-reports/../../x", "expected": "cant_verify", "note": "dot-dot after the allowed path"}
+{"id": "s92", "kind": "scam", "text": "ב נ ק לאומי: חשבונך ייחסם https://evil.test/x", "expected": "dont_click", "note": "letters spread with spaces"}
+{"id": "s93", "kind": "scam", "text": "בנק לאומי: אשרו аleumi.co.il/login", "expected": "dont_click", "note": "Cyrillic a in a bare domain"}
+{"id": "s94", "kind": "scam", "text": "בנק לאומי https://evil.top‏.leumi.co.il/x", "expected": "dont_click", "note": "invisible character inside the address"}
+{"id": "s95", "kind": "scam", "text": "בנק לאומי https://[::1]/x", "expected": "dont_click", "note": "IPv6 literal"}
+{"id": "s96", "kind": "scam", "text": "דואר ישראל: שלמו 9.90 ש\"ח https://israelpost.co.il/pay", "expected": "cant_verify", "note": "official link plus a payment request is not a match"}
+{"id": "s97", "kind": "scam", "text": "בנק ＬＥＵＭＩ חשבונך ייחסם https://evil.test", "expected": "dont_click", "note": "fullwidth letters"}

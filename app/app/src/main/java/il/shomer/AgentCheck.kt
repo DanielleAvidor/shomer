@@ -33,11 +33,15 @@ object AgentCheck {
      *
      * "Matches official" never speaks (we do not vouch for a message); a message with nothing to check never speaks.
      */
+    private val PUSHY = setOf("threat", "credentials", "prize", "staff", "install", "payment")
+
     fun shouldAlert(r: CheckResult, strict: Boolean = false): Boolean {
         if (!r.applicable) return false
         return when (r.verdict) {
             Verdict.MATCHES_OFFICIAL -> false
-            Verdict.CANT_VERIFY -> !strict && r.claimedOrgs.isNotEmpty() && (r.links.isNotEmpty() || r.signalIds.isNotEmpty())
+            Verdict.CANT_VERIFY -> !strict && (
+                (r.claimedOrgs.isNotEmpty() && (r.links.isNotEmpty() || r.signalIds.isNotEmpty())) ||
+                (r.links.isNotEmpty() && r.signalIds.any { it in PUSHY }))
             Verdict.DONT_CLICK ->
                 if (!strict) true
                 else r.certain && (r.signalIds.isNotEmpty() || r.links.any { it.verdict == Verdict.DONT_CLICK && it.orgId != null })
