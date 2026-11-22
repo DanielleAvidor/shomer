@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
     private fun historyRow(e: History.Entry): View {
         val card = if (e.alert) Ui.card(this, Ui.RED_BG, Ui.RED, 2) else Ui.card(this)
         card.addView(Ui.text(this, "${e.app} · ${History.timeLabel(e.ts)}", 14f, false, Ui.SOFT))
-        card.addView(Ui.text(this, if (e.alert) "התראה: ${e.headline}" else "נבדקה. לא היה צורך להתריע", 17f, e.alert, if (e.alert) Ui.RED else Ui.INK), Ui.lp(this, 4))
+        card.addView(Ui.text(this, if (e.alert) "התראה: ${e.headline}" else "נבדקה, בלי התראה. זה לא אישור", 17f, e.alert, if (e.alert) Ui.RED else Ui.INK), Ui.lp(this, 4))
         if (e.alert) {
             card.isClickable = true; card.isFocusable = true
             card.contentDescription = "התראה: ${e.headline}. לחיצה פותחת הסבר"

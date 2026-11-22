@@ -4,10 +4,12 @@
 # Needs: java, and a Gradle install (GRADLE_LIB, default /opt/gradle-8.14.3/lib). Does NOT test the Android screens.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"; ROOT="$HERE/../.."; L="${GRADLE_LIB:-/opt/gradle-8.14.3/lib}"; W="$(mktemp -d)"
-CP="$L/kotlin-compiler-embeddable-2.0.21.jar:$L/kotlin-stdlib-2.0.21.jar:$L/kotlin-script-runtime-2.0.21.jar:$L/kotlin-reflect-2.0.21.jar:$L/kotlin-daemon-embeddable-2.0.21.jar:$L/kotlinx-coroutines-core-jvm-1.6.4.jar:$L/trove4j-1.0.20200330.jar:$L/annotations-24.0.1.jar"
+first() { ls $L/$1 2>/dev/null | head -1; }   # the jar names carry versions that change with the Gradle release
+K=$(first 'kotlin-compiler-embeddable-*.jar'); STD=$(first 'kotlin-stdlib-[0-9]*.jar')
+CP="$K:$STD:$(first 'kotlin-script-runtime-*.jar'):$(first 'kotlin-reflect-*.jar'):$(first 'kotlin-daemon-embeddable-*.jar'):$(first 'kotlinx-coroutines-core-jvm-*.jar'):$(first 'trove4j-*.jar'):$(first 'annotations-*.jar')"
 mkdir -p "$W/out"
 javac -d "$W/out" "$HERE"/shim/org/json/*.java
-java -cp "$CP" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -cp "$L/kotlin-stdlib-2.0.21.jar:$W/out" -d "$W/out" "$ROOT/app/app/src/main/java/il/shomer/ShomerEngine.kt" "$HERE/Main.kt"
+java -cp "$CP" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -cp "$STD:$W/out" -d "$W/out" "$ROOT/app/app/src/main/java/il/shomer/ShomerEngine.kt" "$HERE/Main.kt"
 python3 "$HERE/gen_inputs.py" "$ROOT" "$W"
-java -cp "$L/kotlin-stdlib-2.0.21.jar:$W/out" MainKt "$ROOT/app/app/src/main/assets/directory.json" "$W/in.jsonl" "$W/kt.jsonl"
+java -cp "$STD:$W/out" MainKt "$ROOT/app/app/src/main/assets/directory.json" "$W/in.jsonl" "$W/kt.jsonl"
 python3 "$HERE/compare.py" "$W"

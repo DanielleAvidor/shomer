@@ -30,7 +30,8 @@ object Notifier {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(PendingIntent.getActivity(context, System.currentTimeMillis().toInt(), ExplainActivity.intentFor(context, r), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT))
-        r.officialUrl?.let {
+        // No button on an "don't click" alert: the one thing it says is not to follow links from this message.
+        if (r.verdict != Verdict.DONT_CLICK) r.officialUrl?.let {
             val open = PendingIntent.getActivity(context, 0, Intent(Intent.ACTION_VIEW, Uri.parse(it)), PendingIntent.FLAG_IMMUTABLE)
             b.addAction(0, "לפתוח את האתר הרשמי", open)
         }

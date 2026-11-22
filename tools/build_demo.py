@@ -52,8 +52,9 @@ SHIM = """<script>
 """ % json.dumps(table, ensure_ascii=False)
 
 out = html.replace("/static/fonts/", "fonts/")
+out = out.replace("בדמו הזה ההודעה נבדקת בשרת שרץ על המחשב שלכם, והטקסט שלה לא נשמר.",
+                  "זהו דמו סטטי: הוא בודק רק את ההודעות לדוגמה. כדי לבדוק כל הודעה, מריצים את הדמו המלא על המחשב (python -m shomer.server).")
 out = out.replace("<script>", SHIM + "<script>", 1)
-out = out.replace("<head>", '<head>\n<meta name="robots" content="noindex">', 1) if "robots" not in out else out
 dest = ROOT / "docs"
 (dest / "fonts").mkdir(exist_ok=True)
 for f in (ROOT / "shomer/static/fonts").glob("*.woff"):

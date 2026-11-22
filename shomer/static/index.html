@@ -110,7 +110,7 @@
   .recent li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:17px}
   .recent li>div,.feed li>div{min-width:0;flex:1}
   .dot{flex:none;width:14px;height:14px;border-radius:50%}
-  .dot.dont_click{background:var(--red)} .dot.cant_verify{background:#C28A12} .dot.matches_official{background:var(--indigo)}
+  .dot.dont_click{background:var(--red)} .dot.cant_verify{background:#C28A12} .dot.matches_official{background:#C28A12}
   .recent time,.feed time{margin-inline-start:auto;font-size:16px;color:var(--soft);white-space:nowrap}
   .h{direction:ltr;unicode-bidi:isolate;text-align:right;font:400 15px var(--mono);color:var(--soft);overflow-wrap:anywhere}
   .recent .h{text-align:start}
@@ -138,10 +138,9 @@
 
   /* the stamp card: the result */
   .card.cant_verify .stamp-wrap{border-style:dashed}
-  .card.matches_official .stamp-wrap{border-radius:999px}
   #out{scroll-margin-top:16px}
   .card{background:var(--sheet);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
-  .neutral{--c:var(--pine);--cb:#E3EDE6} .dont_click{--c:var(--red);--cb:var(--red-bg)} .cant_verify{--c:var(--bronze);--cb:var(--bronze-bg)} .matches_official{--c:var(--indigo);--cb:var(--indigo-bg)}
+  .neutral{--c:var(--pine);--cb:#E3EDE6} .dont_click{--c:var(--red);--cb:var(--red-bg)} .cant_verify{--c:var(--bronze);--cb:var(--bronze-bg)} .matches_official{--c:var(--bronze);--cb:var(--bronze-bg)}
   .head{background:var(--cb);padding:28px 22px 26px;border-bottom:1px solid color-mix(in srgb,var(--c) 25%,transparent)}
   .stamp-wrap{display:grid;justify-items:center;gap:10px;text-align:center;color:var(--c);padding:22px 18px 20px;margin:0 4px;border:4px solid var(--c);border-radius:18px;box-shadow:inset 0 0 0 6px var(--cb),inset 0 0 0 8px var(--c);transform:rotate(-2deg);mix-blend-mode:multiply}
   .stamp-wrap svg{width:54px;height:54px}
@@ -243,7 +242,7 @@
   <div class="agent-col">
     <div class="agent-card">
       <div class="agent-row"><span class="pulse" aria-hidden="true"></span><div><h2>שומר פועל ברקע</h2><p id="agent-sub">הטלפון נעול ושומר לא פתוח. הוא בודק כל הודעה שמגיעה ומקפיץ התראה רק כשיש סיבה.</p></div></div>
-      <dl class="agent-stats"><div><dt>הודעות שנבדקו</dt><dd id="st-checked">0</dd></div><div><dt>התראות</dt><dd id="st-alerts">0</dd></div><div><dt>עברו בשקט</dt><dd id="st-quiet">0</dd></div></dl>
+      <dl class="agent-stats"><div><dt>הודעות שנבדקו</dt><dd id="st-checked">0</dd></div><div><dt>התראות</dt><dd id="st-alerts">0</dd></div><div><dt>בלי התראה (לא אישור)</dt><dd id="st-quiet">0</dd></div></dl>
       <p class="sim"><b>הדמיה.</b> זה מסך נעילה לדוגמה, עם הודעות שנכתבו להדגמה. את ההתראות האדומות רואים בלי לפתוח את שומר. לחיצה על התראה פותחת את ההסבר.</p>
       <div class="row"><button class="btn" id="sim-toggle">השהיה</button><button class="btn" id="sim-restart">מההתחלה</button></div>
     </div>
@@ -317,7 +316,7 @@ const ICON = {
   dont_answer:`<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/><path d="M3 3l18 18"/>`,
   matches_official:`<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>`
 };
-const LABEL = {dont_click:"הודעה מסוכנת", cant_verify:"לא הצלחנו לבדוק", matches_official:"תואם לאתר הרשמי"};
+const LABEL = {dont_click:"אל תלחצו", cant_verify:"לא הצלחנו לבדוק", matches_official:"כתובת רשמית, לא אישור להודעה"};
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const call = async (u, opts) => {
@@ -449,7 +448,7 @@ function render(r, out = $("#out"), onAgain = reset, opts = {}){
   const why = r.reasons_he.length ? `<div class="sec"><details class="clicked"${whyOpen}><summary>למה שומר חושב ככה?</summary><ul class="why">${r.reasons_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
   const steps = r.steps_he.length ? `<div class="sec"><h3>מה עושים עכשיו</h3><ol class="steps">${r.steps_he.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>` : "";
   const clicked = r.if_clicked_he.length ? `<div class="sec"><details class="clicked"><summary>כבר לחצתי או מסרתי פרטים. מה עושים?</summary><ul>${r.if_clicked_he.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></div>` : "";
-  const official = r.official_url ? `<a class="btn primary official" href="${esc(r.official_url)}" target="_blank" rel="noopener">היכנסו לאזור האישי באתר הרשמי</a>` : "";
+  const official = r.official_url ? `<a class="btn official" href="${esc(r.official_url)}" target="_blank" rel="noopener">היכנסו לאזור האישי באתר הרשמי</a>` : "";
   const note = "";
   out.innerHTML = `<div class="card ${v}">
     <div class="head">${seal(v, r.headline_he, r.kind)}</div>
@@ -502,7 +501,7 @@ document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#msg"
 async function saveImage(r){
   await document.fonts.load("700 40px Cardo"); await document.fonts.load("400 24px 'Open Sans'");
   const W = 1080, c = document.createElement("canvas"), x = c.getContext("2d");
-  const col = {dont_click:"#b3261e", cant_verify:"#7a5200", matches_official:"#1f4e8c"}[r.verdict];
+  const col = {dont_click:"#b3261e", cant_verify:"#7a5200", matches_official:"#7a5200"}[r.verdict];
   const lines = [];
   c.width = W; c.height = 1500; x.direction = "rtl"; x.textAlign = "right";
   const wrap = (t, font, maxW) => { x.font = font; const out = []; let cur = ""; for (const w of t.split(" ")) { const tr = cur ? cur + " " + w : w; if (x.measureText(tr).width > maxW && cur){ out.push(cur); cur = w; } else cur = tr; } if (cur) out.push(cur); return out; };

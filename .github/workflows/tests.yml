@@ -1,0 +1,41 @@
+name: Tests
+
+# Runs on every push: the Python tests and the eval corpus, that the copies of shared files are in sync, and that the Kotlin
+# engine (compiled on a plain JVM) gives the same answers as the Python engine on ~480 messages.
+on:
+  push:
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pytest
+      - name: Python tests (includes the eval corpus)
+        run: python -m pytest -q
+      - name: Shared files are in sync
+        run: |
+          cmp shomer/data/directory.json app/app/src/main/assets/directory.json
+          cmp eval/corpus.jsonl app/app/src/test/resources/corpus.jsonl
+      - name: The static demo is built from the current engine
+        run: |
+          python tools/build_demo.py
+          git diff --exit-code docs/index.html
+
+  kotlin-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.14.3" }
+      - name: Kotlin engine against Python engine
+        run: |
+          export GRADLE_LIB="$(dirname "$(dirname "$(readlink -f "$(which gradle)")")")/lib"
+          bash tools/kotlin-parity/run.sh
