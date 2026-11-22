@@ -50,6 +50,7 @@ object AgentCheck {
             if (text.isBlank() || alreadySeen(text)) { onDone(); return false }
             val result = Checker.engine(context).check(text)
             val alert = shouldAlert(result, strict)
+            android.util.Log.i("ShomerE2E", "verdict=${result.verdict} alert=$alert")
             History.record(context, source, result, alert) // no message text, no sender
             if (!alert) { onDone(); return false }
             Notifier.show(context, result)

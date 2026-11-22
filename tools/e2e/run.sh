@@ -12,7 +12,7 @@ adb shell pm grant il.shomer android.permission.RECEIVE_SMS
 adb shell pm grant il.shomer android.permission.POST_NOTIFICATIONS
 adb shell settings put global heads_up_notifications_enabled 1
 
-adb shell "screenrecord --time-limit 170 /sdcard/e2e.mp4" &
+adb shell "screenrecord --time-limit 170 /data/local/tmp/e2e.mp4" &
 REC=$!
 adb shell am start -n il.shomer/.MainActivity; sleep 4
 adb exec-out screencap -p > "$OUT/01-app-home.png"
@@ -36,6 +36,9 @@ grep -E "pkg=il.shomer|android.title|android.text|android.bigText" "$OUT/dumpsys
 adb shell am start -n il.shomer/.MainActivity; sleep 3
 adb exec-out screencap -p > "$OUT/04-app-after.png"
 adb logcat -d -s AndroidRuntime:E > "$OUT/crashes.txt" || true
+adb logcat -d > "$OUT/logcat.txt" || true
+echo "--- logcat (Shomer) ---"; grep -E "ShomerE2E|il.shomer|AndroidRuntime" "$OUT/logcat.txt" | tail -40
+echo "--- package receivers ---"; adb shell dumpsys package il.shomer | grep -iE "SmsReceiver|RECEIVE_SMS|granted=" | head -12
 sleep 2; kill $REC 2>/dev/null || true; sleep 3
-adb pull /sdcard/e2e.mp4 "$OUT/e2e.mp4" || true
+adb pull /data/local/tmp/e2e.mp4 "$OUT/e2e.mp4" || true
 echo "--- Shomer notifications ---"; cat "$OUT/shomer-notifications.txt"

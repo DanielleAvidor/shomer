@@ -4,12 +4,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
+import android.util.Log
 
 /** Checks each incoming SMS on the device and speaks only when AgentCheck says there is something to say. */
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
         val body = Telephony.Sms.Intents.getMessagesFromIntent(intent).joinToString("") { it.messageBody ?: "" }
+        Log.i("ShomerE2E", "sms received, length=${body.length}")
         val pending = goAsync() // keep the process alive until the optional family report finishes
         AgentCheck.handle(context, body, strict = false, source = "SMS") { pending.finish() }
     }
