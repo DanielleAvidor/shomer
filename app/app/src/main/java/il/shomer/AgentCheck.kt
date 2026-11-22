@@ -47,6 +47,7 @@ object AgentCheck {
     /** Returns true if an alert was shown. [onDone] always runs, also if the check fails, so a broadcast is never left hanging. */
     fun handle(context: Context, text: String, strict: Boolean = false, source: String = "SMS", onDone: () -> Unit = {}): Boolean {
         try {
+            android.util.Log.i("ShomerE2E", "handle: blank=${text.isBlank()}")
             if (text.isBlank() || alreadySeen(text)) { onDone(); return false }
             val result = Checker.engine(context).check(text)
             val alert = shouldAlert(result, strict)
@@ -56,7 +57,8 @@ object AgentCheck {
             Notifier.show(context, result)
             GuardianClient.report(context, result, onDone) // metadata only; no-op unless a family server was set
             return true
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            android.util.Log.e("ShomerE2E", "check failed: $e", e)
             onDone()
             return false // best effort: an agent that crashes helps no one
         }
