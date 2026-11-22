@@ -255,8 +255,12 @@ class ShomerEngine(directoryJson: String) {
         fun unicodeRegex(p: String, ignoreCase: Boolean = true): Regex =
             Pattern.compile(p, (if (ignoreCase) Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE else 0) or UNICODE_CLASSES).toRegex()
 
-        /** Pattern.UNICODE_CHARACTER_CLASS is not available in every Android regex implementation (ICU-backed, already Unicode-aware), so look it up at run time and fall back to 0. */
-        private val UNICODE_CLASSES: Int = try { Pattern::class.java.getField("UNICODE_CHARACTER_CLASS").getInt(null) } catch (e: Exception) { 0 }
+        /** Pattern.UNICODE_CHARACTER_CLASS exists as a constant on Android but compiling with it throws ("Unsupported flags: 256"),
+         *  because Android's regex is ICU-backed and already Unicode-aware. So try it once and fall back to 0 if it is refused. */
+        private val UNICODE_CLASSES: Int = try {
+            val f = Pattern::class.java.getField("UNICODE_CHARACTER_CLASS").getInt(null)
+            Pattern.compile("a", f); f
+        } catch (e: Throwable) { 0 }
 
         // The lookarounds are ASCII only: a Hebrew letter glued to an address must not hide it.
         private val URL_RE = unicodeRegex(
