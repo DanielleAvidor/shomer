@@ -1,10 +1,14 @@
-    NotificationRecord(0x00eaf1c9: pkg=il.shomer user=UserHandle{0} id=70925439 tag=null importance=4 key=0|il.shomer|70925439|null|10174: Notification(channel=shomer_checks shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0x00000000 actions=1 vis=PRIVATE))
+                android.title=String (2 new messages)
+                android.textLines=CharSequence[] (2)
+                android.text=String (0527654321, 0501234567)
+                android.title=String (0527654321)
+                android.text=String (אני מגיעה בשש, תשמרו לי מקום)
+                android.title=String (0501234567)
+                android.text=String (דואר ישראל: החבילה שלך נעצרה. אשר כתובת https://israelpost.paliet.top/il)
+    NotificationRecord(0x028105b5: pkg=il.shomer user=UserHandle{0} id=71175404 tag=null importance=4 key=0|il.shomer|71175404|null|10174: Notification(channel=shomer_checks shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0x00000000 vis=PRIVATE))
       icon=Icon(typ=RESOURCE pkg=il.shomer id=0x01080027)
                 android.title=String (⛔ אל תלחצו על הקישור)
                 android.text=String (הכתובת מנסה לחקות את דואר ישראל אבל היא לא האתר שלהם)
                 android.bigText=String (הכתובת מנסה לחקות את דואר ישראל אבל היא לא האתר שלהם
-                android.title=null
-                android.text=String (Messages is processing an incoming message)
-                android.bigText=String (Messages is processing an incoming message)
                 android.title=String (Serial console enabled)
                 android.text=String (Performance is impacted. To disable, check bootloader.)

@@ -1,4 +1,4 @@
-11-22 17:07:34.751  3545  3545 I ShomerE2E: sms received, length=72
-11-22 17:07:35.130  3545  3545 I ShomerE2E: verdict=DONT_CLICK alert=true
-11-22 17:07:49.198  3545  3545 I ShomerE2E: sms received, length=28
-11-22 17:07:49.218  3545  3545 I ShomerE2E: verdict=CANT_VERIFY alert=false
+11-22 17:11:44.512  2495  2495 I ShomerE2E: sms received, length=72
+11-22 17:11:44.956  2495  2495 I ShomerE2E: verdict=DONT_CLICK alert=true
+11-22 17:12:00.166  2495  2495 I ShomerE2E: sms received, length=28
+11-22 17:12:00.170  2495  2495 I ShomerE2E: verdict=CANT_VERIFY alert=false
