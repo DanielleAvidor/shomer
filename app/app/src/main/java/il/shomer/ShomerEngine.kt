@@ -279,7 +279,7 @@ class ShomerEngine(directoryJson: String) {
 
         /** Undo tricks that hide an address: invisible direction marks, "hxxps" and "[.]" defanging. */
         fun prepare(text: String): String =
-            INVISIBLE.replace(text, "").replace(Regex("hxxp", RegexOption.IGNORE_CASE), "http").replace(Regex("""\[\.]|\(\.\)|\{\.}"""), ".")
+            INVISIBLE.replace(text, "").replace(Regex("hxxp", RegexOption.IGNORE_CASE), "http").replace(Regex("""\[\.\]|\(\.\)|\{\.\}"""), ".")
         private val IP_RE = Regex("""^\d{1,3}(\.\d{1,3}){3}$""")
         private val TRAILING = charArrayOf('.', ',', ';', ':', '!', '?', ')', ']', '}', '״', '"', '\'')
         private val SECOND_LEVEL = setOf("co.il", "org.il", "gov.il", "muni.il", "ac.il", "net.il", "k12.il")
