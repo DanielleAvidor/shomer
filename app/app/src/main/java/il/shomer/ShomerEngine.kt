@@ -285,7 +285,7 @@ class ShomerEngine(directoryJson: String) {
             """|(?<![\w*])\*\d{3,5}(?![\d*])""" +
             """|(?<!\d)1[-\s]?(?:700|800|801|900)[-\s]?\d{3}[-\s]?\d{3}(?!\d)""", ignoreCase = false)
         private val INVISIBLE = Regex("[\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]")
-        private val FILE_EXT = setOf("pdf", "js", "jpg", "jpeg", "png", "gif", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "mp3", "mp4", "py", "java", "json", "xml", "css", "svg", "heic")
+        private val FILE_EXT = setOf("pdf", "js", "jpg", "jpeg", "png", "gif", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "mp3", "mp4", "java", "json", "xml", "css", "svg", "heic")
         private val NOT_CODE = setOf("credentials", "family", "payment", "install", "prize", "threat")
         private val CODE_NUM = unicodeRegex("""(?:קוד|סיסמ)[^.\n]{0,25}\d{4,8}|\d{4,8}[^.\n]{0,20}(?:קוד|סיסמ)""", ignoreCase = false)
         private val CODE_WARN = unicodeRegex("""אל (?:ת)?(?:מסור|שתף|שלח|גל|ספר|תגיד)|לעולם|לא (?:מבקש|נבקש)""", ignoreCase = false)

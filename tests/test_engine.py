@@ -322,3 +322,12 @@ def test_pathological_input_is_fast():
 def test_a_message_longer_than_the_cap_is_never_a_match():
     r = E.check("דואר ישראל https://israelpost.co.il/track " + "שלום " * 5000)
     assert r.verdict is not Verdict.MATCHES_OFFICIAL and any("ארוכה" in x for x in r.reasons_he)
+
+
+def test_reply_with_your_id_and_card_details_is_not_a_match():
+    r = E.check("דואר ישראל: השיבו עם ת.ז. ופרטי כרטיס https://israelpost.co.il/x")
+    assert r.verdict is not Verdict.MATCHES_OFFICIAL
+
+
+def test_a_py_domain_is_a_link_not_a_file_name():
+    assert [l.host for l in E.check("בנק לאומי: חשבונך ייחסם evil.py/login").links] == ["evil.py"]

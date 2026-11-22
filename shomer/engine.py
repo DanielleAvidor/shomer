@@ -36,7 +36,7 @@ _PHONE_RE = re.compile(
 )
 _CONTROL = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 _INVISIBLE = re.compile("[\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]")
-_FILE_EXT = {"pdf", "js", "jpg", "jpeg", "png", "gif", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "mp3", "mp4", "py", "java", "json", "xml", "css", "svg", "heic"}
+_FILE_EXT = {"pdf", "js", "jpg", "jpeg", "png", "gif", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "mp3", "mp4", "java", "json", "xml", "css", "svg", "heic"}
 
 
 def _pre(text: str) -> str:
