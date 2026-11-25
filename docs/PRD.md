@@ -3,6 +3,20 @@
 > **Status (one line, used everywhere):** the engine, the 11 verified directory entries, the Hebrew web demo and the tests run; the Android app builds and passes its unit tests in CI, and on an emulator in CI a scam SMS raises one alert and an ordinary message raises none (evidence in `docs/proof/`). It has **not** run on a physical phone: the first real phone blocked the install (see section 9). There is no real-user data beyond three oral interviews in one family. Items marked **[Hypothesis]** are not validated. The name is a placeholder.
 
 
+
+## Summary (one page)
+
+| | |
+|---|---|
+| **Problem** | Older adults in Israel get fake messages that impersonate institutions they trust, and many click before they ask anyone. The usual protection is a relative who happens to be available. |
+| **Who** | First the older adult; second the relative who is asked today. Setup is done once by the relative, with the older adult's consent. |
+| **Bet** | Copy that trusted check at the moment the message arrives: compare the link with the organization's official domain, look at what the message asks for, and warn on its own in plain Hebrew. It never says "safe". |
+| **Why it can win** | It verifies against an official source instead of guessing, it is built around Israeli institutions and Hebrew, and it closes a family loop that generic scam filters do not. Not yet compared hands-on with competitors (section 8). |
+| **Built and proven** | A rule engine with 11 verified organizations, a Hebrew demo, an Android app, 160 tests, and an emulator run in CI where a scam SMS raises one alert and an ordinary message none (`docs/proof/`). |
+| **Not proven** | No run on a physical phone (the first one blocked the install); no real-user data beyond three interviews in one family; accuracy on real messages unknown. |
+| **Biggest risk** | Distribution. Current phones may not let an app outside the Play Store read SMS (section 9). |
+| **Next decision** | Prove an install route on a physical phone, then run the one-week test with five older adults, three outside the family (section 8). Continue only if the targets in section 7 are met. |
+
 ## 1. Problem
 
 **Who suffers and how.** Older adults in Israel receive phishing SMS and emails every week that impersonate institutions they know and trust (Kvish 6, GOV.IL, the police, the post office, banks, the Home Front Command). The messages look real, so many people click first and realize afterwards. Sender names can't be trusted: the National Cyber Directorate warned about fake Kvish 6 debt messages that appeared *inside an existing GOV.IL SMS thread*.
@@ -16,7 +30,7 @@
 
 **Why now.** The old tells are no longer reliable. Broken Hebrew used to give scams away, but some recent campaigns contain no spelling errors at all, and AI makes convincing messages cheaper to produce. Platforms are starting to add scam warnings, but none are built around Israeli institutions and a family loop.
 
-**First-hand observation [Hypothesis, n=2].** The builder's grandmother and mother often forward suspicious messages to her or click a link and only then realize it was dangerous. *To add: one concrete recent incident (message type, what happened after the click, how it was discovered).*
+**First-hand observation [Hypothesis, n=2].** The builder's grandmother and mother often forward suspicious messages to her or click a link and only then realize it was dangerous. *Open: no single concrete incident is recorded yet (message type, what happened after the click, how it was found out); the first validation step is to collect one.*
 
 **Core insight.** The best current protection is a trusted person ("ask my granddaughter"). The product should reproduce that trusted check at the moment the message arrives, and keep the family member informed.
 
@@ -63,7 +77,7 @@ The relative who today answers "is this real?". Working assumptions **[Hypothesi
 
 ## 3. Positioning
 
-**Positioning statement.** For older adults in Israel and the relatives who look out for them, who want to know whether a message is real before they tap, Shomer is a message checker that verifies the link against the official sources of the organization the message claims to come from, and takes the user straight to the real site or app. Unlike general scam detectors and spam filters, it verifies against an official source rather than guessing, speaks calm plain Hebrew, and and, only if the older adult agrees, lets a relative know when it matters.
+**Positioning statement.** For older adults in Israel and the relatives who look out for them, who want to know whether a message is real before they tap, Shomer is a message checker that verifies the link against the official sources of the organization the message claims to come from, and takes the user straight to the real site or app. Unlike general scam detectors and spam filters, it verifies against an official source rather than guessing, speaks calm plain Hebrew, and, only if the older adult agrees, lets a relative know when it matters.
 
 ### Landscape (from desk research, not hands-on testing)
 
