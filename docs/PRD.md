@@ -86,6 +86,7 @@ The relative who today answers "is this real?". Working assumptions **[Hypothesi
 | Bitdefender Scamio | Free chatbot: paste or screenshot a message and get a verdict. A third-party listing shows English only; Hebrew not confirmed. | General, not Israeli-institution aware; no family loop. |
 | Google Messages Scam Detection | On-device, built into Google Messages, only for conversations with non-contacts. Expanded to many countries and languages in 2026; Israel/Hebrew not confirmed in the sources found. | Platform feature: no official-route action, no family loop. |
 | WhatsApp Scam Alert | On-device warning for messages from non-contacts. Limited beta (Aug 2026). | WhatsApp only; not SMS or email. |
+| **Phishy (Israeli developer)** | Checks links and SMS/WhatsApp messages, can scan notifications automatically, and has a **Family Mode** that alerts a relative when a scam reaches an older parent. Hebrew, free, 0 to 100 safety score. Play Store: 10+ downloads (Nov 2026). Not tested hands-on. | **Closest competitor**: the same idea of a background check plus a family alert. Shomer's difference is how it decides (official-domain directory, "can't verify" instead of a score, never "safe"), not the family loop itself. See `docs/research/market.md`. |
 | Fisherman (Israeli) | Automatically filters phishing, spam and ads SMS into Junk on iPhone, tuned to Israeli message patterns. | Filters but (per its listing) doesn't explain, verify against the official site, or involve family. |
 | ScanMySMS (Israeli) | Free: upload a message or email to check whether a link is malicious. Claims 99% accuracy (unverified). | Manual "paste and ask" model; no passive protection, no family loop. |
 | Truecaller Scam Checker | Free web and Android tool launched in September 2026: paste a link, a phone number or a message and get checks plus community reports (TechCrunch, 2026-09-27); an Israeli outlet tested it on Hebrew Israel Post and Tax Authority lures (gadgety.co.il). Not tested hands-on by me. | Manual "paste and ask" model driven by a community database; I have not seen it check a link against the official domain of the organization the message names, or run in the background. Unverified. |
@@ -93,10 +94,10 @@ The relative who today answers "is this real?". Working assumptions **[Hypothesi
 
 ### Differentiators to test (hypotheses)
 1. **Verify against an official source, then route to it.** A curated directory of Israeli institutions and a one-tap "open the official site or app".
-2. **Independence first, family loop optional.** [Hypothesis, weakened] All three people interviewed declined alerts about themselves (section 14), so the product leads with "the phone checks and warns me" and treats the family loop as an opt-in extra, not the core differentiator.
+2. **Independence first, family loop optional.** [Hypothesis, weakened; and the family loop is no longer unique, since Phishy offers one] All three people interviewed declined alerts about themselves (section 14), so the product leads with "the phone checks and warns me" and treats the family loop as an opt-in extra, not the core differentiator.
 3. **Designed for older adults.** Large text, one button, a calm tone.
 
-**Before claiming any difference publicly:** run the same real messages through ScanMySMS, Fisherman and Google Messages and record how each behaves.
+**Before claiming any difference publicly:** run the same real messages through Phishy, ScanMySMS, Fisherman and Google Messages and record how each behaves.
 
 ### Strategic note
 Platform vendors are expanding built-in detection and will likely make basic detection a default. The durable value is therefore the verified official route, Israeli coverage and the family loop, not detection alone.
@@ -207,7 +208,7 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 ## 9. Risks and open questions
 
 - **False alarms and false reassurance.** Too many alerts cause fatigue, and a wrong "fine" can cost money. Mitigation: conservative language, three states, escalation.
-- **Distribution is blocked on real phones (observed, 2026-11-22).** The first real phone tried (a Google phone, Android with Play Protect) refused the sideloaded APK with "App blocked to protect your device: this app can request access to sensitive data", and the install still failed after Play Protect app scanning was switched off. An app that reads SMS or notifications and is not from the Play Store may not be installable on current phones at all. Google Play restricts SMS permissions to default SMS apps, so a public release needs another route (for example the Share-to-Shomer and paste flow, a Play-approved notification-listener declaration, or a family build installed over a cable with `adb`). Until a route is proven on a physical phone, v1 may reduce to paste and share. On an emulator the background alert works (`docs/proof/`).
+- **Distribution is blocked on real phones (observed, 2026-11-22).** The first real phone tried (a Google phone, Android with Play Protect) refused the sideloaded APK with "App blocked to protect your device: this app can request access to sensitive data", and the install still failed after Play Protect app scanning was switched off. An app that reads SMS or notifications and is not from the Play Store may not be installable on current phones at all. Google Play restricts SMS permissions to default SMS apps, with a possible exception for anti-smishing apps that is subject to Play review (`docs/research/market.md`, section 3), and from 2027 Google will require developer verification even for apps installed outside the Play Store. A public release therefore needs another route (for example the Share-to-Shomer and paste flow, a Play-approved notification-listener declaration, or a family build installed over a cable with `adb`). Until a route is proven on a physical phone, v1 may reduce to paste and share. On an emulator the background alert works (`docs/proof/`).
 - **Gmail access** for a non-published app may be limited to test users **[verify]**.
 - **Privacy and consent.** Messages are personal data. Needs a clear consent model and data minimization.
 - **Platform competition.** Google and WhatsApp are building scam alerts. Differentiate on Israel-specific coverage, Hebrew, the family loop, and the official-route action.
@@ -222,6 +223,9 @@ Targets are proposals to agree on, set before measuring so the result can't be r
 - Integration with official reporting channels (e.g., the 119 hotline).
 
 ## 11. Data sources
+
+Market and competitor research (2026-11-25), with sources and how solid each figure is: `docs/research/market.md`.
+
 
 - Public warnings from Israel's National Cyber Directorate and the police (as reported by Israeli media).
 - Official websites and apps of the organizations in the directory. Each entry carries a `verified` flag and a check date in `shomer/data/directory.json`. **Limitation:** the entries do not yet carry a per-entry source URL, so a reader cannot re-check them independently; adding them is the next data task. A directory test checks that every verified entry has a check date and that the Python and Android copies are identical.

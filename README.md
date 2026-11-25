@@ -69,7 +69,7 @@ Claude (an AI assistant) wrote the code, the tests, the CI and first drafts of t
 | `docs/reviews/` | The five role-play reviews of the third round (QA, product, hiring manager, security, design) |
 | `docs/proof/` | Emulator screenshots, recording and notification text from the last green run |
 | `docs/index.html` | Static demo for GitHub Pages, built by `tools/build_demo.py` from the real engine |
-| `docs/research/` | Interview notes (three people, one family) |
+| `docs/research/` | Interview notes (three people, one family) and market research with sources (`market.md`) |
 | `shomer/` | Python engine, directory (`data/directory.json`), local demo server and Hebrew UI |
 | `app/` | Android app (Kotlin): SMS receiver, notification listener, alerts, history, share target |
 | `eval/` | Corpus and evaluation script |
