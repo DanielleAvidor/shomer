@@ -8,7 +8,7 @@ Shomer is a background checker for older adults in Israel. It does not guess wit
 
 *The notification above is real output: an Android 13 emulator in CI received a fake scam SMS and Shomer raised it ([evidence](docs/proof/)).*
 
-**Try it:** live demo (a phone lock screen that checks sample messages; the static copy checks only the examples; goes live once Pages is switched on, see `.github/workflows/pages.yml`) · [product requirements](docs/PRD.md) · [what the five reviewers rejected](docs/reviews/)
+**Try it:** [live demo](https://danielleavidor.github.io/shomer/) (a phone lock screen that checks sample messages; the static copy checks only the examples) · [product requirements](docs/PRD.md) · [what the five reviewers rejected](docs/reviews/)
 
 > **Status:** the engine, the 11 verified directory entries, the Hebrew web demo and the tests run; the Android app builds and passes its unit tests in CI, and on an emulator in CI a scam SMS raises one alert and an ordinary message raises none. It has **not** run on a physical phone: the first real phone blocked the install. There is no real-user data beyond three oral interviews in one family.
 

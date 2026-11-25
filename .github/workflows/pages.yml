@@ -1,7 +1,10 @@
 name: Demo site
 
-# Run by hand (Actions > Demo site > Run workflow) after the one-time setup. Publishes docs/ (the static demo) to GitHub Pages. One-time setup in the repository: Settings > Pages > Source: "GitHub Actions".
+# Pages is enabled (Settings > Pages > Source: GitHub Actions); every change to the demo redeploys it. Publishes docs/ (the static demo) to GitHub Pages. One-time setup in the repository: Settings > Pages > Source: "GitHub Actions".
 on:
+  push:
+    branches: [main]
+    paths: ["docs/index.html", "docs/fonts/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
