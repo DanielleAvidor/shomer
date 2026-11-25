@@ -34,7 +34,7 @@ SHIM = """<script>
   const T = %s;
   const json = (o, s = 200) => new Response(JSON.stringify(o), {status: s, headers: {"Content-Type": "application/json"}});
   const unknown = {applicable: false, verdict: "cant_verify", headline_he: "הדמו הזה בודק רק את ההודעות לדוגמה",
-    advice_he: "כדי לבדוק כל הודעה, מריצים את הדמו המלא על המחשב: python -m shomer.server. ההוראות בעמוד הפרויקט בגיטהאב.",
+    advice_he: "האתר הזה בודק רק את ההודעות לדוגמה. את הגרסה המלאה, שבודקת כל הודעה, מריצים על המחשב לפי ההוראות בעמוד הפרויקט בגיטהאב.",
     reasons_he: [], links: [], claimed_orgs: [], signals_he: [], signal_ids: [], steps_he: [], certain: false};
   window.fetch = async (u, o = {}) => {
     const body = o.body ? JSON.parse(o.body) : {};
@@ -43,7 +43,16 @@ SHIM = """<script>
       if (!r) return json(u === "/api/check" ? unknown : {error: true}, u === "/api/check" ? 200 : 500);
       const out = {...r}; out.alert = body.channel === "sms" ? r.alert : r.alert_strict; return json(out);
     }
-    if (u === "/api/guardian") return json({counts: {dont_click: 0, cant_verify: 0, matches_official: 0}, alerts: [], recent: [], settings: {name: "", relation: "", consented: false, external_ai: false}});
+    if (u === "/api/guardian") {
+      const now = Math.floor(Date.now() / 1000);
+      return json({counts: {dont_click: 1, cant_verify: 1, matches_official: 1},
+        alerts: [{id: 1, ts: now - 240, verdict: "dont_click", org: "דואר ישראל", host: "israelpost.paliet.top", tapped: false, handled: false, certain: true}],
+        recent: [
+          {id: 3, ts: now - 1500, verdict: "matches_official", org: "", host: "", tapped: false, handled: false, certain: false},
+          {id: 2, ts: now - 900, verdict: "cant_verify", org: "", host: "", tapped: false, handled: false, certain: false},
+          {id: 1, ts: now - 240, verdict: "dont_click", org: "דואר ישראל", host: "israelpost.paliet.top", tapped: false, handled: false, certain: true}],
+        settings: {name: "סבתא רחל", relation: "סבתא", consented: true, external_ai: false}});
+    }
     if (u === "/api/settings") return json({name: body.name || "", relation: body.relation || "", consented: !!body.consented, external_ai: false});
     return json({ok: true});
   };
@@ -53,7 +62,9 @@ SHIM = """<script>
 
 out = html.replace("/static/fonts/", "fonts/")
 out = out.replace("בדמו הזה ההודעה נבדקת בשרת שרץ על המחשב שלכם, והטקסט שלה לא נשמר.",
-                  "זהו דמו סטטי: הוא בודק רק את ההודעות לדוגמה. כדי לבדוק כל הודעה, מריצים את הדמו המלא על המחשב (python -m shomer.server).")
+                  "זהו דמו סטטי: הוא בודק רק את ההודעות לדוגמה. את הגרסה המלאה, שבודקת כל הודעה, מריצים על המחשב לפי ההוראות בעמוד הפרויקט בגיטהאב.")
+out = out.replace("בן המשפחה שהוגדר רואה כאן רק את מה שבחרתם לשתף, ואף פעם לא את תוכן ההודעות.",
+                  "בן המשפחה שהוגדר רואה כאן רק את מה שבחרתם לשתף, ואף פעם לא את תוכן ההודעות. (באתר הזה: נתוני דוגמה.)")
 out = out.replace("<script>", SHIM + "<script>", 1)
 dest = ROOT / "docs"
 (dest / "fonts").mkdir(exist_ok=True)
