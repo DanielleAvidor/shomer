@@ -13,7 +13,7 @@
 | **Bet** | Copy that trusted check at the moment the message arrives: compare the link with the organization's official domain, look at what the message asks for, and warn on its own in plain Hebrew. It never says "safe". |
 | **Why it can win** | It verifies against an official source instead of guessing, it is built around Israeli institutions and Hebrew, and it closes a family loop that generic scam filters do not. Not yet compared hands-on with competitors (section 8). |
 | **Built and proven** | A rule engine with 11 verified organizations, a Hebrew demo, an Android app, 160 tests, and an emulator run in CI where a scam SMS raises one alert and an ordinary message none (`docs/proof/`). |
-| **Not proven** | No run on a physical phone (the first one blocked the install); no real-user data beyond three interviews in one family; accuracy on real messages unknown. |
+| **Not proven** | No run on a physical phone (the first one blocked the install); no real-user data beyond two short oral questionnaires in one family (plus the builder's own self-report); accuracy on real messages unknown. |
 | **Biggest risk** | Distribution. Current phones may not let an app outside the Play Store read SMS (section 9). |
 | **Next decision** | Prove an install route on a physical phone, then run the one-week test with five older adults, three outside the family (section 8). Continue only if the targets in section 7 are met. |
 
@@ -94,7 +94,7 @@ The relative who today answers "is this real?". Working assumptions **[Hypothesi
 
 ### Differentiators to test (hypotheses)
 1. **Verify against an official source, then route to it.** A curated directory of Israeli institutions and a one-tap "open the official site or app".
-2. **Independence first, family loop optional.** [Hypothesis, weakened; and the family loop is no longer unique, since Phishy offers one] All three people interviewed declined alerts about themselves (section 14), so the product leads with "the phone checks and warns me" and treats the family loop as an opt-in extra, not the core differentiator.
+2. **Independence first, family loop optional.** [Hypothesis, weakened; and the family loop is no longer unique, since Phishy offers one] Both older women asked declined alerts about themselves, and one wanted alerts about her own mother only when the danger is certain (section 14), so the product leads with "the phone checks and warns me" and treats the family loop as an opt-in extra, not the core differentiator.
 3. **Designed for older adults.** Large text, one button, a calm tone.
 
 **Before claiming any difference publicly:** run the same real messages through Phishy, ScanMySMS, Fisherman and Google Messages and record how each behaves.
@@ -244,7 +244,7 @@ Market and competitor research (2026-11-25), with sources and how solid each fig
 | Trusted Directory | 11 of 16 entries verified: Israel Post, Carmel Tunnels, the police fines service (one gov.il path), Bank Leumi, Bank Hapoalim, Discount, Mizrahi-Tefahot, National Insurance, Israel Electric Corporation, Clalit, Maccabi. Unverified (kept so lookalikes can be caught): Kvish 6, Bit, PayPal, Tax Authority, Home Front Command |
 | Web demo (Hebrew, RTL) | Built and exercised in a browser at phone and desktop widths. A static copy for GitHub Pages is built from the real engine (`tools/build_demo.py`); it can check only the example messages |
 | Android app (Kotlin) | Builds and passes unit tests in CI; the Kotlin engine matches the Python engine on 490 messages (`tools/kotlin-parity`); on an Android 13 emulator in CI one scam SMS raises one alert and an ordinary one none (`docs/proof/`). Running it on the emulator found two crashes that unit tests could not see (Android's regex differs from the JVM's). **Not run on a physical phone** |
-| Real-message evaluation, interviews, user comprehension test | Not started beyond three oral interviews in one family; see section 8 |
+| Real-message evaluation, interviews, user comprehension test | Not started beyond two short oral questionnaires in one family and the builder's self-report; see section 8 |
 
 Open technical questions for the Android build: whether any installable route exists on current phones (section 9); behavior of Android's "restricted settings" for sideloaded apps; Gmail API access for a non-published app.
 
@@ -262,7 +262,7 @@ Decisions already made and built into the code (`shomer/advisor.py`):
 Not built: any real advisor. Testing one needs an API key and network access, and accuracy would need its own evaluation against real messages.
 
 
-## 14. First user research (pilot oral questionnaires, three people in one family)
+## 14. First user research (two pilot oral questionnaires in one family, plus the builder's self-report)
 
 On 2026-11-21 one older woman (the builder's grandmother, Android, SMS and WhatsApp) answered a short oral questionnaire about suspicious messages, read aloud by the builder. Full notes and limits: `docs/research/interview-01-grandmother.md`.
 
@@ -336,7 +336,7 @@ What it shows and what it does not: the nine sample messages were written by me 
 
 ## 19. How this was built and what was cut
 
-Direction, research and product rules are mine; Claude wrote the code and first drafts. Simulated-user reviews found real bugs but are not user research. The only user evidence is three oral interviews in one family. What I cut on purpose: AI-decided verdicts, an agent that signs in to accounts, iPhone background checking, full WhatsApp reading, any "safe" badge, and more directory entries than I could verify. See the README for the short version.
+Direction, research and product rules are mine; Claude wrote the code and first drafts. Simulated-user reviews found real bugs but are not user research. The only user evidence is two short oral questionnaires in one family. What I cut on purpose: AI-decided verdicts, an agent that signs in to accounts, iPhone background checking, full WhatsApp reading, any "safe" badge, and more directory entries than I could verify. See the README for the short version.
 
 
 ## 20. Threat model
