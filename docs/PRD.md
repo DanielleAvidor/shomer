@@ -1,6 +1,6 @@
 # Shomer (working title) — Product Requirements (v0.3 draft)
 
-> **Status (one line, used everywhere):** the engine, the 11 verified directory entries, the Hebrew web demo and the tests run; the Android app builds and passes its unit tests in CI, and on an emulator in CI a scam SMS raises one alert and an ordinary message raises none (evidence in `docs/proof/`). It has **not** run on a physical phone: the first real phone blocked the install (see section 9). There is no real-user data beyond three oral interviews in one family. Items marked **[Hypothesis]** are not validated. The name is a placeholder.
+> **Status (one line, used everywhere):** the engine, the 11 verified directory entries, the Hebrew web demo and the tests run; the Android app builds and passes its unit tests in CI, and on an emulator in CI a scam SMS raises one alert and an ordinary message raises none (evidence in `docs/proof/`). It has **not** run on a physical phone: the first real phone blocked the install (see section 9). There is no real-user data beyond five short oral conversations (two from my immediate family and three others) and an anonymous survey with 6 answers. Items marked **[Hypothesis]** are not validated. The name is a placeholder.
 
 
 
@@ -11,9 +11,9 @@
 | **Problem** | Older adults in Israel get fake messages that impersonate institutions they trust, and many click before they ask anyone. The usual protection is a relative who happens to be available. |
 | **Who** | First the older adult; second the relative who is asked today. Setup is done once by the relative, with the older adult's consent. |
 | **Bet** | Copy that trusted check at the moment the message arrives: compare the link with the organization's official domain, look at what the message asks for, and warn on its own in plain Hebrew. It never says "safe". |
-| **Why it can win** | It verifies against an official source instead of guessing, it is built around Israeli institutions and Hebrew, and it closes a family loop that generic scam filters do not. Not yet compared hands-on with competitors (section 8). |
+| **Why it can win** | It verifies against an official source instead of guessing, and it is built around Israeli institutions and Hebrew. Not yet compared hands-on with competitors (section 8). |
 | **Built and proven** | A rule engine with 11 verified organizations, a Hebrew demo, an Android app, 160 tests, and an emulator run in CI where a scam SMS raises one alert and an ordinary message none (`docs/proof/`). |
-| **Not proven** | No run on a physical phone (the first one blocked the install); no real-user data beyond three short oral conversations (two in one family, one with a friend's grandmother) plus the builder's own self-report; accuracy on real messages unknown. |
+| **Not proven** | No run on a physical phone (the first one blocked the install); no real-user data beyond five short oral conversations (two from my immediate family and three others) plus the builder's own self-report; accuracy on real messages unknown. |
 | **Biggest risk** | Distribution. Current phones may not let an app outside the Play Store read SMS (section 9). |
 | **Next decision** | Prove an install route on a physical phone, then run the one-week test with five older adults, three outside the family (section 8). Continue only if the targets in section 7 are met. |
 
@@ -116,7 +116,7 @@ Platform vendors are expanding built-in detection and will likely make basic det
 | US-2 | P0 | As an older adult, I can open the official site or app in one tap. | When the organization is in the directory, the alert has a button to its official URL. |
 | US-3 | P0 | As an older adult, a lookalike link is stopped. | Official domain used as a prefix/subdomain of another domain, `@` tricks, punycode, IP links and brand-token lookalikes all return "Don't click". |
 | US-4 | P0 | As the system, I never reassure on weak evidence. | A link may only return "matches official" if: its directory entry is `verified` with a source; the message itself names that same organization (a link never vouches for itself); a shared domain such as gov.il matches only on a listed path; and the message does not also ask the reader to phone a number. |
-| US-5 | P2 (was P0) | As a guardian, I'm told when a high-confidence risky message arrives, **only if the protected person agreed**. | A "Don't click" verdict creates an alert only after on-screen consent. Demoted from P0 because the only evidence (three interviews, one family) shows people decline alerts about themselves. Built, but not part of the core promise. |
+| US-5 | P2 (was P0) | As a guardian, I'm told when a high-confidence risky message arrives, **only if the protected person agreed**. | A "Don't click" verdict creates an alert only after on-screen consent. Demoted from P0 because the first two older women I asked declined alerts about themselves; a later survey was split (3 of 6 wanted alerts every time), so it stays optional. Built, but not part of the core promise. |
 | US-6 | P0 | As an older adult, my messages stay private. | Message text is never stored or sent by default; only verdict, organization id and link host leave the phone, and only if an HTTPS server address was configured with consent. The optional AI second opinion (section 13) is off by default and, if switched on, sends the message text to an outside service; it is not built. |
 | US-7 | P1 | As an older adult, I can share any message (WhatsApp, email) to the app to check it. | Android share target accepts plain text and shows the same verdict. |
 | US-8 | P1 | As a guardian, I can see what happened over time. | Family screen shows counts and recent events without message text. |
@@ -244,7 +244,7 @@ Market and competitor research (2026-11-25), with sources and how solid each fig
 | Trusted Directory | 11 of 16 entries verified: Israel Post, Carmel Tunnels, the police fines service (one gov.il path), Bank Leumi, Bank Hapoalim, Discount, Mizrahi-Tefahot, National Insurance, Israel Electric Corporation, Clalit, Maccabi. Unverified (kept so lookalikes can be caught): Kvish 6, Bit, PayPal, Tax Authority, Home Front Command |
 | Web demo (Hebrew, RTL) | Built and exercised in a browser at phone and desktop widths. A static copy for GitHub Pages is built from the real engine (`tools/build_demo.py`); it can check only the example messages |
 | Android app (Kotlin) | Builds and passes unit tests in CI; the Kotlin engine matches the Python engine on 490 messages (`tools/kotlin-parity`); on an Android 13 emulator in CI one scam SMS raises one alert and an ordinary one none (`docs/proof/`). Running it on the emulator found two crashes that unit tests could not see (Android's regex differs from the JVM's). **Not run on a physical phone** |
-| Real-message evaluation, interviews, user comprehension test | Not started beyond three short oral conversations (two in one family) and the builder's self-report; see section 8 |
+| Real-message evaluation, interviews, user comprehension test | Not started beyond five short oral conversations (two from my immediate family and three others) and the builder's self-report; see section 8 |
 
 Open technical questions for the Android build: whether any installable route exists on current phones (section 9); behavior of Android's "restricted settings" for sideloaded apps; Gmail API access for a non-published app.
 
@@ -262,7 +262,7 @@ Decisions already made and built into the code (`shomer/advisor.py`):
 Not built: any real advisor. Testing one needs an API key and network access, and accuracy would need its own evaluation against real messages.
 
 
-## 14. First user research (three short oral conversations, plus the builder's self-report)
+## 14. First user research (five short oral conversations, plus the builder's self-report)
 
 On 2026-11-21 one older woman (the builder's grandmother, Android, SMS and WhatsApp) answered a short oral questionnaire about suspicious messages, read aloud by the builder. Full notes and limits: `docs/research/interview-01-grandmother.md`.
 
@@ -285,13 +285,6 @@ Notes: `docs/research/questionnaire-02-mother.md`, `docs/research/self-report-03
 - **Family alerts:** neither wants alerts about herself. The mother wants alerts about her own mother, only for certain danger, and the grandmother agreed aloud. Built as: alerts only after on-screen consent and only for high-confidence results (`certain`).
 
 
-### Update after a fourth conversation (outside the family)
-Notes: `docs/research/interview-04-friends-grandmother.md`. A friend's grandmother, 77. Reported by the builder; no numbers recorded.
-
-- **Real harm, no warning sign.** She tapped two phishing links and once entered card details. She did not know they were fake, so she asked nobody. "Ask family" only helps after suspicion, and suspicion is what she lacked.
-- **Routine services are the weak point.** The messages usually imitate services she already uses, such as Israel Post, so they look normal. This supports the context question per organisation and a warning that names the organisation.
-- **Implication [Hypothesis, n=1 outside the family]:** the phone must speak first, not wait to be asked. It does not yet show that the warning would have stopped her.
-
 ### Changes made because of this
 - A link can be checked on its own: the real address is shown next to the official address.
 - A context question per organisation ("were you expecting a parcel from Israel Post?") with a short answer for yes and for no. It never calls anything safe.
@@ -299,7 +292,35 @@ Notes: `docs/research/interview-04-friends-grandmother.md`. A friend's grandmoth
 - Family alerts are limited to high-confidence scams.
 
 ### Still open
-Whether the app should check automatically on Android (needs the Android build), an iPhone share extension, deeper links into each organisation's personal area (needs verified official pages), and testing with people outside the family.
+Whether the app should check automatically on Android (needs the Android build), an iPhone share extension, deeper links into each organisation's personal area (needs verified official pages), and testing the product itself with people outside the family.
+
+### Update after a fourth conversation (outside the family)
+Notes: `docs/research/interview-04-friends-grandmother.md`. A friend's grandmother, 77. Reported by the builder; no numbers recorded.
+
+- **Real harm, no warning sign.** She tapped two phishing links and once entered card details. She did not know they were fake, so she asked nobody. "Ask family" only helps after suspicion, and suspicion is what she lacked.
+- **Routine services are the weak point.** The messages usually imitate services she already uses, such as Israel Post, so they look normal. This supports the context question per organisation and a warning that names the organisation.
+- **Implication [Hypothesis, n=1 outside the family]:** the phone must speak first, not wait to be asked. It does not yet show that the warning would have stopped her.
+
+
+### Update after a fifth conversation (an 81-year-old man)
+Notes: `docs/research/interview-05-man-81.md`. Outside the family, reported by the builder, no details recorded.
+
+- He has been scammed three times and does not suspect in the moment. He recently began sending suspicious-looking messages to his son. Most are ordinary, and he still missed one that was a scam.
+- **Implication [Hypothesis, n=1]:** relying on the person, or on a relative they forward to, costs the relative effort and still misses real scams. An automatic check should cut both. Not tested.
+
+### Update after a sixth conversation (a father, about his 9-year-old daughter)
+Notes: `docs/research/interview-06-parent-of-child-9.md`. A father, speaking about his child, reported by the builder.
+
+- **Blocking failed.** He tried to stop such messages reaching his daughter, but each one came from a different domain or number. This supports checking a link against an official-address list instead of maintaining a block list.
+- **New segment, not a decision.** A child can install malware by tapping a link, and the adult found out by chance. The family alert and warning wording are built for adults. Not in scope now.
+
+### Update after a survey and desk research (2026-11-27)
+Full write-up: `docs/research/synthesis.md`, `docs/research/threat-landscape.md`, totals in `docs/research/survey/results-summary.md`.
+
+- **Survey (n=6, anonymous, convenience sample):** 3 under 30, 2 aged 40-75, 1 over 75. Clearest warning: names the organisation and says where the link does not lead (3), plain verdict (3). Family alert: every time (3), only when clear (1), no (2). One over-75 respondent reported tapping a link and giving details or paying.
+- **Threat data (Israel):** a National Cyber Directorate survey in October 2026 found 67% of respondents got a suspicious text in the past month; 119 hotline reports were up 55% in 2025, 52% of them phishing. The police began sending real traffic tickets by SMS on 17 November 2026 and fake ones followed within days.
+- **What it changes:** it supports "speak first", never saying "safe", the context question, and an opt-in family alert. It adds one hypothesis to test: a short plain verdict above the specific reason in each warning.
+- **Limits:** six people, half under 30, self-reported; the over-75 survey answer and the 77-year-old conversation may be the same person (the survey is anonymous).
 
 ## 15. Languages
 
@@ -344,7 +365,7 @@ What it shows and what it does not: the nine sample messages were written by me 
 
 ## 19. How this was built and what was cut
 
-Direction, research and product rules are mine; Claude wrote the code and first drafts. Simulated-user reviews found real bugs but are not user research. The only user evidence is three short oral conversations (two in one family) and the builder's self-report. What I cut on purpose: AI-decided verdicts, an agent that signs in to accounts, iPhone background checking, full WhatsApp reading, any "safe" badge, and more directory entries than I could verify. See the README for the short version.
+Direction, research and product rules are mine; Claude wrote the code and first drafts. Simulated-user reviews found real bugs but are not user research. The only user evidence is five short oral conversations (two from my immediate family and three others) and the builder's self-report. What I cut on purpose: AI-decided verdicts, an agent that signs in to accounts, iPhone background checking, full WhatsApp reading, any "safe" badge, and more directory entries than I could verify. See the README for the short version.
 
 
 ## 20. Threat model

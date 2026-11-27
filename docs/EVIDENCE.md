@@ -39,3 +39,5 @@ python eval/run_eval.py
 
 An AI model deciding verdicts (a rule engine gives the same answer for the same input and can be explained); an agent that signs in to accounts; iPhone background checking (not possible); reading WhatsApp in full (notifications only, from a short list of apps); a score or a "safe" badge (it would invite trust the tool has not earned); unverified organizations as "official" (they stay "could not check"; related domains that are probably but not provably the organization's are kept as `unconfirmed_domains`).
 
+## User and threat research
+Survey answers (anonymous, n=6): `docs/research/survey/`. Five short conversations and a self-report: `docs/research/`. Combined findings with confidence labels: `docs/research/synthesis.md`. External figures with sources: `docs/research/threat-landscape.md`.
