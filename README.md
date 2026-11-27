@@ -13,10 +13,10 @@
 
 ## What I decided, and what I learned
 
-I chose the problem and the user (relatives who get these messages and often tap first), ran two short oral questionnaires (with my grandmother and my mother) and wrote my own self-report, and set the rules the product holds to: it never says "safe", it always points to the official route, it speaks up only when there is a reason, and a family alert is opt-in. I rejected an agent that signs in to people's accounts. When the first demo needed the app opened to show a warning, I sent it back, because the point is a warning without opening anything. Claude (an AI assistant) wrote the code, tests and CI under that direction and ran the reviewer agents.
+I chose the problem and the user (relatives who get these messages and often tap first), ran three short oral conversations (with my grandmother, my mother and a friend's grandmother) and wrote my own self-report, and set the rules the product holds to: it never says "safe", it always points to the official route, it speaks up only when there is a reason, and a family alert is opt-in. I rejected an agent that signs in to people's accounts. When the first demo needed the app opened to show a warning, I sent it back, because the point is a warning without opening anything. Claude (an AI assistant) wrote the code, tests and CI under that direction and ran the reviewer agents.
 
 What changed my mind:
-- **Neither of the two older women I asked wanted alerts about herself.** My mother did want alerts about my grandmother, but only when the danger is certain. So the family alert became an optional extra and the phone checking for the person herself became the core.
+- **Neither of the first two older women I asked wanted alerts about herself.** My mother did want alerts about my grandmother, but only when the danger is certain. So the family alert became an optional extra and the phone checking for the person herself became the core.
 - **The first real phone refused to install the app** (Play Protect). Distribution, not detection, is the biggest risk, and the PRD now says so.
 - **Running on an emulator found two crashes** that unit tests could not see (Android's regular expressions are stricter than the JVM's).
 - **Market research found a close competitor**, Phishy, with the same idea and a family mode. What is left of my claim is how Shomer decides (a verified official-domain list, "can't verify" instead of a score), and I have not yet tested that it matters to users.
@@ -30,7 +30,7 @@ The engine, 11 verified organizations, the Hebrew demo and an Android app work. 
 - **Never run on a physical phone.** The first real phone blocked the install. Another route is needed; see PRD section 9.
 - **Accuracy on real messages is unknown.** The test messages were written by the person who wrote the rules, so they guard against regressions but do not measure accuracy. 0 misses in 36 scams is still consistent with a true miss rate of about 8%.
 - **Friction.** 4 of 19 legitimate messages raise an SMS alert, and 7 of 12 legitimate messages with a link end as "could not check".
-- **Thin user evidence:** two short oral questionnaires with two women in one family, plus my own self-report as the builder. The AI reviewer roles are role-play, not user research.
+- **Thin user evidence:** three short oral conversations (two women in my family and one friend's grandmother, 77, who entered her card details on a fake site), plus my own self-report as the builder. The AI reviewer roles are role-play, not user research.
 - **Directory:** 11 of 16 organizations verified; Kvish 6, Bit, PayPal, the Tax Authority and the Home Front Command are not.
 - **Open gaps:** callback-number and QR scams, shortened links (not followed), organizations outside the directory.
 
