@@ -16,7 +16,7 @@ An alert is raised on its own only when there is a reason: for SMS on "don't cli
 
 | Claim | How it is checked | Where |
 |---|---|---|
-| The engine returns the right outcome on lookalikes, redirects, path tricks, hidden characters, spread-out and fullwidth letters | 160 Python tests plus a 55-message corpus (36 scams, 19 legitimate), run on every push | `tests/`, `eval/`, workflow *Tests* |
+| The engine returns the right outcome on lookalikes, redirects, path tricks, hidden characters, spread-out and fullwidth letters | 165 Python tests plus a 55-message corpus (36 scams, 19 legitimate), run on every push | `tests/`, `eval/`, workflow *Tests* |
 | Scams are never reported as "official address" | Corpus: 0 of 36. Hard "don't click": 25 of 36; the rest are "could not check" | `python eval/run_eval.py` |
 | The Android engine behaves like the Python engine | The Kotlin file is compiled on a plain JVM and run on 490 messages: 0 differences | `tools/kotlin-parity/`, workflow *Tests* |
 | The Android app builds and its unit tests pass | GitHub Actions | workflow *Android debug APK* |

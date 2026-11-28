@@ -12,7 +12,7 @@
 | **Who** | First the older adult; second the relative who is asked today. Setup is done once by the relative, with the older adult's consent. |
 | **Bet** | Copy that trusted check at the moment the message arrives: compare the link with the organization's official domain, look at what the message asks for, and warn on its own in plain Hebrew. It never says "safe". |
 | **Why it can win** | It verifies against an official source instead of guessing, and it is built around Israeli institutions and Hebrew. Not yet compared hands-on with competitors (section 8). |
-| **Built and proven** | A rule engine with 11 verified organizations, a Hebrew demo, an Android app, 160 tests, and an emulator run in CI where a scam SMS raises one alert and an ordinary message none (`docs/proof/`). |
+| **Built and proven** | A rule engine with 11 verified organizations, a Hebrew demo, an Android app, 165 tests, and an emulator run in CI where a scam SMS raises one alert and an ordinary message none (`docs/proof/`). |
 | **Not proven** | No run on a physical phone (the first one blocked the install); no real-user data beyond five short oral conversations (two from my immediate family and three others) plus the builder's own self-report; accuracy on real messages unknown. |
 | **Biggest risk** | Distribution. Current phones may not let an app outside the Play Store read SMS (section 9). |
 | **Next decision** | Prove an install route on a physical phone, then run the one-week test with five older adults, three outside the family (section 8). Continue only if the targets in section 7 are met. |
@@ -240,7 +240,7 @@ Market and competitor research (2026-11-25), with sources and how solid each fig
 
 | Part | Status |
 |---|---|
-| Verification engine (Python) | Built, 160 tests passing (`python -m pytest`), run in CI on every push. Checks link destination and message content (urgency, threats, requests for card details or codes, prizes, payment, family impersonation). Hardened after the third review: open redirects and `..` paths on official domains, odd characters in hosts, IPv6, Cyrillic lookalikes in bare domains, letters spread with spaces, fullwidth letters, slow patterns, very long text |
+| Verification engine (Python) | Built, 165 tests passing (`python -m pytest`), run in CI on every push. Checks link destination and message content (urgency, threats, requests for card details or codes, prizes, payment, family impersonation). Hardened after the third review: open redirects and `..` paths on official domains, odd characters in hosts, IPv6, Cyrillic lookalikes in bare domains, letters spread with spaces, fullwidth letters, slow patterns, very long text |
 | Trusted Directory | 11 of 16 entries verified: Israel Post, Carmel Tunnels, the police fines service (one gov.il path), Bank Leumi, Bank Hapoalim, Discount, Mizrahi-Tefahot, National Insurance, Israel Electric Corporation, Clalit, Maccabi. Unverified (kept so lookalikes can be caught): Kvish 6, Bit, PayPal, Tax Authority, Home Front Command |
 | Web demo (Hebrew, RTL) | Built and exercised in a browser at phone and desktop widths. A static copy for GitHub Pages is built from the real engine (`tools/build_demo.py`); it can check only the example messages |
 | Android app (Kotlin) | Builds and passes unit tests in CI; the Kotlin engine matches the Python engine on 490 messages (`tools/kotlin-parity`); on an Android 13 emulator in CI one scam SMS raises one alert and an ordinary one none (`docs/proof/`). Running it on the emulator found two crashes that unit tests could not see (Android's regex differs from the JVM's). **Not run on a physical phone** |
@@ -317,10 +317,10 @@ Notes: `docs/research/interview-06-parent-of-child-9.md`. A father, speaking abo
 ### Update after a survey and desk research (2026-11-27)
 Full write-up: `docs/research/synthesis.md`, `docs/research/threat-landscape.md`, totals in `docs/research/survey/results-summary.md`.
 
-- **Survey (n=6, anonymous, convenience sample):** 3 under 30, 2 aged 40-75, 1 over 75. Clearest warning: names the organisation and says where the link does not lead (3), plain verdict (3). Family alert: every time (3), only when clear (1), no (2). One over-75 respondent reported tapping a link and giving details or paying.
+- **Survey (n=6, anonymous, convenience sample):** 3 under 30, 2 aged 40-75, 1 over 75. Clearest warning: names the organisation and says where the link does not lead (3), plain verdict (3). Family alert: every time (3), only when clear (1), no (2). One respondent reported tapping a link and giving details or paying.
 - **Threat data (Israel):** a National Cyber Directorate survey in October 2026 found 67% of respondents got a suspicious text in the past month; 119 hotline reports were up 55% in 2025, 52% of them phishing. The police began sending real traffic tickets by SMS on 17 November 2026 and fake ones followed within days.
 - **What it changes:** it supports "speak first", never saying "safe", the context question, and an opt-in family alert. It adds one hypothesis to test: a short plain verdict above the specific reason in each warning.
-- **Limits:** six people, half under 30, self-reported; the over-75 survey answer and the 77-year-old conversation may be the same person (the survey is anonymous).
+- **Limits:** six people, half under 30, self-reported; the survey is anonymous, so some respondents may also have been interviewed.
 
 ## 15. Languages
 

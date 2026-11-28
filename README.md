@@ -13,18 +13,18 @@
 
 ## What I decided, and what I learned
 
-I chose the problem and the user (relatives who get these messages and often tap first), ran five short oral conversations (with my grandmother, my mother, a friend's grandmother, an 81-year-old man, and a father about his 9-year-old daughter), an anonymous survey (6 answers) and wrote my own self-report, and set the rules the product holds to: it never says "safe", it always points to the official route, it speaks up only when there is a reason, and a family alert is opt-in. I rejected an agent that signs in to people's accounts. When the first demo needed the app opened to show a warning, I sent it back, because the point is a warning without opening anything. Claude (an AI assistant) wrote the code, tests and CI under that direction and ran the reviewer agents.
+I chose the problem and the user: relatives who get these messages and often tap first. I ran five short oral conversations (my grandmother, my mother, a friend's grandmother, an 81-year-old man, and a father about his 9-year-old daughter) and an anonymous survey (6 answers), and wrote my own self-report. Then I set the rules the product holds to: it never says "safe", it always points to the official route, it speaks up only when there is a reason, and a family alert is opt-in. I rejected an agent that signs in to people's accounts. When the first demo needed the app opened to show a warning, I sent it back, because the point is a warning without opening anything. Claude (an AI assistant) wrote the code, tests and CI under that direction and ran the reviewer agents.
 
 What changed my mind:
 - **Neither of the first two older women I asked wanted alerts about herself.** My mother did want alerts about my grandmother, but only when the danger is certain. So the family alert became an optional extra and the phone checking for the person herself became the core.
-- **The people who get hurt often did not suspect anything.** A 77-year-old tapped two fake links and once entered her card details, because the messages looked like services she uses every day (Israel Post). An 81-year-old man who has been scammed three times now forwards messages to his son; most are harmless, and he still missed the one that was a scam. Asking family only helps once you suspect something, so Shomer speaks first. This is two conversations plus one anonymous survey answer, so it is a direction, not a result ([synthesis](docs/research/synthesis.md)).
+- **Some people who got hurt may not have suspected anything.** A 77-year-old tapped two fake links and once entered her card details, because the messages looked like services she uses every day (Israel Post). An 81-year-old man who has been scammed three times now forwards messages to his son; most are harmless, and he still missed the one that was a scam. Asking family only helps once you suspect something, so Shomer speaks first. This is two conversations plus one anonymous survey answer, so it is a direction, not a result ([synthesis](docs/research/synthesis.md)).
 - **The first real phone refused to install the app** (Play Protect). Distribution, not detection, is the biggest risk, and the PRD now says so.
 - **Running on an emulator found two crashes** that unit tests could not see (Android's regular expressions are stricter than the JVM's).
 - **Market research found a close competitor**, Phishy, with the same idea and a family mode. What is left of my claim is how Shomer decides (a verified official-domain list, "can't verify" instead of a score), and I have not yet tested that it matters to users.
 
 ## Where it stands
 
-The engine, 11 verified organizations, the Hebrew demo and an Android app work. There are 160 Python tests, and on every push the Kotlin version is checked against the Python one on 490 messages (0 differences). Details and how to run it: [docs/EVIDENCE.md](docs/EVIDENCE.md).
+The engine, 11 verified organizations, the Hebrew demo and an Android app work. There are 165 Python tests, and on every push the Kotlin version is checked against the Python one on 490 messages (0 differences). Details and how to run it: [docs/EVIDENCE.md](docs/EVIDENCE.md).
 
 ## Limits
 

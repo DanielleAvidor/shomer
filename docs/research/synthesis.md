@@ -23,7 +23,7 @@ The people are not independent of each other and none is a random sample. Nothin
 
 **F1. Knowing "do not tap" is not the problem.** In the survey, three of six checked the message themselves on the official site or app, two of them also asked an AI chat, and three ignored it (one of them also checked). In conversations the older women asked a relative and then an AI chat. Confidence: medium that people say they are careful; the evidence is self-reported.
 
-**F2. The failure is not suspecting.** The 77-year-old tapped two fake links and once entered card details. She did not know they were fake, so she asked nobody. She sends things to her granddaughter only when something already looks wrong to her. The one survey respondent over 75 reported asking someone, tapping the link, and giving details or paying, and answered that a family alert would help every time. Two sources, both over 75, both harmed, but I cannot rule out that they are the same person, because the survey is anonymous. Confidence: low to medium that this pattern exists; low on how common it is. It is consistent with the official advice assuming suspicion (threat landscape, point 4).
+**F2. The failure is not suspecting.** The 77-year-old tapped two fake links and once entered card details. She did not know they were fake, so she asked nobody. She sends things to her granddaughter only when something already looks wrong to her. One anonymous survey answer also reported tapping a link and giving details or paying. I cannot tell whether that person was also interviewed, because the survey is anonymous. Confidence: low to medium that this pattern exists; low on how common it is. It is consistent with the official advice assuming suspicion (threat landscape, point 4).
 
 **F2b. Forwarding to family is costly and still misses scams.** An 81-year-old man, scammed three times, now sends suspicious-looking messages to his son. Most are ordinary, and he missed one real scam. Confidence: low (one person, reported by me).
 
@@ -33,12 +33,12 @@ The people are not independent of each other and none is a random sample. Nothin
 
 **F4. People want a warning that names the organisation, and also a plain verdict.** The clearest warning was "do not tap, this link does not lead to the Israel Post site" for 3 of 6, and a plain verdict for the other 3 ("this is a scam" 2, "dangerous message" 1). My grandmother preferred the naming version too. Confidence: low. The split suggests offering both a short verdict and the specific reason.
 
-**F5. Family alerts split opinion.** Three of six want an alert to a relative every time, one only when the danger is clear, two no. The first two older women I asked did not want alerts about themselves, while the over-75 survey respondent did. Confidence: low. This supports keeping the family alert optional and opt-in, and not assuming either way.
+**F5. Family alerts split opinion.** Three of six want an alert to a relative every time, one only when the danger is clear, two no. The first two older women I asked did not want alerts about themselves, while some survey respondents did. Confidence: low. This supports keeping the family alert optional and opt-in, and not assuming either way.
 
 **F6. [Hypothesis, not tested] The effort of checking, and missed real messages.** My view is that careful checking is costly, and that ignoring everything can lead to missing real messages. Supporting signs: five of six survey respondents either checked manually or ignored the message (one did both), and the police now send real tickets by SMS. The 81-year-old man's pattern (forwarding mostly ordinary messages, still missing a real scam) fits the idea that effort goes to the wrong messages. I did not ask anyone directly whether they missed a real message because of this, so it stays a hypothesis.
 
 ## 3. Where the sources disagree
-- My grandmother declined alerts to family; the over-75 respondent wants them every time. One person each, so I do not treat either as the answer.
+- My grandmother declined alerts to family; one survey respondent wants them every time. One person each, so I do not treat either as the answer.
 - Survey respondents report mostly careful behaviour, while the 77-year-old reports harm. The survey sample is young and online, so it likely under-represents the people most at risk.
 
 ## 4. What this means for Shomer

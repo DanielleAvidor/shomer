@@ -16,4 +16,4 @@ Date: 2026-11-27. Not related to the builder. Notes are the builder's summary; n
 ## Limits
 - One person, reported by the builder; no details on what each scam was, how much was lost, or on which channel.
 - Older adult self-reports of past events can be incomplete.
-- He may or may not be the over-75 respondent in the anonymous survey; I cannot tell.
+- He may or may not have also answered the anonymous survey; I cannot tell.
