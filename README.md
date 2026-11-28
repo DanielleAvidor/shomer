@@ -35,6 +35,23 @@ The engine, 11 verified organizations, the Hebrew demo and an Android app work. 
 - **Directory:** 11 of 16 organizations verified; Kvish 6, Bit, PayPal, the Tax Authority and the Home Front Command are not.
 - **Open gaps:** callback-number and QR scams, shortened links (not followed), organizations outside the directory.
 
+## Run it from the command line
+
+The engine is plain Python with no Android code, so it runs without a phone or an emulator.
+
+```
+python -m shomer.cli --text "בנק הפועלים: חשבונך נחסם. https://bit.ly/x"
+python -m shomer.cli --input samples/messages.json --output out.json
+python -m shomer.cli --input samples/messages.json --directory my_directory.json
+python -m pytest -q
+```
+
+`samples/` has 5 synthetic scam messages and 5 ordinary ones (`messages.json`, `labels.json`, `expected_output.json`). Each result has a `verdict` (`dont_click`, `matches_official` or `cant_verify`), whether the background agent would `alert`, the matched signals, and the reasons. There is no "is scam" flag and no score on purpose: Shomer never says a message is safe. The organizations, shorteners and signals live in `shomer/data/directory.json`, and `--directory` loads another file, so a rule change can be tested without touching the code.
+
+## Roadmap: red team and blue team
+
+Not built yet. The idea: one agent writes new scam messages, another proposes changes to the directory file, and the CLI scores each change on a held-out set (scams caught, false alarms on ordinary messages). The command line and the external directory file are the first two pieces.
+
 ## Next steps
 
 1. Install on a physical phone, or prove another route.
@@ -44,4 +61,4 @@ The engine, 11 verified organizations, the Hebrew demo and an Android app work. 
 
 ## Repository
 
-`docs/` PRD, evidence, research, reviews, demo and proof · `shomer/` Python engine, directory, local server · `app/` Android app (Kotlin) · `eval/` test messages · `tools/` parity check, emulator test, demo builder · `survey/` the Hebrew survey script (results in `docs/research/survey/`) · `.github/workflows/` tests, APK build, emulator run, demo deploy
+`docs/` PRD, evidence, research, reviews, demo and proof · `shomer/` Python engine, directory, local server · `app/` Android app (Kotlin) · `eval/` test messages · `samples/` demo messages for the command line · `tools/` parity check, emulator test, demo builder · `survey/` the Hebrew survey script (results in `docs/research/survey/`) · `.github/workflows/` tests, APK build, emulator run, demo deploy

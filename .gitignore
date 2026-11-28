@@ -7,3 +7,7 @@ __pycache__/
 build/
 local.properties
 *.apk
+.env
+*.keystore
+*.jks
+samples/actual_output.json

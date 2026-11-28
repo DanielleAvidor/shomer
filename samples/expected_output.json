@@ -1,0 +1,206 @@
+[
+  {
+    "id": "s1",
+    "verdict": "dont_click",
+    "applicable": true,
+    "alert": true,
+    "certain": true,
+    "signals": [],
+    "claimed_orgs": [
+      "israel_post"
+    ],
+    "links": [
+      {
+        "url": "https://israelpost-track.example/il",
+        "verdict": "dont_click",
+        "reasons": [
+          "הכתובת מנסה לחקות את דואר ישראל אבל היא לא האתר שלהם"
+        ]
+      }
+    ],
+    "reasons_he": [
+      "הכתובת מנסה לחקות את דואר ישראל אבל היא לא האתר שלהם"
+    ]
+  },
+  {
+    "id": "s2",
+    "verdict": "cant_verify",
+    "applicable": true,
+    "alert": true,
+    "certain": false,
+    "signals": [
+      "threat"
+    ],
+    "claimed_orgs": [
+      "bank_hapoalim"
+    ],
+    "links": [
+      {
+        "url": "http://bit.ly/fake-bank",
+        "verdict": "cant_verify",
+        "reasons": [
+          "זה קישור קצר, ואי אפשר לראות לאן הוא באמת מוביל"
+        ]
+      }
+    ],
+    "reasons_he": [
+      "זה קישור קצר, ואי אפשר לראות לאן הוא באמת מוביל",
+      "ההודעה מאיימת על חסימה, קנס או עיקול"
+    ]
+  },
+  {
+    "id": "s3",
+    "verdict": "dont_click",
+    "applicable": true,
+    "alert": true,
+    "certain": true,
+    "signals": [
+      "payment"
+    ],
+    "claimed_orgs": [
+      "kvish6"
+    ],
+    "links": [
+      {
+        "url": "www.kvish6-pay.example",
+        "verdict": "dont_click",
+        "reasons": [
+          "הכתובת מנסה לחקות את כביש 6 (דרך ארץ) אבל היא לא האתר שלהם"
+        ]
+      }
+    ],
+    "reasons_he": [
+      "הכתובת מנסה לחקות את כביש 6 (דרך ארץ) אבל היא לא האתר שלהם",
+      "ההודעה מבקשת תשלום"
+    ]
+  },
+  {
+    "id": "s4",
+    "verdict": "dont_click",
+    "applicable": true,
+    "alert": true,
+    "certain": true,
+    "signals": [
+      "prize"
+    ],
+    "claimed_orgs": [
+      "tax_authority"
+    ],
+    "links": [
+      {
+        "url": "https://gov-refund.example/tax",
+        "verdict": "dont_click",
+        "reasons": [
+          "ההודעה מציגה את עצמה כרשות המסים, אבל הקישור פותח לאתר אחר"
+        ]
+      }
+    ],
+    "reasons_he": [
+      "ההודעה מציגה את עצמה כרשות המסים, אבל הקישור פותח לאתר אחר",
+      "ההודעה מבטיחה כסף או פרס, וזה סימן נפוץ להונאה"
+    ]
+  },
+  {
+    "id": "s5",
+    "verdict": "dont_click",
+    "applicable": true,
+    "alert": true,
+    "certain": true,
+    "signals": [
+      "payment",
+      "family_intro"
+    ],
+    "claimed_orgs": [],
+    "links": [
+      {
+        "url": "https://bit-pay.example",
+        "verdict": "dont_click",
+        "reasons": [
+          "הכתובת מנסה לחקות את ביט אבל היא לא האתר שלהם"
+        ]
+      }
+    ],
+    "reasons_he": [
+      "הכתובת מנסה לחקות את ביט אבל היא לא האתר שלהם",
+      "ההודעה פותחת כמו הודעה ממישהו מהמשפחה עם מספר חדש",
+      "ההודעה מבקשת תשלום"
+    ]
+  },
+  {
+    "id": "l1",
+    "verdict": "cant_verify",
+    "applicable": false,
+    "alert": false,
+    "certain": false,
+    "signals": [],
+    "claimed_orgs": [],
+    "links": [],
+    "reasons_he": []
+  },
+  {
+    "id": "l2",
+    "verdict": "cant_verify",
+    "applicable": true,
+    "alert": false,
+    "certain": false,
+    "signals": [],
+    "claimed_orgs": [],
+    "links": [
+      {
+        "url": "https://www.bankhapoalim.co.il",
+        "verdict": "cant_verify",
+        "reasons": [
+          "הכתובת שייכת לבנק הפועלים, אבל ההודעה לא אומרת מי שלח אותה"
+        ]
+      }
+    ],
+    "reasons_he": [
+      "הכתובת שייכת לבנק הפועלים, אבל ההודעה לא אומרת מי שלח אותה"
+    ]
+  },
+  {
+    "id": "l3",
+    "verdict": "cant_verify",
+    "applicable": false,
+    "alert": false,
+    "certain": false,
+    "signals": [],
+    "claimed_orgs": [],
+    "links": [],
+    "reasons_he": []
+  },
+  {
+    "id": "l4",
+    "verdict": "matches_official",
+    "applicable": true,
+    "alert": false,
+    "certain": false,
+    "signals": [],
+    "claimed_orgs": [
+      "israel_post"
+    ],
+    "links": [
+      {
+        "url": "https://www.israelpost.co.il",
+        "verdict": "matches_official",
+        "reasons": [
+          "הכתובת תואמת לאתר הרשמי של דואר ישראל"
+        ]
+      }
+    ],
+    "reasons_he": [
+      "הכתובת תואמת לאתר הרשמי של דואר ישראל"
+    ]
+  },
+  {
+    "id": "l5",
+    "verdict": "cant_verify",
+    "applicable": false,
+    "alert": false,
+    "certain": false,
+    "signals": [],
+    "claimed_orgs": [],
+    "links": [],
+    "reasons_he": []
+  }
+]
